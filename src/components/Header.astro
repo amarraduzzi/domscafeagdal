@@ -47,7 +47,10 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
       </nav>
     )}
 
-    <div class="flex items-center gap-0.5 sm:gap-1 shrink-0 rounded-full p-0.5" style="border: 1px solid var(--color-border)">
+    <!-- Desktop only: the original always-visible pill row. Untouched —
+         the request was specifically about the mobile layout, where three
+         pills were competing with the logo for header width. -->
+    <div class="hidden lg:flex items-center gap-0.5 sm:gap-1 shrink-0 rounded-full p-0.5" style="border: 1px solid var(--color-border)">
       {langLinks.map((l) => (
         <a
           href={l.href}
@@ -74,11 +77,48 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
     )}
 
     {!minimal && (
-      <button id="mobile-nav-toggle" class="lg:hidden shrink-0" aria-label="Menu" aria-expanded="false">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--color-text-primary)">
-          <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
-        </svg>
-      </button>
+      <!-- Mobile only: one compact "current language" trigger sitting
+           right next to the hamburger, instead of three permanent pills.
+           Tapping it drops down the other two choices — same idea as the
+           hamburger's own panel, just a smaller one anchored under this
+           button. -->
+      <div class="lg:hidden relative shrink-0 flex items-center gap-2">
+        <button
+          id="lang-switch-toggle"
+          class="flex items-center gap-1 rounded-full pl-2.5 pr-1.5 py-1 text-[11px] font-bold transition-colors"
+          style="border: 1px solid var(--color-border); color: var(--color-text-primary)"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-label={LANGUAGE_NATIVE_NAME[lang]}
+        >
+          {LANGUAGE_LABEL[lang]}
+          <svg id="lang-switch-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform duration-200" style="color: var(--color-accent)">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <div
+          id="lang-switch-panel"
+          class="hidden flex-col absolute right-0 top-full mt-2 py-1 rounded-xl overflow-hidden min-w-[8rem] z-50"
+          style="background-color: var(--color-surface); border: 1px solid var(--color-border); box-shadow: 0 12px 28px rgba(0,0,0,0.45)"
+        >
+          {langLinks.map((l) => (
+            <a
+              href={l.href}
+              aria-current={lang === l.lang ? 'true' : undefined}
+              class="px-4 py-2.5 text-sm font-semibold transition-colors"
+              style={`color: ${lang === l.lang ? 'var(--color-accent)' : 'var(--color-text-primary)'}`}
+            >
+              {LANGUAGE_NATIVE_NAME[l.lang]}
+            </a>
+          ))}
+        </div>
+
+        <button id="mobile-nav-toggle" class="shrink-0" aria-label="Menu" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--color-text-primary)">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
     )}
   </div>
 
@@ -136,6 +176,43 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
     const progress = document.getElementById('header-progress');
     const toggle = document.getElementById('mobile-nav-toggle');
     const panel = document.getElementById('mobile-nav-panel');
+    const langToggle = document.getElementById('lang-switch-toggle');
+    const langPanel = document.getElementById('lang-switch-panel');
+    const langCaret = document.getElementById('lang-switch-caret');
+
+    function closeLangPanel() {
+      langPanel?.classList.add('hidden');
+      langPanel?.classList.remove('flex');
+      langToggle?.setAttribute('aria-expanded', 'false');
+      langCaret?.style.setProperty('transform', 'rotate(0deg)');
+    }
+
+    langToggle?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = langPanel?.classList.contains('hidden');
+      if (isHidden) {
+        langPanel?.classList.remove('hidden');
+        langPanel?.classList.add('flex');
+        langToggle.setAttribute('aria-expanded', 'true');
+        langCaret?.style.setProperty('transform', 'rotate(180deg)');
+        // Closing the hamburger's own nav panel when the language dropdown
+        // opens — both are absolutely positioned near each other and
+        // having both open at once on a small screen looks cluttered.
+        panel?.classList.remove('open');
+        toggle?.setAttribute('aria-expanded', 'false');
+      } else {
+        closeLangPanel();
+      }
+    });
+
+    // Any click outside the dropdown closes it — otherwise it stays open
+    // forever once opened, since it isn't inside a <form> or anything with
+    // native dismiss behavior.
+    document.addEventListener('click', (e) => {
+      if (langPanel && !langPanel.classList.contains('hidden') && !langPanel.contains(e.target as Node) && e.target !== langToggle) {
+        closeLangPanel();
+      }
+    });
 
     function onScroll() {
       if (!header || !progress) return;
@@ -154,6 +231,7 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
     toggle?.addEventListener('click', () => {
       const isOpen = panel?.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+      if (isOpen) closeLangPanel();
     });
   });
 </script>
