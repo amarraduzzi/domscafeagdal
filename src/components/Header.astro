@@ -1,7 +1,8 @@
 ---
-// Dom's Café logo — hotlinked from the client's existing ordering site's
-// own image host (i.ibb.co) for now; swap for a locally-hosted asset once
-// Dom's supplies the logo file directly (see the note in site.config.ts).
+// Dom's Café logo — real logo file supplied by the client (cup + pizza
+// mark, "Dom's Café • Pizzeria" wordmark), stored locally with its
+// background made transparent so it sits cleanly on the header at any
+// scroll state (transparent, then the surface color once scrolled).
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { LANGUAGES, LANGUAGE_LABEL, LANGUAGE_NATIVE_NAME, localizedPath, arrow, t, type Language } from '../i18n/languages';
@@ -29,7 +30,7 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
 <header id="site-header" class="sticky top-0 z-40 transition-all duration-300" data-scrolled="false">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
     <a href={localizedPath('/', lang)} class="flex items-center gap-2 min-w-0 shrink">
-      <img src="https://i.ibb.co/XZcDMxZh/Chat-GPT-Image-21-jul-2026-11-49-42.webp" alt={siteConfig.identity.name} class="h-10 sm:h-12 w-auto rounded" />
+      <img src="/images/dom/logo.webp" alt={siteConfig.identity.name} class="h-10 sm:h-12 w-auto object-contain" />
     </a>
 
     {!minimal && (

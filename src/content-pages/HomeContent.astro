@@ -112,7 +112,7 @@ const restaurantJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CafeOrCoffeeShop',
   name: siteConfig.identity.name,
-  image: 'https://i.ibb.co/XZcDMxZh/Chat-GPT-Image-21-jul-2026-11-49-42.webp',
+  image: `${siteConfig.identity.siteUrl.replace(/\/$/, '')}/images/dom/logo.webp`,
   '@id': siteConfig.identity.siteUrl,
   url: siteConfig.identity.siteUrl,
   telephone: siteConfig.contact.phoneDisplay,

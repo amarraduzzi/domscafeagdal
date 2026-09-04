@@ -47,7 +47,15 @@ const rtl = isRTL(lang);
 // order-landing-page engine had with its typography fields before that got
 // fixed). This is what makes site.config.ts genuinely the one file you edit
 // per client for color, not just documentation that looks like it works.
-const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary};--color-accent:${siteConfig.colors.accent};--color-background:${siteConfig.colors.background};}`;
+// !important on each property (not just relying on placement in <head>):
+// Astro auto-appends its own bundled stylesheet <link> for global.css at
+// the very end of <head> at build time, after anything written here in
+// the template — no matter where this block sits in the markup, that
+// auto-injected link always lands later in the final HTML and would win
+// the cascade on a plain, non-!important :root rule. This is what caused
+// the whole site to render in the template's original red instead of
+// Dom's brown/gold. !important makes the override win unconditionally.
+const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary} !important;--color-accent:${siteConfig.colors.accent} !important;--color-background:${siteConfig.colors.background} !important;}`;
 ---
 <!doctype html>
 <html lang={lang} dir={rtl ? 'rtl' : 'ltr'}>
@@ -61,7 +69,6 @@ const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary};--col
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <Seo title={title} description={description} path={path} lang={lang} ogImage={ogImage} jsonLd={jsonLd} noindex={noindex} />
-    <style set:html={colorOverrides} />
     <!-- Astro's built-in View Transitions — final punch-list item #2. Turns
          page-to-page navigation into a soft cross-fade instead of a hard
          reload, at near-zero cost (no framework runtime, this is a native
@@ -82,6 +89,12 @@ const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary};--col
       href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600;6..96,700&family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- See the colorOverrides comment above: this relies on !important,
+         not on being last in the markup — Astro auto-appends global.css's
+         own bundled <link> at the very end of the built <head> regardless
+         of source position, so plain source-order alone can't be trusted
+         to win the cascade here. -->
+    <style set:html={colorOverrides} />
   </head>
   <body>
     <div class="grain-overlay"></div>
