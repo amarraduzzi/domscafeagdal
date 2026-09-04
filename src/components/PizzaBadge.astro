@@ -128,6 +128,10 @@ const basil = [
        stamp's holder was sitting in the opening the whole time. -->
   <div class="stamp-frame"></div>
 
+  <!-- A quick bright flash right at the moment of impact, on top of the
+       two expanding rings — the combination is what sells "just got
+       stamped" rather than "just faded in". -->
+  <div class="stamp-impact-flash"></div>
   <div class="impact-ring"></div>
   <div class="impact-ring impact-ring--delay"></div>
 
@@ -224,20 +228,37 @@ const basil = [
     pointer-events: none;
   }
 
-  /* ---------- Impact rings at the moment the stamp lands ---------- */
-  /* Delays pushed back ~0.5s from the previous (v3) timing so they fire
-     right as the hero-wide oven doors (1.1s animation + 0.35s delay =
-     ~1.45s to fully open) finish, instead of mid-swing. */
+  /* ---------- Impact flash + rings at the moment the stamp lands ---------- */
+  /* Timing retimed again for the hero door's new slower 1.7s open
+     (0.35s delay + 1.7s duration = ~2.05s to fully open) — the stamp now
+     slams at 2.1s, ~0.05-0.18s into that for the flash/rings so they hit
+     right as the stamp visually makes contact, same offset logic as
+     before just shifted later. HomeContent.astro's synthesized "thud"
+     sound is timed to this same 2.15s mark. */
+  .stamp-impact-flash {
+    position: absolute;
+    inset: -14%;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(255, 240, 210, 0.95) 0%, rgba(255, 210, 130, 0.5) 45%, transparent 72%);
+    opacity: 0;
+    animation: stamp-impact-flash 0.35s ease-out 2.15s both;
+    pointer-events: none;
+  }
+  @keyframes stamp-impact-flash {
+    0% { opacity: 0; transform: scale(0.6); }
+    35% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1.3); }
+  }
   .impact-ring {
     position: absolute;
     inset: 0;
     border-radius: 9999px;
     border: 2px solid var(--color-accent);
     opacity: 0;
-    animation: impact-ring-pulse 0.6s ease-out 1.55s both;
+    animation: impact-ring-pulse 0.6s ease-out 2.15s both;
   }
   .impact-ring--delay {
-    animation-delay: 1.68s;
+    animation-delay: 2.28s;
   }
   @keyframes impact-ring-pulse {
     0% { transform: scale(0.55); opacity: 0.85; }
@@ -252,8 +273,8 @@ const basil = [
     align-items: center;
     justify-content: center;
     opacity: 0;
-    animation: stamp-slam 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s both,
-      stamp-idle-pulse 3.2s ease-in-out 2s infinite;
+    animation: stamp-slam 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s both,
+      stamp-idle-pulse 3.2s ease-in-out 2.6s infinite;
   }
   @keyframes stamp-slam {
     0% { transform: translateY(-46px) scale(0.35) rotate(-16deg); opacity: 0; }
@@ -267,6 +288,7 @@ const basil = [
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .stamp-impact-flash,
     .impact-ring {
       display: none;
     }

@@ -235,7 +235,7 @@ const path = localizedPath('/', lang);
     <PizzaBadge
       lang={lang}
       href={localizedPath('/avis', lang)}
-      class={`absolute z-20 w-40 h-40 top-4 left-1/2 -translate-x-1/2 sm:top-1/2 sm:left-auto sm:translate-x-0 sm:-translate-y-1/2 sm:w-64 sm:h-64 lg:w-72 lg:h-72 sm:bottom-auto ${stampSide}`}
+      class={`absolute z-20 w-52 h-52 top-4 left-1/2 -translate-x-1/2 sm:top-1/2 sm:left-auto sm:translate-x-0 sm:-translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96 sm:bottom-auto ${stampSide}`}
     />
 
     <!-- The whole hero as an oven — take two on the door mechanism. The
@@ -590,6 +590,77 @@ const path = localizedPath('/', lang);
         );
         observer.observe(video);
       });
+
+      // Stamp "thud" — a short, synthesized impact sound (low thump +
+      // filtered paper-tap noise burst) timed to the moment PizzaBadge's
+      // stamp actually lands (see its stamp-slam/impact-ring delays,
+      // retimed alongside the hero door's new slower 1.7s open so the two
+      // still land together). Generated with the Web Audio API rather
+      // than an audio file — nothing to host, nothing to fetch.
+      //
+      // Browsers block audio from playing before the visitor has
+      // interacted with the page at all (autoplay policy, not something
+      // this can work around) — so on a completely fresh, click-free
+      // first load the very first play can stay silent; it plays
+      // normally on any later navigation or once the visitor has clicked
+      // anything on the page. `data-wired` mirrors the carousel/video
+      // guards above so a soft navigation back to Home doesn't stack up
+      // duplicate timers.
+      document.querySelectorAll<HTMLElement>('#home-hero').forEach((hero) => {
+        if (hero.dataset.stampSoundWired === 'true') return;
+        hero.dataset.stampSoundWired = 'true';
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        function playStampThud() {
+          try {
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            const ctx = new AudioCtx();
+            const now = ctx.currentTime;
+
+            // Low thump
+            const osc = ctx.createOscillator();
+            const oscGain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(58, now + 0.13);
+            oscGain.gain.setValueAtTime(0.0001, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.55, now + 0.01);
+            oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+            osc.connect(oscGain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.26);
+
+            // Papery tap: a short burst of filtered noise on top of the
+            // thump, so it reads as rubber-on-paper rather than a drum hit.
+            const bufferSize = Math.floor(ctx.sampleRate * 0.08);
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 1200;
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.32, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+            noise.start(now);
+          } catch {
+            // Web Audio unavailable/blocked — the visual stamp still
+            // lands fine without it.
+          }
+        }
+
+        // Hardcoded to match PizzaBadge.astro's impact-ring delay (2.15s)
+        // rather than reading the CSS — same trade-off as the rest of
+        // this hero's choreography (see the HomeContent.astro/
+        // PizzaBadge.astro comments on the door-open/stamp-slam timing).
+        window.setTimeout(playStampThud, 2150);
+      });
     });
   </script>
 </Layout>
@@ -666,7 +737,10 @@ const path = localizedPath('/', lang);
       linear-gradient(160deg, #e9ebed 0%, #c4c7cc 28%, #f0f1f2 45%, #a7abb1 64%, #d8dadd 100%);
     box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.28);
     backface-visibility: hidden;
-    animation: hero-door-open 1.15s cubic-bezier(0.7, 0, 0.3, 1) 0.35s both;
+    /* Slowed from 1.15s to 1.7s per client feedback ("iets langzamer") —
+       see the PizzaBadge.astro comment for how its stamp timing was
+       retimed to match this new, later completion (~2.05s). */
+    animation: hero-door-open 1.7s cubic-bezier(0.7, 0, 0.3, 1) 0.35s both;
   }
   .oven-door-steel-hinge-shadow {
     position: absolute;
