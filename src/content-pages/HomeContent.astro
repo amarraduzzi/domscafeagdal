@@ -14,13 +14,23 @@ import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { menuHighlights } from '../content/menu-highlights';
 import { testimonials, aggregateRating } from '../content/testimonials';
-import { t, arrow, localizedPath, type Language } from '../i18n/languages';
+import { t, arrow, localizedPath, isRTL, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
 
 interface Props {
   lang?: Language;
 }
 const { lang = 'fr' } = Astro.props;
+const rtl = isRTL(lang);
+// Baked in at build time instead of a runtime [dir="rtl"] CSS override —
+// tried that first, and it turned out Astro/Vite's per-page CSS chunking
+// dropped the base (non-media-query) rule from some pages' bundles even
+// though it was correctly compiled into the source stylesheet, which is a
+// much worse failure mode (silently wrong on some pages, fine on others)
+// than just computing the right static classes here, once, at build time.
+const stampSide = rtl
+  ? 'left-3 sm:left-16 lg:left-24'
+  : 'right-3 sm:right-16 lg:right-24';
 
 const primaryKeyword = t(siteConfig.identity.primaryKeyword, lang);
 const city = t(place.city, lang);
@@ -207,16 +217,19 @@ const path = localizedPath('/', lang);
          shape, mostly reinforcing the photo's own dark left side. -->
     <div class="hidden sm:block absolute inset-0" style="background: linear-gradient(100deg, var(--color-background) 0%, rgba(11,11,12,0.6) 28%, rgba(11,11,12,0.2) 50%, transparent 72%)"></div>
 
-    <!-- "Best pizza in Agdal" seal — dropped into the open photo space
-         that isn't carrying any text: high on the right on mobile (below
-         the header, above where the title sits), lower-right on desktop
-         (the photo has nothing else going on down there). Links through
-         to the reviews page — a claim like this should have somewhere to
-         back it up, not just float there. -->
+    <!-- "Best pizza in Agdal" starburst — take two. The first pass was a
+         small medal tucked in a corner; the brief was explicit that this
+         needs to hit as a real wow-moment the instant the hero loads, not
+         something a visitor has to notice on their own. So: big, and
+         placed where the eye actually lands — vertically centered over
+         the photo on desktop (not a corner afterthought), high and large
+         on mobile where the photo has open ceiling space above the title.
+         Links through to the reviews page — a claim this loud should have
+         somewhere to back it up. -->
     <PizzaBadge
       lang={lang}
       href={localizedPath('/avis', lang)}
-      class="absolute z-20 w-20 h-20 top-20 right-4 sm:top-auto sm:right-10 sm:bottom-12 sm:w-36 sm:h-36 lg:w-40 lg:h-40 lg:right-14"
+      class={`absolute z-20 w-36 h-36 top-24 sm:top-1/2 sm:-translate-y-1/2 sm:w-56 sm:h-56 lg:w-64 lg:h-64 ${stampSide}`}
     />
 
     <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-14 sm:pt-0 pb-24 sm:pb-0 w-full">
