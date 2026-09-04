@@ -9,6 +9,7 @@
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
+import PizzaBadge from '../components/PizzaBadge.astro';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { menuHighlights } from '../content/menu-highlights';
@@ -205,6 +206,18 @@ const path = localizedPath('/', lang);
          gallery-biryani section) — reused here instead of a new gradient
          shape, mostly reinforcing the photo's own dark left side. -->
     <div class="hidden sm:block absolute inset-0" style="background: linear-gradient(100deg, var(--color-background) 0%, rgba(11,11,12,0.6) 28%, rgba(11,11,12,0.2) 50%, transparent 72%)"></div>
+
+    <!-- "Best pizza in Agdal" seal — dropped into the open photo space
+         that isn't carrying any text: high on the right on mobile (below
+         the header, above where the title sits), lower-right on desktop
+         (the photo has nothing else going on down there). Links through
+         to the reviews page — a claim like this should have somewhere to
+         back it up, not just float there. -->
+    <PizzaBadge
+      lang={lang}
+      href={localizedPath('/avis', lang)}
+      class="absolute z-20 w-20 h-20 top-20 right-4 sm:top-auto sm:right-10 sm:bottom-12 sm:w-36 sm:h-36 lg:w-40 lg:h-40 lg:right-14"
+    />
 
     <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-14 sm:pt-0 pb-24 sm:pb-0 w-full">
       <div class="max-w-xl">
