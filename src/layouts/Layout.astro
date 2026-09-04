@@ -3,7 +3,6 @@ import { ViewTransitions } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Seo from '../components/Seo.astro';
-import WhatsAppButton from '../components/WhatsAppButton.astro';
 import { siteConfig } from '../config/site.config';
 import { isRTL, type Language } from '../i18n/languages';
 import '../styles/global.css';
@@ -22,10 +21,6 @@ interface Props {
   // onze website"-link toe onderaan i.p.v. de volledige Footer.
   minimalHeader?: boolean;
   showFooter?: boolean;
-  // Ook uit op de QR-tafelkaart: een vaste WhatsApp-knop bovenop een pagina
-  // die zelf straks een eigen bestel-flow krijgt (cart-knop rechtsonder)
-  // zou beide met elkaar laten concurreren voor dezelfde duim-ruimte.
-  showWhatsApp?: boolean;
 }
 const {
   title,
@@ -37,7 +32,6 @@ const {
   lang = 'fr',
   minimalHeader = false,
   showFooter = true,
-  showWhatsApp = true,
 } = Astro.props;
 const rtl = isRTL(lang);
 
@@ -103,7 +97,6 @@ const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary} !impo
       <slot />
     </main>
     {showFooter && <Footer lang={lang} />}
-    {showWhatsApp && <WhatsAppButton lang={lang} />}
 
     <script>
       // Sitewide scroll-reveal — see the [data-reveal] rules in global.css
