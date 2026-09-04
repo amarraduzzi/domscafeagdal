@@ -1,0 +1,517 @@
+---
+// Home page body — one shared template for all three languages. The
+// per-locale route files (src/pages/index.astro, src/pages/en/index.astro,
+// src/pages/ar/index.astro) are just `<HomeContent lang="..." />`; every
+// piece of markup, motion and structure lives here exactly once instead of
+// being copy-pasted three times, so a future design change only has to
+// happen in one place. See src/i18n/languages.ts + src/i18n/ui.ts for the
+// translation plumbing this relies on.
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+import Ornament from '../components/Ornament.astro';
+import { siteConfig } from '../config/site.config';
+import { getOrderCtaLabel } from '../lib/nav';
+import { menuHighlights } from '../content/menu-highlights';
+import { testimonials, aggregateRating } from '../content/testimonials';
+import { t, arrow, localizedPath, type Language } from '../i18n/languages';
+import { common, place } from '../i18n/ui';
+
+interface Props {
+  lang?: Language;
+}
+const { lang = 'fr' } = Astro.props;
+
+const primaryKeyword = t(siteConfig.identity.primaryKeyword, lang);
+const city = t(place.city, lang);
+const country = t(place.country, lang);
+const orderCtaLabel = getOrderCtaLabel(lang);
+
+// Page-specific copy — kept next to the markup that uses it rather than in
+// the shared src/i18n/ui.ts, since none of this repeats on other pages.
+const copy = {
+  // Keyword-first: the search term goes as far forward in the title as
+  // possible (Google + AI answer engines both weight this), brand name
+  // last as a trust signal.
+  metaTitle: {
+    fr: `${primaryKeyword} à ${city} — ${siteConfig.identity.name}`,
+    en: `${primaryKeyword} in ${city} — ${siteConfig.identity.name}`,
+    ar: `${primaryKeyword} في ${city} — ${siteConfig.identity.name}`,
+  },
+  metaDescription: {
+    fr: `${siteConfig.identity.name} est un ${primaryKeyword} au cœur d'Agdal, ${city}. Boissons, petits-déjeuners, crêpes, pizzas et plats faits maison, à commander en ligne ou sur place.`,
+    en: `${siteConfig.identity.name} is a ${primaryKeyword} in the heart of Agdal, ${city}. Drinks, breakfasts, crêpes, pizzas and homemade dishes, for delivery or pickup.`,
+    ar: `${siteConfig.identity.name} هو ${primaryKeyword} في قلب أكدال، ${city}. مشروبات، فطور، كريب، بيتزا وأطباق منزلية الصنع، للطلب أونلاين أو في المقهى.`,
+  },
+  // Same keyword-first reasoning as metaTitle above, applied to the H1.
+  heroTitle: {
+    fr: `${primaryKeyword} au cœur d'Agdal — ${siteConfig.identity.name}`,
+    en: `${primaryKeyword} in the heart of Agdal — ${siteConfig.identity.name}`,
+    ar: `${primaryKeyword} في قلب أكدال — ${siteConfig.identity.name}`,
+  },
+  heroSubtitle: {
+    fr: "Boissons, petits-déjeuners, crêpes, pizzas et plats faits maison, servis depuis des années au cœur d'Agdal.",
+    en: 'Drinks, breakfasts, crêpes, pizzas and homemade dishes, served for years in the heart of Agdal.',
+    ar: 'مشروبات، فطور، كريب، بيتزا وأطباق منزلية الصنع، نقدّمها منذ سنوات في قلب أكدال.',
+  },
+  selectionKicker: { fr: 'Sélection', en: 'Selection', ar: 'مختارات' },
+  incontournablesTitle: { fr: 'Nos incontournables', en: 'Customer favorites', ar: 'أطباقنا المميزة' },
+  platSignatureKicker: { fr: 'Formule signature', en: 'Signature formula', ar: 'الوجبة المميزة' },
+  platSignatureQuote: {
+    fr: "La formule Dom's : boisson chaude, jus d'orange, toasts, œufs, fromage et charcuterie — notre petit-déjeuner le plus commandé.",
+    en: "The Dom's formula: hot drink, orange juice, toasts, eggs, cheese and cold cuts — our most-ordered breakfast.",
+    ar: "وجبة Dom's: مشروب ساخن، عصير برتقال، توست، بيض، جبن ولحوم باردة — فطورنا الأكثر طلبًا.",
+  },
+  ambianceKicker: { fr: "L'ambiance", en: 'The ambiance', ar: 'الأجواء' },
+  ambianceTitle: {
+    fr: "Depuis des années au cœur d'Agdal",
+    en: 'Years in the heart of Agdal',
+    ar: 'منذ سنوات في قلب أكدال',
+  },
+  ambianceAlt1: {
+    fr: "L'intérieur chaleureux de Dom's Café",
+    en: "Dom's Café's warm interior",
+    ar: 'الأجواء الدافئة داخل Dom\'s Café',
+  },
+  whyUs: [
+    {
+      title: { fr: 'Fait maison', en: 'Homemade', ar: 'صناعة منزلية' },
+      body: {
+        fr: 'Boissons, snacks et plats préparés maison — jamais réchauffés, jamais à l\'avance.',
+        en: 'Drinks, snacks and dishes made in-house — never reheated, never made in advance.',
+        ar: 'مشروبات ووجبات خفيفة وأطباق محضّرة في المكان — لا تُسخّن أبدًا ولا تُجهّز مسبقًا.',
+      },
+    },
+    {
+      title: { fr: "Depuis des années au cœur d'Agdal", en: 'Years in the heart of Agdal', ar: 'منذ سنوات في قلب أكدال' },
+      body: {
+        fr: "Une adresse installée du quartier, où l'on se retrouve pour un café comme pour un repas complet.",
+        en: 'An established neighborhood spot, for a quick coffee as much as a full meal.',
+        ar: 'عنوان راسخ في الحي، يجمع الأصدقاء لتناول القهوة أو وجبة كاملة.',
+      },
+    },
+    {
+      title: { fr: 'Commande directe', en: 'Direct ordering', ar: 'طلب مباشر' },
+      body: {
+        fr: `Commande en ligne reliée directement à notre cuisine à ${city} — préparation immédiate.`,
+        en: `Online orders go straight to our kitchen in ${city} — prepared right away.`,
+        ar: `الطلبات الإلكترونية تصل مباشرة إلى مطبخنا في ${city} — تُحضَّر فورًا.`,
+      },
+    },
+  ],
+  reviewAriaLabel: { fr: 'Avis', en: 'Review', ar: 'تقييم' },
+} satisfies Record<string, { fr: string; en: string; ar: string } | { title: any; body: any }[]>;
+
+// Restaurant + LocalBusiness structured data — the single most important
+// JSON-LD block on the whole site, since Home is what Google/AI engines
+// most often use to resolve "what is this place, where is it, is it open".
+// Address/locality stay romanized (siteConfig.identity.city/country) across
+// all three language versions — mixing scripts here risks breaking
+// schema.org and Google Maps matching, which matters more than the display
+// language of the address field.
+const restaurantJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CafeOrCoffeeShop',
+  name: siteConfig.identity.name,
+  image: 'https://i.ibb.co/XZcDMxZh/Chat-GPT-Image-21-jul-2026-11-49-42.webp',
+  '@id': siteConfig.identity.siteUrl,
+  url: siteConfig.identity.siteUrl,
+  telephone: siteConfig.contact.phoneDisplay,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: siteConfig.contact.address,
+    addressLocality: siteConfig.identity.city,
+    addressCountry: siteConfig.identity.country,
+  },
+  servesCuisine: 'Café',
+  priceRange: '€',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: aggregateRating.ratingValue,
+    reviewCount: aggregateRating.reviewCount,
+  },
+};
+
+const highlightItems = menuHighlights.flatMap((c) => c.items).slice(0, 4);
+
+const ratingRounded = Math.round(Number(aggregateRating.ratingValue));
+const ratingStars = '★'.repeat(ratingRounded) + '☆'.repeat(5 - ratingRounded);
+
+const path = localizedPath('/', lang);
+---
+<Layout
+  title={t(copy.metaTitle, lang)}
+  description={t(copy.metaDescription, lang)}
+  path={path}
+  lang={lang}
+  ogImage="/images/dom/interior-1.jpg"
+  jsonLd={restaurantJsonLd}
+>
+  <!-- Hero — two different crops/photos, not one image stretched or
+       cropped by CSS. Desktop's negative space is on the LEFT (title
+       sits beside the food). Mobile (v4) is the chef facing camera at his
+       table — only the very top strip (~11% of the frame, above the
+       pendant lights) is naturally dark; the rest of the shot is lit and
+       detailed (brick wall, lights, face, the dish), so this needed the
+       LIGHTEST gradient assist of any version so far, just enough to seat
+       the title against the header.
+
+       This source photo also had a fabricated restaurant logo embroidered
+       on the chef's jacket ("Saffron ... Fusion Cuisine") — not Indian
+       Flavors. Before resizing for the site, that patch of fabric was
+       cloned over and the real logo-mark.webp was screen-blended on in
+       its place, so what ships is the client's actual mark, not a
+       fictional brand.
+
+       object-top on the mobile image still matters: real phone browsers
+       (address bar + tab strip + gesture bar eating into the viewport)
+       render this section shorter than a clean devtools viewport does,
+       and object-cover's default crop is centered — a short container
+       would crop evenly off the top AND bottom, pulling the dark zone up
+       and out of frame. Pinning to the top keeps the framing stable
+       regardless of viewport height; any extra cropping comes off the
+       bottom (the dish) instead. -->
+
+  <!-- Fixed to exactly one screen on mobile (100svh — the SMALL viewport
+       height unit, i.e. the viewport with the browser's address/tab bars
+       at their most expanded) so the next section never peeks in on
+       first load, on any phone. This has to be a scoped <style> media
+       query rather than a Tailwind class: an inline style attribute would
+       out-specificity the sm:h-[92vh] class and break the desktop height,
+       and 100vh/100svh need to be two separate declarations (the second
+       silently no-ops on browsers that don't support svh yet, instead of
+       the whole rule being dropped as invalid).
+
+       items-center (not items-start) on purpose: pinning content to the
+       top left zero margin at the BOTTOM, and the site-wide floating
+       WhatsApp button (WhatsAppButton.astro) is `position: fixed; bottom:
+       20px; right: 18px` — a fixed element that doesn't know or care
+       where this section's content ends. Centering gives equal breathing
+       room top and bottom automatically, so content lands nowhere near
+       that button regardless of how a real device's text wraps; the
+       pb-24 below adds an extra explicit margin on top of that as a
+       second line of defense, since the button is real screen furniture,
+       not just "whatever's below the fold". -->
+  <section id="home-hero" class="relative sm:h-[92vh] flex items-center overflow-hidden">
+    <img src="/images/dom/interior-1.jpg" alt={t(copy.metaDescription, lang)} class="sm:hidden absolute inset-0 w-full h-full object-cover object-top" />
+    <img src="/images/dom/interior-1.jpg" alt={t(copy.metaDescription, lang)} class="hidden sm:block absolute inset-0 w-full h-full object-cover" />
+    <!-- Mobile overlay: light assist only — the photo itself is already
+         dark up top, this just adds a bit more contrast near the header
+         and tapers away well before the dish. -->
+    <div class="sm:hidden absolute inset-0" style="background: linear-gradient(180deg, rgba(11,11,12,0.4) 0%, rgba(11,11,12,0.24) 16%, rgba(11,11,12,0.08) 30%, transparent 44%)"></div>
+    <!-- Desktop overlay: same diagonal dark-corner treatment as the
+         "signature spotlight" band further down this page (see the
+         gallery-biryani section) — reused here instead of a new gradient
+         shape, mostly reinforcing the photo's own dark left side. -->
+    <div class="hidden sm:block absolute inset-0" style="background: linear-gradient(100deg, var(--color-background) 0%, rgba(11,11,12,0.6) 28%, rgba(11,11,12,0.2) 50%, transparent 72%)"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-14 sm:pt-0 pb-24 sm:pb-0 w-full">
+      <div class="max-w-xl">
+        <!-- text-shadow on mobile only: the fix that actually stops this
+             hero from needing a new gradient tweak every time the photo
+             changes. Contrast used to depend on exactly which pixels of
+             the photo happen to sit behind each line at each device's
+             real (chrome-shrunk) viewport height — fragile, as the last
+             few rounds proved. A shadow keeps every line readable against
+             ANY part of the photo, so swapping photos again won't
+             reopen this. Removed on desktop, where the photo's own dark
+             left side already does the job cleanly. -->
+        <span class="inline-block text-xs font-bold uppercase tracking-[0.3em] mb-3 [text-shadow:0_2px_10px_rgba(0,0,0,0.85)] sm:[text-shadow:none]" style="color: var(--color-accent)">
+          {city} · {country}
+        </span>
+        <h1 class="font-display text-[1.85rem] leading-[1.15] sm:text-5xl lg:text-6xl font-semibold tracking-tight [text-shadow:0_2px_14px_rgba(0,0,0,0.85)] sm:[text-shadow:none]" style="color: var(--color-text-primary)">
+          {t(copy.heroTitle, lang)}
+        </h1>
+        <p class="mt-3 text-sm sm:text-lg max-w-md [text-shadow:0_1px_8px_rgba(0,0,0,0.9)] sm:[text-shadow:none]" style="color: var(--color-text-muted)">
+          {t(copy.heroSubtitle, lang)}
+        </p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <Button href={orderCtaLabel.href} external variant="cta">{orderCtaLabel.label}</Button>
+          <Button href={siteConfig.contact.phoneHref} variant="outline">{t(common.nousAppeler, lang)}</Button>
+        </div>
+        <p class="mt-4 flex items-center gap-2 text-sm [text-shadow:0_1px_8px_rgba(0,0,0,0.9)] sm:[text-shadow:none]" style="color: var(--color-text-muted)">
+          <span style="color: var(--color-accent); letter-spacing: 1px; text-shadow: 0 1px 8px rgba(0,0,0,0.9)">{ratingStars}</span>
+          {aggregateRating.ratingValue}/5 · {aggregateRating.reviewCount} {t(common.avisGoogleSuffix, lang)}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu highlights -->
+  <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+    <div class="flex items-baseline justify-between mb-8 pb-3" style="border-bottom: 1px solid var(--color-border)">
+      <div>
+        <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-1" style="color: var(--color-accent)">{t(copy.selectionKicker, lang)}</span>
+        <h2 class="font-display text-2xl sm:text-3xl font-semibold" style="color: var(--color-text-primary)">{t(copy.incontournablesTitle, lang)}</h2>
+      </div>
+      <a href={localizedPath('/menu', lang)} class="text-sm font-bold" style="color: var(--color-accent)">{t(common.menuComplet, lang)} {arrow(lang)}</a>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {highlightItems.map((item, i) => (
+        <div
+          class="card-lift rounded-2xl overflow-hidden"
+          style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 80}ms`}
+          data-reveal
+        >
+          {item.image ? (
+            <div class="photo-frame aspect-square">
+              <img src={item.image} alt={item.imageAlt ? t(item.imageAlt, lang) : item.name} class="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ) : (
+            <div class="pt-5 px-5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="mb-1" style="color: var(--color-accent); opacity: 0.75">
+                <path d="M12 3c-1.5 3-4.5 4.5-4.5 8.5a4.5 4.5 0 009 0C16.5 7.5 13.5 6 12 3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+              </svg>
+            </div>
+          )}
+          <div class="p-5">
+            <h3 class="menu-item-name font-display font-semibold text-lg" style="color: var(--color-text-primary)">{item.name}</h3>
+            <p class="text-sm mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(item.description, lang)}</p>
+            <p class="menu-item-price mt-3 font-bold" style="color: var(--color-accent)">{item.priceMAD} MAD</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <Ornament />
+
+  <!-- Signature spotlight -->
+  <section class="relative min-h-[480px] sm:h-[78vh] overflow-hidden" data-reveal="scale">
+    <div class="ken-burns absolute inset-0">
+      <img
+        src="https://i.ibb.co/XZcDMxZh/Chat-GPT-Image-21-jul-2026-11-49-42.webp"
+        alt={t(copy.platSignatureQuote, lang)}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="lazy"
+      />
+    </div>
+    <!-- Gold gradient wash removed — client called it out as a "haze"
+         clouding an otherwise clean photo. Legibility for the text on the
+         left is now handled by text-shadow instead of a scrim over the
+         whole photo (see the hero section further up for the same
+         approach), so the image itself stays untouched. -->
+    <div class="relative z-10 h-full flex items-center max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="max-w-md">
+        <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.85)]" style="color: var(--color-accent)">{t(copy.platSignatureKicker, lang)}</span>
+        <p class="pull-quote [text-shadow:0_2px_14px_rgba(0,0,0,0.85)]">
+          {t(copy.platSignatureQuote, lang)}
+        </p>
+        <a href={localizedPath('/menu', lang)} class="inline-block mt-6 text-sm font-bold [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]" style="color: var(--color-accent)">{t(common.voirLeMenuComplet, lang)} {arrow(lang)}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ambiance mood board — mood/reference imagery. Used to sit right below
+       a small, unheaded 2-photo gallery (the real reservation-hero + naan
+       shots); that made for two photo grids back to back with nothing to
+       break up the rhythm, and those two photos already appear elsewhere
+       on the site (reservation hero, menu naan category) so the standalone
+       block added little. Removed that block and kept this one — it has
+       its own kicker/heading and a fuller set of images, so it carries the
+       "gallery" role on its own now. The six images here are stand-ins for
+       the atmosphere while real on-site photography is being shot, so the
+       copy below (kicker + alt text) frames them as mood, never as "this is
+       our biryani" or "this is our dining room" — same honesty line the
+       rest of the site holds to, just applied to a different kind of image.
+       Swap these six for real shots as soon as they're in; no code changes
+       needed beyond the src attributes below. -->
+  <div class="section-tint">
+    <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl mb-10 sm:mb-12" data-reveal>
+        <p class="font-bold text-sm tracking-widest uppercase" style="color: var(--color-accent)">{t(copy.ambianceKicker, lang)}</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold mt-2">{t(copy.ambianceTitle, lang)}</h2>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale">
+          <img src="/images/dom/interior-1.jpg" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale" style="transition-delay: 60ms">
+          <img src="https://i.ibb.co/8LstVF4J/Chat-GPT-Image-21-jul-2026-00-50-06.webp" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale" style="transition-delay: 120ms">
+          <img src="https://i.ibb.co/9kJnfr2Z/Chat-GPT-Image-21-jul-2026-08-57-53.webp" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Why us / E-E-A-T signals -->
+  <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+    <!-- Halal badge — sits as its own trust strip above the 3-column grid
+         rather than as a 4th grid tile: the other three are full title +
+         paragraph value props, and a one-line badge squeezed into that
+         format (or left alone on an orphaned 4th row) would look like a
+         mistake, not a claim. -->
+    <span
+      class="inline-flex items-center gap-1.5 mb-8 px-3 py-1.5 rounded-full text-xs font-bold"
+      style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
+      data-reveal
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
+        <path d="M5 12.5l4.5 4.5L19 7" />
+      </svg>
+      {t(common.homemadeBadge, lang)}
+    </span>
+    <div class="grid sm:grid-cols-3 gap-8">
+    {copy.whyUs.map((f, i) => (
+      <div data-reveal style={`transition-delay: ${i * 100}ms`}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5" class="mb-4" style="color: var(--color-accent)">
+          <path
+            d={
+              i === 0
+                ? 'M12 2c-1 3-4 4-4 8a4 4 0 008 0c0-4-3-5-4-8zM6 20h12'
+                : i === 1
+                  ? 'M5 21V9a7 7 0 0114 0v12M5 21h14M9 21v-6h6v6'
+                  : 'M3 7h11v8H3zM14 10h4l3 3v2h-7zM6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z'
+            }
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <h3 class="font-display text-xl font-semibold mb-2" style="color: var(--color-text-primary)">{t(f.title, lang)}</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-muted)">{t(f.body, lang)}</p>
+      </div>
+    ))}
+    </div>
+  </section>
+
+  <!-- Testimonial carousel — only renders once real, sourced reviews exist
+       in src/content/testimonials.ts (see that file's header comment for
+       why it currently ships empty rather than with invented quotes). -->
+  {testimonials.length > 0 && (
+    <section class="section-tint-warm relative max-w-none px-0 py-16 sm:py-28 overflow-hidden" data-reveal>
+      <div class="section-glow" style="width: 380px; height: 380px; background: var(--color-accent); opacity: 0.14; right: -140px; bottom: -60px;"></div>
+
+      <div class="relative testimonial-carousel max-w-3xl mx-auto px-5 sm:px-8">
+        <div class="testimonial-track">
+          {testimonials.map((tItem, i) => (
+            <div class="testimonial-slide text-center" data-slide={i}>
+              <span
+                class="inline-flex items-center justify-center w-12 h-12 rounded-full font-display font-bold text-lg mb-5"
+                style="background: var(--color-surface); border: 1.5px solid var(--color-accent); color: var(--color-accent)"
+              >
+                {tItem.name.charAt(0)}
+              </span>
+              <p class="pull-quote">{t(tItem.text, lang)}</p>
+              <p class="mt-6 text-sm font-bold" style="color: var(--color-accent)">— {tItem.name}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="testimonial-dots flex items-center justify-center gap-2 mt-8">
+          {testimonials.map((_, i) => (
+            <button
+              type="button"
+              class="testimonial-dot w-2 h-2 rounded-full transition-all"
+              style="background-color: var(--color-border)"
+              data-dot={i}
+              aria-label={`${t(copy.reviewAriaLabel, lang)} ${i + 1}`}
+            ></button>
+          ))}
+        </div>
+
+        <p class="text-center mt-4">
+          <a href={localizedPath('/avis', lang)} class="text-sm font-bold" style="color: var(--color-accent)">{t(common.lireTousLesAvis, lang)} {arrow(lang)}</a>
+        </p>
+      </div>
+    </section>
+  )}
+
+  <style>
+    .testimonial-track { position: relative; min-height: 220px; }
+    .testimonial-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+    }
+    .testimonial-slide.is-active {
+      position: relative;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .testimonial-dot.is-active { background-color: var(--color-accent) !important; width: 22px; }
+  </style>
+
+  <script>
+    // Wrapped in 'astro:page-load' like every other script on this site
+    // (see Layout.astro/Header.astro's comments) — Layout.astro enables
+    // View Transitions sitewide, so a plain module script here only ever
+    // ran on a hard page refresh, never on a client-side navigation TO the
+    // home page (the normal way a visitor arrives via the nav bar). That
+    // left every slide stuck at its default opacity:0/absolute state and
+    // every dot un-highlighted — exactly the "empty" carousel this fixes.
+    // The `data-wired` guard mirrors ReservationContent.astro's form guard
+    // so repeated soft-navigations to Home don't stack up duplicate
+    // setInterval timers on the same carousel.
+    document.addEventListener('astro:page-load', () => {
+      document.querySelectorAll<HTMLElement>('.testimonial-carousel').forEach((carousel) => {
+        if (carousel.dataset.wired === 'true') return;
+        carousel.dataset.wired = 'true';
+
+        const slides = Array.from(carousel.querySelectorAll<HTMLElement>('.testimonial-slide'));
+        const dots = Array.from(carousel.querySelectorAll<HTMLElement>('.testimonial-dot'));
+        let active = 0;
+        let timer: ReturnType<typeof setInterval>;
+
+        function show(index: number) {
+          active = (index + slides.length) % slides.length;
+          slides.forEach((s, i) => s.classList.toggle('is-active', i === active));
+          dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
+        }
+        function start() {
+          timer = setInterval(() => show(active + 1), 6000);
+        }
+        dots.forEach((dot, i) => {
+          dot.addEventListener('click', () => {
+            show(i);
+            clearInterval(timer);
+            start();
+          });
+        });
+        show(0);
+        start();
+      });
+
+      // Bombay Lounge video: unmute once it's actually in view, mute again
+      // once it scrolls back out — see the comment above the <video> tag.
+      // The `data-wired` guard matches the carousel's own, so a soft
+      // navigation back to Home doesn't stack up duplicate observers on
+      // the same video element.
+      document.querySelectorAll<HTMLVideoElement>('#bombay-video').forEach((video) => {
+        if (video.dataset.wired === 'true') return;
+        video.dataset.wired = 'true';
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              // Some browsers refuse a scripted unmute outright; that's fine
+              // — the video just stays muted and the native controls (kept
+              // on for exactly this) let the visitor unmute it themselves.
+              video.muted = !entry.isIntersecting;
+            });
+          },
+          { threshold: 0.6 }
+        );
+        observer.observe(video);
+      });
+    });
+  </script>
+</Layout>
+
+<style>
+  /* See the comment above #home-hero in the markup: this has to live here
+     (not as a Tailwind class) so it doesn't out-specificity the
+     sm:h-[92vh] desktop height, and so the 100vh/100svh fallback works as
+     two real separate declarations. */
+  @media (max-width: 639px) {
+    #home-hero {
+      height: 100vh;
+      height: 100svh;
+    }
+  }
+</style>
