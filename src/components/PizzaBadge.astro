@@ -11,11 +11,16 @@
 // to start right as those big doors finish, so the two effects read as
 // one continuous beat instead of two separate animations.
 //
-// Also new this pass: the center graphic is a large, unmistakable
-// top-down pizza (crust ring, cut lines, pepperoni) instead of the
-// previous small abstract slice icon — the brief was explicit that the
-// pizza itself needs to be "grafisch en heel duidelijk", not just implied
-// by the ring text. Still pure CSS + inline SVG, no JS, no video asset.
+// Pass 5: the center graphic went through two monochrome-gold attempts
+// (a small line-art slice, then a bigger gold-engraved wheel-with-dots)
+// and both read as abstract stamps, not food — "dit is geen pizza, dit
+// lijkt een wiel". This is the fix: the pizza itself now uses real,
+// literal pizza colors (browned crust, red sauce peeking out, melted
+// cheese, pepperoni with a visible rim, basil flecks) so it's
+// unmistakably a pizza at a glance, while the ring/frame/ticks around it
+// stay the same monochrome gold as the rest of the stamp — the pizza is
+// the one thing on this seal that's allowed to look like food instead of
+// an engraving. Still pure inline SVG, no image asset, no JS.
 // prefers-reduced-motion skips straight to the landed, settled stamp.
 import { type Language } from '../i18n/languages';
 
@@ -59,26 +64,60 @@ const ticks = Array.from({ length: TICK_COUNT }, (_, i) => {
   return { x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1) };
 });
 
-// The pizza itself — a big, literal top-down pizza (crust ring + 8 cut
-// lines + scattered pepperoni), kept fully monochrome (var(--color-accent)
-// at varying opacity) so it still reads as part of the stamp's engraving
-// rather than a colored sticker dropped on top of it. Radius 48 against
-// the stamp's own r=96 body means the pizza fills roughly half the seal —
-// impossible to miss at a glance, which is the whole point after the
-// previous version's icon read as "some kind of leaf".
-const PIZZA_R = 48;
-const cutLines = [0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
+// The pizza itself — a big, literal top-down pizza built as real layered
+// toppings (crust → sauce → cheese → pepperoni → basil), not a single
+// tinted icon. Radius 50 against the stamp's own r=96 body means it fills
+// roughly half the seal — impossible to miss, and impossible to mistake
+// for anything else. No radiating "cut lines" this time: those are what
+// made the previous version read as a wheel/clock instead of food.
+const PIZZA_R = 50;
+const SAUCE_R = 41;
+const CHEESE_R = 37;
+
+// Toasted crust flecks — a ring of small dark spots on the bready rim
+// (the 50→41 band), computed rather than hand-placed so they sit evenly
+// around the edge with a touch of size jitter for a baked, uneven look.
+const crustSpecks = Array.from({ length: 14 }, (_, i) => {
+  const deg = (360 / 14) * i + 6;
   const rad = (deg * Math.PI) / 180;
-  return { x2: (PIZZA_R * Math.cos(rad)).toFixed(1), y2: (PIZZA_R * Math.sin(rad)).toFixed(1) };
+  const r = 46 + (i % 3) * 1.2;
+  return { cx: (r * Math.cos(rad)).toFixed(1), cy: (r * Math.sin(rad)).toFixed(1) };
 });
+
+// Melted-cheese mottling — a few soft light/dark blotches so the cheese
+// reads as unevenly melted rather than a flat yellow disc, plus tiny
+// browned bubbles scattered on top.
+const cheeseBlotches = [
+  { cx: -18, cy: -9, rx: 9, ry: 5.5, tone: '#F3CE6E' },
+  { cx: 14, cy: -20, rx: 7, ry: 4.5, tone: '#D1A23A' },
+  { cx: 19, cy: 14, rx: 8, ry: 5, tone: '#F3CE6E' },
+  { cx: -14, cy: 19, rx: 7.5, ry: 4.5, tone: '#D1A23A' },
+  { cx: 0, cy: -3, rx: 6, ry: 4, tone: '#F6DA8C' },
+];
+const cheeseBubbles = [
+  { cx: -8, cy: -25 }, { cx: 22, cy: -4 }, { cx: 5, cy: 27 },
+  { cx: -24, cy: 5 }, { cx: 11, cy: 17 }, { cx: -17, cy: -14 },
+  { cx: 26, cy: 9 }, { cx: -4, cy: -29 },
+];
+
+// Pepperoni — solid rounds with a darker rim (so they don't fade into the
+// cheese) and two small lighter "grease" flecks each for a hint of shine.
 const pepperoni = [
-  { cx: -18, cy: -22 },
-  { cx: 20, cy: -18 },
-  { cx: 28, cy: 10 },
-  { cx: 10, cy: 30 },
-  { cx: -15, cy: 28 },
-  { cx: -30, cy: 2 },
-  { cx: 2, cy: -32 },
+  { cx: -16, cy: -20 },
+  { cx: 18, cy: -16 },
+  { cx: 25, cy: 8 },
+  { cx: 9, cy: 26 },
+  { cx: -14, cy: 25 },
+  { cx: -27, cy: 2 },
+  { cx: 2, cy: -28 },
+];
+
+// Basil flecks — small leaf shapes tucked into the gaps between the
+// pepperoni, the detail that reads as "fresh" rather than just "toppings".
+const basil = [
+  { x: 0, y: 2, rot: -15 },
+  { x: 9, y: -6, rot: 40 },
+  { x: -10, y: 8, rot: -60 },
 ];
 ---
 <div class:list={['stamp-reveal', className]}>
@@ -116,21 +155,46 @@ const pepperoni = [
         </text>
       )}
 
-      <!-- Center graphic: the pizza — fixed, never rotates -->
+      <!-- Center graphic: the pizza — fixed, never rotates. Real colors
+           on purpose (see the header comment): this is the one element
+           on the stamp allowed to look like food instead of an engraving,
+           so it actually reads as a pizza rather than a gold pattern. -->
       <g transform="translate(100 100)">
-        <circle r={PIZZA_R} fill="var(--color-accent)" fill-opacity="0.16" stroke="var(--color-accent)" stroke-width="4" />
-        <circle r={PIZZA_R - 6} fill="none" stroke="var(--color-accent)" stroke-width="1" stroke-opacity="0.55" stroke-dasharray="1.5 4" />
-        {cutLines.map((c) => (
-          <line x1="0" y1="0" x2={c.x2} y2={c.y2} stroke="var(--color-accent)" stroke-width="1" stroke-opacity="0.4" />
+        <!-- Crust -->
+        <circle r={PIZZA_R} fill="#CB8D48" stroke="#7C4A22" stroke-width="1.5" />
+        {crustSpecks.map((s) => (
+          <ellipse cx={s.cx} cy={s.cy} rx="2.1" ry="1.5" fill="#6B3E1C" fill-opacity="0.45" />
         ))}
+        <!-- Sauce, just visible under the cheese's edge -->
+        <circle r={SAUCE_R} fill="#9C2B22" />
+        <!-- Melted cheese -->
+        <circle r={CHEESE_R} fill="#E8B94A" />
+        {cheeseBlotches.map((b) => (
+          <ellipse cx={b.cx} cy={b.cy} rx={b.rx} ry={b.ry} fill={b.tone} fill-opacity="0.5" />
+        ))}
+        {cheeseBubbles.map((c) => (
+          <circle cx={c.cx} cy={c.cy} r="1.3" fill="#8B5A28" fill-opacity="0.4" />
+        ))}
+        <!-- Pepperoni -->
         {pepperoni.map((p) => (
-          <circle cx={p.cx} cy={p.cy} r="4.4" fill="var(--color-accent)" fill-opacity="0.85" />
+          <>
+            <circle cx={p.cx} cy={p.cy} r="6.5" fill="#B8412B" stroke="#7A2318" stroke-width="1" />
+            <circle cx={p.cx - 1.6} cy={p.cy - 1.6} r="1" fill="#E0A75E" fill-opacity="0.75" />
+            <circle cx={p.cx + 1.8} cy={p.cy + 1.3} r="0.8" fill="#E0A75E" fill-opacity="0.6" />
+          </>
+        ))}
+        <!-- Basil -->
+        {basil.map((leaf) => (
+          <g transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.rot})`}>
+            <path d="M 0,-4.5 Q 4.2,0 0,4.5 Q -4.2,0 0,-4.5 Z" fill="#4F7942" stroke="#33512B" stroke-width="0.5" />
+            <line x1="0" y1="-4" x2="0" y2="4" stroke="#33512B" stroke-width="0.4" stroke-opacity="0.7" />
+          </g>
         ))}
         <!-- Small ribbon banner for the N°1 / الأفضل mark, sitting in the
              gap between the pizza's edge and the ring text so the two
              pieces of type never compete for the same space. -->
-        <rect x="-30" y="56" width="60" height="18" rx="3" fill="var(--color-background)" fill-opacity="0.85" stroke="var(--color-accent)" stroke-width="1" />
-        <text y={isArabic ? 68.5 : 69} text-anchor="middle" font-family="var(--font-display)" font-weight="600" font-size={isArabic ? 12 : 12.5} fill="var(--color-text-primary)">
+        <rect x="-30" y="58" width="60" height="18" rx="3" fill="var(--color-background)" fill-opacity="0.9" stroke="var(--color-accent)" stroke-width="1" />
+        <text y={isArabic ? 70.5 : 71} text-anchor="middle" font-family="var(--font-display)" font-weight="600" font-size={isArabic ? 12 : 12.5} fill="var(--color-text-primary)">
           {centerLabel[lang]}
         </text>
       </g>
