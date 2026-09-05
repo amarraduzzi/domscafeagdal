@@ -65,6 +65,26 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
     </div>
 
     {!minimal && (
+      <!-- Phone icon — "Nous appeler" used to be a full button in the Home
+           hero; the client wants that hero slot for the pizza push instead
+           (see HomeContent.astro), so calling moved here: one tap away in
+           the header on every page, not gone from the site. Icon-only
+           (title attr for a11y/tooltip) so it doesn't compete for width
+           with the order link next to it. -->
+      <a
+        href={siteConfig.contact.phoneHref}
+        aria-label={t(navUi.contact, lang)}
+        title={siteConfig.contact.phoneDisplay}
+        class="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full shrink-0 transition-colors"
+        style="border: 1px solid var(--color-border); color: var(--color-text-primary)"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+      </a>
+    )}
+
+    {!minimal && (
       <a
         href={orderCta.href}
         target="_blank"
@@ -137,6 +157,12 @@ const langLinks = LANGUAGES.map((l) => ({ lang: l, href: localizedPath(currentPa
         style="border-top: 1px solid var(--color-border); color: var(--color-primary)"
       >
         {orderCta.label} {arrow(lang)}
+      </a>
+      <a href={siteConfig.contact.phoneHref} class="flex items-center gap-1.5 py-2.5 text-sm font-semibold" style="color: var(--color-text-primary)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent)">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+        {siteConfig.contact.phoneDisplay}
       </a>
     </div>
   )}

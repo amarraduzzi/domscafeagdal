@@ -48,6 +48,18 @@ export const common = {
 
   // Shared trust badge — used on Home ("why us") and Menu (hero).
   homemadeBadge: { fr: 'Fait maison', en: 'Homemade', ar: 'صناعة منزلية' } satisfies LocalizedText,
+
+  // Hero's second button (see HomeContent.astro) — links to /menu#pizzas.
+  // "Agdal" kept rather than "Rabat" to match the existing oven badge copy
+  // ("Best Pizza in Agdal") already on the hero photo.
+  meilleurePizzaAgdal: { fr: "Meilleure pizza d'Agdal", en: 'Best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' } satisfies LocalizedText,
+  // Hero's review line, replacing the old hardcoded star-rating text — see
+  // the comment above where this is used in HomeContent.astro for why.
+  voirAvisGoogle: { fr: 'Voir nos avis sur Google', en: 'See our Google reviews', ar: 'شاهد تقييماتنا على Google' } satisfies LocalizedText,
+
+  // Full-menu page search + category filter (MenuContent.astro).
+  rechercherDansLeMenu: { fr: 'Rechercher un plat, un ingrédient…', en: 'Search a dish, an ingredient…', ar: 'ابحث عن طبق أو مكوّن…' } satisfies LocalizedText,
+  aucunResultatMenu: { fr: 'Aucun plat ne correspond à votre recherche.', en: 'No dish matches your search.', ar: 'لا يوجد طبق يطابق بحثك.' } satisfies LocalizedText,
 };
 
 export const footer = {

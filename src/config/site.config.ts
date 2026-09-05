@@ -19,12 +19,12 @@
 //   Google Business listing (05 37 68 06 31) — CONFIRM the real WhatsApp
 //   ordering number with Dom's owner before publishing; it may be a
 //   different mobile number.
-// - social.googleRating/ratingCount: Dom's own live site (domscafe.pages.dev,
-//   checked today) states "4,9 sur Google · 320+ avis". A Google Maps
-//   screenshot supplied separately showed 4.1/5 with 47 reviews instead —
-//   a real discrepancy, not a typo on my part. Used the live site's more
-//   recent figures below; VERIFY against the actual Google Business Profile
-//   before this goes live, a wrong public rating is worse than none.
+// - social.googleRating/ratingCount: NOW VERIFIED against the live Google
+//   Business Profile (checked via Google Search's business panel). Real
+//   figure is 4.1/5 · 47 reviews. Dom's own live site (domscafe.pages.dev)
+//   still shows the old, higher "4,9 sur Google · 320+ avis" — that's their
+//   number to fix on their own ordering site, not something to copy here.
+//   Values below are the confirmed real ones.
 // - EN/AR fields throughout this codebase are currently French text
 //   duplicated into the `en`/`ar` slots (not real translations) so the
 //   trilingual scaffolding keeps compiling. Dom's own current site is
@@ -121,8 +121,8 @@ export const siteConfig: SiteConfig = {
   },
   social: {
     googleReviewsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent("Dom's Café Agdal Rabat avis"),
-    googleRating: '4.9', // ⚠ verify — see standing note above
-    googleReviewCount: '320+',
+    googleRating: '4.1', // verified — see standing note above
+    googleReviewCount: '47',
   },
 };
 

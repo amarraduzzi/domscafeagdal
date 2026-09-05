@@ -80,9 +80,9 @@ const path = localizedPath('/avis', lang);
          here was Tripadvisor-only, even though Google Business Profile is
          where most local searchers actually check ratings first and where
          review velocity matters most for local SEO (see the standing note
-         in site.config.ts). The star rating shown is the real, confirmed
-         Google figure — no review count, since that number was never
-         verified with the client and this site doesn't fabricate figures. -->
+         in site.config.ts). Rating + review count are both now the real,
+         verified Google Business Profile figures (checked via Google
+         Search's business panel) — see site.config.ts's note. -->
     {siteConfig.social.googleReviewsUrl && (
       <a
         href={siteConfig.social.googleReviewsUrl}
@@ -94,7 +94,8 @@ const path = localizedPath('/avis', lang);
         {siteConfig.social.googleRating && (
           <>
             <span style="color: var(--color-accent)">{stars(googleRatingRounded)}</span>
-            {siteConfig.social.googleRating}/5 {t(common.surGoogle, lang)} ·
+            {siteConfig.social.googleRating}/5
+            {siteConfig.social.googleReviewCount ? ` · ${siteConfig.social.googleReviewCount} ${t(common.avisGoogleSuffix, lang)}` : ` ${t(common.surGoogle, lang)}`} ·
           </>
         )}
         {t(common.laisserAvisGoogle, lang)} {arrow(lang)}

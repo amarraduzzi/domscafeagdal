@@ -1,11 +1,11 @@
 // Curated testimonials for Dom's Café (Agdal, Rabat).
 //
-// IMPORTANT — no invented quotes: Dom's own live site (domscafe.pages.dev,
-// checked today) states "4,9 sur Google · 320+ avis", so `aggregateRating`
-// below uses that real, self-reported figure. A Google Maps screenshot
-// supplied separately showed a different figure (4.1/5, 47 reviews) — a
-// real discrepancy between the two sources, not a typo here. VERIFY the
-// actual current number on the Google Business Profile before publishing.
+// IMPORTANT — no invented quotes: `aggregateRating` below is NOW VERIFIED
+// against the live Google Business Profile (checked via Google Search's
+// business panel): 4.1/5, 47 reviews. Dom's own live ordering site
+// (domscafe.pages.dev) still shows a higher, outdated "4,9 · 320+ avis" —
+// that mismatch is on their side, not something this marketing site should
+// repeat just because it's their own copy.
 //
 // `testimonials` is intentionally EMPTY: this template's original content
 // republished real, sourced Tripadvisor reviews (with a link back to each
@@ -26,11 +26,8 @@ export interface Testimonial {
 }
 
 export const aggregateRating = {
-  ratingValue: '4.9', // ⚠ verify against the live Google Business Profile
-  // Kept as a plain number ('320', not '320+') so this stays valid in the
-  // JSON-LD AggregateRating block below — "at least 320" reviews, in
-  // practice more per Dom's own site copy.
-  reviewCount: '320',
+  ratingValue: '4.1', // verified against the live Google Business Profile
+  reviewCount: '47',
 };
 
 export const testimonials: Testimonial[] = [];
