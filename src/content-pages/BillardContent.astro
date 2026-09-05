@@ -33,6 +33,12 @@
 // next actually-bookable slot instead of a wall of greyed-out "Passé" rows.
 // PoolBall.astro supplies the decorative + tab-icon billiard balls the
 // client asked to see worked into the page.
+//
+// Desktop side columns: client's own words after seeing the mobile-first
+// redesign — "niks veranderen aan de mobiele versie, maar bij desktop de
+// zijkanten vullen: links de afbeeldingen en rechts het infopaneel". Below
+// `lg`, this whole grid collapses back to the single centered column the
+// mobile design already used — those two columns just don't render there.
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import PoolBall from '../components/PoolBall.astro';
@@ -137,6 +143,34 @@ const copy = {
     ar: 'إلغاء حجز',
   },
   cancelSuccess: { fr: 'Réservation annulée.', en: 'Booking cancelled.', ar: 'تم إلغاء الحجز.' },
+  photoAlt1: {
+    fr: "Table de billard chez Dom's Pool",
+    en: "A pool table at Dom's Pool",
+    ar: 'طاولة بيلياردو في Dom\'s Pool',
+  },
+  photoAlt2: {
+    fr: 'Boules de billard en gros plan',
+    en: 'Pool balls up close',
+    ar: 'كرات البيلياردو عن قرب',
+  },
+  photoAlt3: {
+    fr: "Ambiance chaleureuse de Dom's Pool",
+    en: "Dom's Pool's warm atmosphere",
+    ar: 'أجواء دافئة في Dom\'s Pool',
+  },
+  infoTitle: { fr: 'Bon à savoir', en: 'Good to know', ar: 'معلومة مفيدة' },
+  infoSlotNote: {
+    fr: `Chaque créneau dure ${slotMinutes} minutes.`,
+    en: `Each slot lasts ${slotMinutes} minutes.`,
+    ar: `تستمر كل فترة ${slotMinutes} دقيقة.`,
+  },
+  infoPaymentNote: {
+    fr: "Paiement sur place, comme d'habitude.",
+    en: 'Pay on site, as usual.',
+    ar: 'الدفع في المكان كالمعتاد.',
+  },
+  nextAvailableTitle: { fr: 'Prochain créneau libre', en: 'Next available slot', ar: 'أقرب موعد متاح' },
+  noneAvailable: { fr: 'Complet', en: 'Full', ar: 'مكتمل' },
   comingSoonTitle: { fr: 'Bientôt disponible', en: 'Coming soon', ar: 'قريبًا' },
   comingSoonBody: {
     fr: "La réservation en ligne des tables arrive très bientôt. En attendant, demandez au bar quelle table est libre.",
@@ -167,15 +201,31 @@ const path = localizedPath('/billard', lang);
     <p class="mt-3 max-w-xl mx-auto text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.intro, lang)}</p>
   </section>
 
-  {!isConfigured ? (
-    <section class="max-w-2xl mx-auto px-5 sm:px-8 pb-24">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 pb-24 lg:grid lg:grid-cols-[220px_minmax(0,480px)_260px] lg:gap-8 lg:items-start lg:justify-center">
+    <!-- Left column — real photos of the room, desktop only (lg+). Same 3
+         photos used on the homepage's "Dom's Pool" section; on mobile this
+         column simply doesn't render, so the phone experience is untouched. -->
+    <div class="hidden lg:flex lg:flex-col gap-4" data-reveal="scale">
+      <div class="photo-frame rounded-2xl">
+        <img src="/images/dom/pool/pool-room-narcos.webp" alt={t(copy.photoAlt1, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
+      </div>
+      <div class="photo-frame rounded-2xl">
+        <img src="/images/dom/pool/pool-balls-closeup.webp" alt={t(copy.photoAlt2, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
+      </div>
+      <div class="photo-frame rounded-2xl">
+        <img src="/images/dom/pool/pool-room-sunset.webp" alt={t(copy.photoAlt3, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
+      </div>
+    </div>
+
+    {!isConfigured ? (
+    <section class="max-w-2xl mx-auto lg:max-w-none lg:mx-0">
       <div class="rounded-2xl p-8 text-center" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
         <h2 class="font-display text-xl font-semibold mb-2" style="color: var(--color-text-primary)">{t(copy.comingSoonTitle, lang)}</h2>
         <p class="text-sm" style="color: var(--color-text-muted)">{t(copy.comingSoonBody, lang)}</p>
       </div>
     </section>
   ) : (
-    <section id="billard-app" class="max-w-lg mx-auto px-5 sm:px-8 pb-24" data-slot-minutes={slotMinutes}>
+    <section id="billard-app" class="max-w-lg mx-auto lg:max-w-none lg:mx-0" data-slot-minutes={slotMinutes}>
       <!-- Date chips: a horizontally-scrollable strip (today + 6 days)
            replaces the old native <input type="date"> — much faster to tap
            through on a phone than opening the OS date picker for what's
@@ -225,6 +275,33 @@ const path = localizedPath('/billard', lang);
       </div>
     </section>
   )}
+
+    <!-- Right column — practical info + a live "next available slot" per
+         table, desktop only. Reuses the bookings data already being polled
+         for the slot list below (updateNextAvailable(), wired in the script
+         block) rather than firing its own separate request. -->
+    <aside class="hidden lg:block" data-reveal="scale">
+      <div class="rounded-2xl p-5" style="background-color: var(--color-surface); border: 1px solid var(--color-border); position: sticky; top: 6.5rem;">
+        <h2 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary)">{t(copy.infoTitle, lang)}</h2>
+        <div class="space-y-2 text-sm" style="color: var(--color-text-muted)">
+          <p>{siteConfig.contact.openingHours[lang]}</p>
+          <p>{t(copy.infoSlotNote, lang)}</p>
+          <p>{t(copy.infoPaymentNote, lang)}</p>
+        </div>
+        {isConfigured && (
+          <>
+            <h3
+              class="text-xs font-bold uppercase tracking-wide mb-3 pt-4 mt-4"
+              style="color: var(--color-accent); border-top: 1px solid var(--color-border)"
+            >
+              {t(copy.nextAvailableTitle, lang)}
+            </h3>
+            <div id="billard-next-available" class="space-y-2.5"></div>
+          </>
+        )}
+      </div>
+    </aside>
+  </div>
 
   <!-- Booking form overlay — plain hidden/flex toggle rather than <dialog>,
        to avoid a11y/polyfill inconsistencies across the three RTL/LTR
@@ -276,6 +353,7 @@ const path = localizedPath('/billard', lang);
     staffCancelPin,
     dateLocale,
     tableLabels: Object.fromEntries(tables.map((t2) => [t2.id, t(t2.label, lang)])),
+    tableColors: Object.fromEntries(tables.map((t2) => [t2.id, ballStyles[t2.id].color])),
     defaultTable: tables[0]?.id,
     slotMinutes,
     copyStrings: {
@@ -295,6 +373,7 @@ const path = localizedPath('/billard', lang);
       cancelWrongPin: t(copy.cancelWrongPin, lang),
       cancelConfirmPrefix: t(copy.cancelConfirmPrefix, lang),
       cancelSuccess: t(copy.cancelSuccess, lang),
+      noneAvailable: t(copy.noneAvailable, lang),
     },
   }}>
     document.addEventListener('astro:page-load', () => {
@@ -449,6 +528,7 @@ const path = localizedPath('/billard', lang);
           pastToggleBtn.classList.add('hidden');
         }
         applyPastCollapse();
+        updateNextAvailable();
       }
 
       function applyPastCollapse() {
@@ -456,6 +536,30 @@ const path = localizedPath('/billard', lang);
         document.querySelectorAll('.billard-slot[data-past="true"]').forEach((btn) => {
           btn.classList.toggle('hidden', pastCollapsed);
         });
+      }
+
+      // Desktop-only info panel (hidden on mobile via CSS, so this is a
+      // no-op there since the target element doesn't exist). Reuses the
+      // data-past/data-booked attributes renderGrid() already sets on every
+      // row instead of firing its own fetch — just reads the DOM in the
+      // slots' natural time order and reports the first free one per table.
+      function updateNextAvailable() {
+        const panel = document.querySelector('#billard-next-available');
+        if (!panel) return;
+        panel.innerHTML = Object.keys(tableLabels)
+          .map((tableId) => {
+            const rows = Array.from(document.querySelectorAll(`.billard-slot[data-table="${tableId}"]`));
+            const nextFree = rows.find((r) => r.dataset.past !== 'true' && r.dataset.booked !== 'true');
+            const timeText = nextFree ? nextFree.dataset.start : copyStrings.noneAvailable;
+            return `<div class="flex items-center justify-between gap-2 text-sm">
+              <span class="flex items-center gap-2" style="color: var(--color-text-primary)">
+                <span style="width:10px;height:10px;border-radius:9999px;background-color:${tableColors[tableId]};display:inline-block;flex-shrink:0"></span>
+                ${tableLabels[tableId]}
+              </span>
+              <span dir="ltr" style="color: var(--color-accent); font-weight:700">${timeText}</span>
+            </div>`;
+          })
+          .join('');
       }
       pastToggleBtn.addEventListener('click', () => {
         pastCollapsed = !pastCollapsed;
