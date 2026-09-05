@@ -145,7 +145,14 @@ export const siteConfig: SiteConfig = {
     orderSiteUrl: 'https://domscafe.pages.dev',
   },
   social: {
-    googleReviewsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent("Dom's Café Agdal Rabat avis"),
+    // Official Google-generated "share" short link for Dom's Café's real
+    // Google Business Profile (client-supplied, confirmed via redirect to
+    // maps.google.com/maps/place/Dom's+Café/... — a stable, non-personal
+    // link, unlike a raw google.com/search results URL which carries
+    // session tokens tied to whoever is logged in and isn't safe to hardcode
+    // on a public site). Visitors land on the real listing and can tap
+    // "Write a review" themselves from there.
+    googleReviewsUrl: 'https://maps.app.goo.gl/cWT2azEsn4J2S1Mj6',
     googleRating: '4.1', // verified — see standing note above
     googleReviewCount: '47',
   },
