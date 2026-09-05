@@ -1,0 +1,214 @@
+---
+// See HomeContent.astro's top comment for the shared-body-per-route
+// pattern this and every other src/content-pages/*.astro file follows.
+//
+// NEW dedicated pizza page (client request, first draft — "we gaan erna
+// finetunen"): Home and Menu both already have a pizza showcase section
+// (see PizzaShowcaseGrid.astro), but the client wants pizza to have its
+// own full page, done "op een hele mooie strakke manier", with the oven
+// stamp (PizzaBadge) brought back as a feature rather than a small hero
+// accent. This page is that — its own bespoke hero built around the
+// stamp (no oven doors here, so PizzaBadge's `immediate` prop is used —
+// see that component's own comment for why), then every real pizza on
+// the menu: the 7 with the client's own photos front and center, and the
+// 2 that don't have a photo yet (Four Cheese, Four Seasons) listed
+// underneath rather than skipped or given a stock photo.
+//
+// Home's hero button and this page are now the two places pointing at
+// pizza specifically — Home's "Meilleure pizza d'Agdal" button now links
+// HERE instead of to the Menu page's #pizzas anchor, since this is the
+// more complete destination. Home's and Menu's own inline pizza sections
+// are untouched for this first draft (not asked to remove them) — worth
+// asking the client whether those should now link here too instead of
+// duplicating the grid, during finetuning.
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+import Ornament from '../components/Ornament.astro';
+import PizzaBadge from '../components/PizzaBadge.astro';
+import { siteConfig } from '../config/site.config';
+import { getOrderCtaLabel } from '../lib/nav';
+import { pizzaShowcase } from '../content/pizza-showcase';
+import { fullMenu } from '../content/full-menu';
+import { t, localizedPath, arrow, isRTL, type Language } from '../i18n/languages';
+import { common, place } from '../i18n/ui';
+
+interface Props {
+  lang?: Language;
+}
+const { lang = 'fr' } = Astro.props;
+const rtl = isRTL(lang);
+
+const { name } = siteConfig.identity;
+const city = t(place.city, lang);
+const orderCtaLabel = getOrderCtaLabel(lang);
+
+// The 2 pizzas that exist on the real menu but don't have a client photo
+// yet (see this file's header comment) — pulled from the single source of
+// truth (full-menu.ts's pizzas category) by excluding whatever pizza-
+// showcase.ts already covers, so adding a photo for one of these later
+// just means adding it to pizza-showcase.ts; nothing here needs editing.
+const photographedNames = new Set(pizzaShowcase.map((p) => p.name.toLowerCase()));
+const pizzaCategory = fullMenu.find((c) => c.slug === 'pizzas')!;
+const unphotographedPizzas = pizzaCategory.items.filter(
+  (item) => !photographedNames.has(item.name.replace(/\s+Pizza$/i, '').toLowerCase())
+);
+
+const copy = {
+  metaTitle: {
+    fr: `Meilleure pizza d'Agdal — ${name} | ${city}`,
+    en: `Best pizza in Agdal — ${name} | ${city}`,
+    ar: `أفضل بيتزا في أكدال — ${name} | ${city}`,
+  },
+  metaDescription: {
+    fr: `Découvrez toutes les pizzas de ${name} à Agdal, ${city} : pâte fine, ingrédients frais, cuisson soignée. La pizza la plus commandée du quartier.`,
+    en: `Discover every pizza at ${name} in Agdal, ${city}: thin crust, fresh ingredients, careful baking. The most-ordered pizza in the neighborhood.`,
+    ar: `اكتشف جميع أنواع البيتزا في ${name} بأكدال، ${city}: عجينة رفيعة، مكونات طازجة، طهي متقن. البيتزا الأكثر طلبًا في الحي.`,
+  },
+  kicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
+  heroTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
+  heroSubtitle: {
+    fr: 'Pâte fine, ingrédients frais, cuisson soignée au four — découvrez toutes nos pizzas, une par une.',
+    en: 'Thin crust, fresh ingredients, carefully oven-baked — discover every one of our pizzas.',
+    ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن بالفرن — اكتشف كل أنواع البيتزا لدينا واحدة تلو الأخرى.',
+  },
+  popularBadge: { fr: 'Populaire', en: 'Popular', ar: 'الأكثر طلبًا' },
+  alsoOnMenuKicker: { fr: 'Aussi sur la carte', en: 'Also on the menu', ar: 'أيضًا في القائمة' },
+  alsoOnMenuTitle: { fr: 'Deux autres façons de se régaler', en: 'Two more ways to enjoy', ar: 'طريقتان أخريان للاستمتاع' },
+  alsoOnMenuIntro: {
+    fr: "Pas encore en photo sur cette page, mais bien réelles sur la carte de Dom's Café.",
+    en: "Not photographed on this page yet, but very real on Dom's Café's menu.",
+    ar: 'لم تُصوَّر بعد في هذه الصفحة، لكنها حاضرة فعليًا في قائمة Dom\'s Café.',
+  },
+  readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
+} satisfies Record<string, { fr: string; en: string; ar: string }>;
+
+const pizzaJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Menu',
+  name: `Pizza — ${name}`,
+  hasMenuSection: [
+    {
+      '@type': 'MenuSection',
+      name: t(pizzaCategory.label, lang),
+      hasMenuItem: pizzaCategory.items.map((item) => ({
+        '@type': 'MenuItem',
+        name: item.name,
+        description: t(item.description, lang),
+        offers: { '@type': 'Offer', price: item.priceMAD, priceCurrency: 'MAD' },
+      })),
+    },
+  ],
+};
+
+const path = localizedPath('/pizza', lang);
+---
+<Layout
+  title={t(copy.metaTitle, lang)}
+  description={t(copy.metaDescription, lang)}
+  path={path}
+  lang={lang}
+  jsonLd={pizzaJsonLd}
+>
+  <!-- Bespoke hero — deliberately NOT a pizza photo behind it: with a
+       full page of real pizza photos coming up right below, the hero's
+       job is to be the clean, calm "stage" the stamp lands on, not to
+       compete with those photos. Dark radial glow standing in for oven
+       warmth (same visual language as the Home oven-door glow, just
+       static here) plus the stamp itself, sized bigger than anywhere
+       else on the site since this page exists specifically to give it
+       room. `immediate` on PizzaBadge — see that component's own comment
+       — since there's no oven-door sequence here to sync its slam to. -->
+  <section class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5" style="background: radial-gradient(ellipse 70% 60% at 50% 30%, color-mix(in srgb, var(--color-primary-dark) 45%, var(--color-background)) 0%, var(--color-background) 70%)">
+    <span class="block text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
+
+    <div class="relative w-56 h-56 sm:w-72 sm:h-72 my-6" data-reveal="scale">
+      <PizzaBadge lang={lang} href={`${localizedPath('/pizza', lang)}#pizzas`} immediate class="absolute inset-0" />
+    </div>
+
+    <h1 class="font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary)">
+      {t(copy.heroTitle, lang)}
+    </h1>
+    <p class="mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-muted)">
+      {t(copy.heroSubtitle, lang)}
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label}</Button>
+      <Button href={localizedPath('/menu', lang)} variant="outline">{t(common.voirLeMenuComplet, lang)}</Button>
+    </div>
+  </section>
+
+  <!-- The 7 photographed pizzas — bigger, more spacious cards than the
+       compact homepage/menu teaser (PizzaShowcaseGrid.astro): 3 per row
+       instead of 4, a taller photo, and the description gets more room
+       to breathe, since this page's whole reason to exist is giving
+       pizza the spotlight the client asked for. -->
+  <section id="pizzas" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      {pizzaShowcase.map((pizza, i) => (
+        <div
+          class="card-lift relative rounded-2xl overflow-hidden"
+          style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
+          data-reveal
+        >
+          {pizza.popular && (
+            <span
+              class="absolute top-4 z-10 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide"
+              style={`${rtl ? 'left' : 'right'}: 1rem; background-color: var(--color-accent); color: var(--color-background)`}
+            >
+              {t(copy.popularBadge, lang)}
+            </span>
+          )}
+          <div class="photo-frame aspect-[4/3]">
+            <img src={pizza.image} alt={t(pizza.imageAlt, lang)} class="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div class="p-6">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="menu-item-name font-display font-semibold text-xl" style="color: var(--color-text-primary)">{pizza.name}</h2>
+              <span class="menu-item-price font-bold text-lg shrink-0" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
+            </div>
+            <p class="text-sm mt-2 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- The 2 pizzas without a photo yet — real, honest, no invented or
+       stock imagery (see this file's header comment and pizza-
+       showcase.ts's own comment on the same principle). Simple text
+       cards, clearly a step down in visual weight from the photographed
+       ones above so nothing here reads as a missing/broken photo. -->
+  {unphotographedPizzas.length > 0 && (
+    <div class="section-tint-warm">
+      <section class="max-w-4xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+        <div class="max-w-xl mb-8" data-reveal>
+          <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-2" style="color: var(--color-accent)">{t(copy.alsoOnMenuKicker, lang)}</span>
+          <h2 class="font-display text-2xl sm:text-3xl font-semibold" style="color: var(--color-text-primary)">{t(copy.alsoOnMenuTitle, lang)}</h2>
+          <p class="mt-2 text-sm" style="color: var(--color-text-muted)">{t(copy.alsoOnMenuIntro, lang)}</p>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          {unphotographedPizzas.map((item, j) => (
+            <div
+              class="card-lift flex items-start justify-between gap-4 rounded-xl p-4"
+              style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${j * 70}ms`}
+              data-reveal
+            >
+              <div class="min-w-0">
+                <h3 class="menu-item-name font-display font-semibold" style="color: var(--color-text-primary)">{item.name}</h3>
+                <p class="text-sm mt-1" style="color: var(--color-text-muted)">{t(item.description, lang)}</p>
+              </div>
+              <span class="menu-item-price font-bold shrink-0" style="color: var(--color-accent)">{item.priceMAD} MAD</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )}
+
+  <Ornament />
+  <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 text-center">
+    <p class="text-sm mb-4" style="color: var(--color-text-muted)">{t(copy.readyToOrder, lang)}</p>
+    <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label} {arrow(lang)}</Button>
+  </section>
+</Layout>

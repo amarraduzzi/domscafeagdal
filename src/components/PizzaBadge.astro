@@ -28,8 +28,17 @@ interface Props {
   lang?: Language;
   href: string;
   class?: string;
+  // True on the new dedicated /pizza page (PizzaContent.astro), where this
+  // badge stands alone with no hero-wide oven doors in front of it to
+  // sync against. Without this, the badge would sit invisible for the
+  // first 2.1s (the delay tuned to match Home's door-opening choreography
+  // — see the timing comments below) since nothing here ever triggers
+  // that. Swaps every animation-delay to a short, immediate entrance
+  // instead — see the [data-immediate] rules at the bottom of the style
+  // block, which override the defaults rather than duplicating them.
+  immediate?: boolean;
 }
-const { lang = 'fr', href, class: className = '' } = Astro.props;
+const { lang = 'fr', href, class: className = '', immediate = false } = Astro.props;
 
 const label: Record<Language, string> = {
   fr: "Meilleure pizza d'Agdal",
@@ -120,7 +129,7 @@ const basil = [
   { x: -10, y: 8, rot: -60 },
 ];
 ---
-<div class:list={['stamp-reveal', className]}>
+<div class:list={['stamp-reveal', className]} data-immediate={immediate ? 'true' : undefined}>
   <!-- Decorative outer frame ring — the stamp's own bezel/edge. Hidden
        behind the hero-wide oven doors until they open (see
        HomeContent.astro), so it doesn't need its own reveal animation:
@@ -297,5 +306,22 @@ const basil = [
       opacity: 1;
       transform: rotate(-9deg);
     }
+  }
+
+  /* ---------- Standalone entrance (immediate prop) ---------- */
+  /* Same animations, just retimed to start almost immediately instead of
+     at 2.1s — see the Props comment above for why. */
+  .stamp-reveal[data-immediate='true'] .stamp-impact-flash {
+    animation-delay: 0.3s;
+  }
+  .stamp-reveal[data-immediate='true'] .impact-ring {
+    animation-delay: 0.3s;
+  }
+  .stamp-reveal[data-immediate='true'] .impact-ring--delay {
+    animation-delay: 0.43s;
+  }
+  .stamp-reveal[data-immediate='true'] .stamp-seal {
+    animation: stamp-slam 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both,
+      stamp-idle-pulse 3.2s ease-in-out 0.75s infinite;
   }
 </style>
