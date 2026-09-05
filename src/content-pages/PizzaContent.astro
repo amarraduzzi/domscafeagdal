@@ -71,6 +71,16 @@ const unphotographedPizzas = pizzaCategory.items.filter(
 const featuredPizza = pizzaShowcase.find((p) => p.popular);
 const gridPizzas = featuredPizza ? pizzaShowcase.filter((p) => p !== featuredPizza) : pizzaShowcase;
 
+// "Pizza à la part" — client's own pricing rule (see chat): whole-pizza
+// price ÷ 8 slices, +25% for the convenience of buying a single slice.
+// Derived from `pizzaCategory.items` (full-menu.ts) rather than hardcoded
+// per pizza, so this stays correct automatically if a whole-pizza price
+// ever changes — exactly the same "one source of truth" reasoning as
+// `unphotographedPizzas` above. Rounded to the nearest whole MAD to match
+// how every other price on this site is displayed (no site price currently
+// uses fractional MAD).
+const slicePrice = (wholePizzaPrice: number) => Math.round((wholePizzaPrice / 8) * 1.25);
+
 const copy = {
   metaTitle: {
     fr: `Meilleure pizza d'Agdal — ${name} | ${city}`,
@@ -99,6 +109,39 @@ const copy = {
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
   featuredKicker: { fr: 'Le coup de cœur', en: 'The favorite', ar: 'المفضلة' },
   featuredCta: { fr: 'Commander cette pizza', en: 'Order this pizza', ar: 'اطلب هذه البيتزا' },
+  sliceBadge: { fr: 'Une première à Rabat', en: 'A first in Rabat', ar: 'الأولى من نوعها في الرباط' },
+  sliceTitle: { fr: 'La pizza à la part', en: 'Pizza by the slice', ar: 'البيتزا بالقطعة' },
+  sliceIntro: {
+    fr: "Chez nous, pas besoin de commander une pizza entière pour se faire plaisir. Chaque pizza de notre carte est aussi disponible à la part — une idée encore rare à Rabat, et que nous sommes fiers d'être les premiers à proposer.",
+    en: "You don't need to order a whole pizza to enjoy one here. Every pizza on our menu is also available by the slice — still a rare idea in Rabat, and one we're proud to be the first to offer.",
+    ar: 'ليس من الضروري طلب بيتزا كاملة للاستمتاع بها عندنا. كل بيتزا في قائمتنا متوفرة أيضًا بالقطعة، وهي فكرة لا تزال نادرة في الرباط، ونحن فخورون بأننا أول من يقدمها.',
+  },
+  sliceStep1: { fr: 'On la découpe', en: 'We cut it', ar: 'نقطعها' },
+  sliceStep1Desc: {
+    fr: 'Chaque pizza sort du four entière, puis est découpée devant vous en 8 parts égales.',
+    en: 'Every pizza comes out of the oven whole, then is cut into 8 equal slices right in front of you.',
+    ar: 'تخرج كل بيتزا من الفرن كاملة، ثم تُقطّع أمامكم إلى 8 قطع متساوية.',
+  },
+  sliceStep2: { fr: 'Vous choisissez', en: 'You choose', ar: 'تختارون' },
+  sliceStep2Desc: {
+    fr: "Une part, deux parts, ou plusieurs pizzas différentes à la part — à vous de composer.",
+    en: 'One slice, two slices, or several different pizzas by the slice — you decide the mix.',
+    ar: 'قطعة واحدة أو قطعتان أو عدة أنواع مختلفة بالقطعة، الاختيار لكم.',
+  },
+  sliceStep3: { fr: 'Vous dégustez', en: 'You enjoy', ar: 'تستمتعون' },
+  sliceStep3Desc: {
+    fr: 'Sur place ou à emporter, chaude et prête en quelques minutes.',
+    en: 'Eat in or take away, hot and ready in minutes.',
+    ar: 'في المكان أو للطلب الخارجي، ساخنة وجاهزة في دقائق.',
+  },
+  sliceMenuTitle: { fr: 'Le prix, part par part', en: 'The price, slice by slice', ar: 'السعر، قطعة بقطعة' },
+  sliceMenuIntro: {
+    fr: "Chaque part correspond à 1/8 de la pizza entière.",
+    en: 'Each slice is 1/8th of the whole pizza.',
+    ar: 'كل قطعة تعادل ثُمن البيتزا الكاملة.',
+  },
+  slicePerSlice: { fr: 'la part', en: 'per slice', ar: 'للقطعة' },
+  sliceCta: { fr: 'Commander à la part', en: 'Order by the slice', ar: 'اطلب بالقطعة' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
 const pizzaJsonLd = {
@@ -189,6 +232,92 @@ const path = localizedPath('/pizza', lang);
        IntersectionObserver below — the bar appears once this leaves the
        viewport, i.e. once someone has scrolled past the hero. -->
   <div id="hero-end-marker"></div>
+
+  <!-- "Pizza à la part" — the client's own concept, and the actual reason
+       this page exists in its current form: Dom's Café wants to be the
+       first in Rabat to sell every pizza by the slice, not just whole, and
+       asked for this to be explained visually, with "top kwaliteit"
+       photography, right up front — hence its placement as the very next
+       thing after the hero, before even the bestseller feature. Real
+       client photos of an actual cut-and-lift sequence (see the three
+       slice-*.webp files' own history: one of the three source images had
+       another business's name burned into the cutting board and was
+       cropped to remove it before use here — never publish a competitor's
+       branding on this site by accident). Slice pricing is computed, not
+       typed in — see the `slicePrice` helper above — from the same
+       `pizzaCategory.items` used everywhere else on this page, so a future
+       price change to any whole pizza updates its slice price here too. -->
+  <section class="section-tint-warm">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl mx-auto text-center mb-12" data-reveal>
+        <span
+          class="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full text-xs font-bold"
+          style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="shrink-0">
+            <path d="M12 2l2.6 6.9 7.4.3-5.8 4.6 2.1 7.2-6.3-4.2-6.3 4.2 2.1-7.2-5.8-4.6 7.4-.3z" />
+          </svg>
+          {t(copy.sliceBadge, lang)}
+        </span>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">
+          {t(copy.sliceTitle, lang)}
+        </h2>
+        <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">
+          {t(copy.sliceIntro, lang)}
+        </p>
+      </div>
+
+      <!-- The 3-shot sequence — cut, lift, plate — is the actual "wow" the
+           client asked for: it shows the slice being made, not just a
+           finished slice sitting on a plate, so the concept reads
+           immediately even to someone who's never seen pizza sold this way
+           before. -->
+      <div class="grid sm:grid-cols-3 gap-6 sm:gap-5 mb-14">
+        {[
+          { src: '/images/dom/pizzas/slice-cut.webp', step: copy.sliceStep1, desc: copy.sliceStep1Desc },
+          { src: '/images/dom/pizzas/slice-lift.webp', step: copy.sliceStep2, desc: copy.sliceStep2Desc },
+          { src: '/images/dom/pizzas/slice-plated.webp', step: copy.sliceStep3, desc: copy.sliceStep3Desc },
+        ].map((frame, i) => (
+          <div data-reveal style={`transition-delay: ${i * 100}ms`}>
+            <div class="relative rounded-2xl overflow-hidden aspect-[4/3]" style="border: 1px solid var(--color-border)">
+              <img src={frame.src} alt="" aria-hidden="true" class="w-full h-full object-cover" loading="lazy" />
+              <span
+                class="absolute top-3 flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold rtl:right-3 ltr:left-3"
+                style="background-color: var(--color-accent); color: var(--color-background)"
+              >
+                {i + 1}
+              </span>
+            </div>
+            <h3 class="mt-4 font-display font-semibold text-lg" style="color: var(--color-text-primary)">{t(frame.step, lang)}</h3>
+            <p class="mt-1 text-sm leading-relaxed" style="color: var(--color-text-muted)">{t(frame.desc, lang)}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Price-per-slice list — every real pizza on the menu, one line
+           each, whole price shown alongside so the value is transparent
+           rather than the slice price appearing out of nowhere. -->
+      <div class="max-w-3xl mx-auto rounded-2xl p-6 sm:p-8" style="background-color: var(--color-surface); border: 1px solid var(--color-border)" data-reveal>
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+          <h3 class="font-display text-xl font-semibold" style="color: var(--color-text-primary)">{t(copy.sliceMenuTitle, lang)}</h3>
+        </div>
+        <p class="text-xs mb-5" style="color: var(--color-text-muted)">{t(copy.sliceMenuIntro, lang)}</p>
+        <div class="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+          {pizzaCategory.items.map((item) => (
+            <div class="flex items-center justify-between gap-3 py-2" style="border-bottom: 1px solid var(--color-border)">
+              <span class="text-sm font-semibold" style="color: var(--color-text-primary)">{item.name}</span>
+              <span class="text-sm font-bold shrink-0" style="color: var(--color-accent)">
+                {slicePrice(item.priceMAD)} MAD <span class="font-normal" style="color: var(--color-text-muted)">/ {t(copy.slicePerSlice, lang)}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <div class="mt-7 text-center">
+          <Button href={orderCtaLabel.href} external variant="filled">{t(copy.sliceCta, lang)}</Button>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Editorial feature for the one real bestseller (see the
        `featuredPizza` comment above) — deliberately NOT another grid card:
