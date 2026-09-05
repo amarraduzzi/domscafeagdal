@@ -141,6 +141,12 @@ const copy = {
     ar: 'كل قطعة تعادل ثُمن البيتزا الكاملة.',
   },
   slicePerSlice: { fr: 'la part', en: 'per slice', ar: 'للقطعة' },
+  orPerSlice: { fr: 'ou la part', en: 'or per slice', ar: 'أو بالقطعة' },
+  cheesePullCaption: {
+    fr: 'Le moment que tout le monde photographie.',
+    en: 'The moment everyone photographs.',
+    ar: 'اللحظة التي يصورها الجميع.',
+  },
   sliceCta: { fr: 'Commander à la part', en: 'Order by the slice', ar: 'اطلب بالقطعة' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
@@ -319,6 +325,37 @@ const path = localizedPath('/pizza', lang);
     </div>
   </section>
 
+  <!-- Full-bleed cheese-pull break — option 1 of the "iets spectaculairs"
+       ask (see chat): no new photography, no new interaction code, just
+       the existing lift shot blown up to the full width of the page and
+       given room to actually breathe, with one short line over it instead
+       of another content block. This is deliberately the simplest of the
+       three options discussed (a scroll-triggered "pizza splits into 8
+       slices" animation was floated as a likely round 2 — see the header
+       comment at the top of this file when that's built) — proof that
+       "spectacular" doesn't have to mean "complicated", just confident
+       enough to let one real photo fill the whole screen. object-position
+       is tuned (not plain `center`) so the actual cheese pull — the part
+       of the photo doing the work — stays in frame at every viewport
+       width instead of being cropped by object-cover. -->
+  <section class="relative overflow-hidden h-[60vh] sm:h-[80vh]">
+    <img
+      src="/images/dom/pizzas/slice-lift.webp"
+      alt=""
+      aria-hidden="true"
+      class="absolute inset-0 w-full h-full object-cover"
+      style="object-position: 50% 35%"
+      loading="lazy"
+    />
+    <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10,6,3,0) 40%, rgba(10,6,3,0.85) 100%)"></div>
+    <p
+      class="absolute inset-x-0 bottom-8 sm:bottom-12 text-center font-display text-xl sm:text-3xl font-semibold px-5"
+      style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0,0,0,0.7)"
+    >
+      {t(copy.cheesePullCaption, lang)}
+    </p>
+  </section>
+
   <!-- Editorial feature for the one real bestseller (see the
        `featuredPizza` comment above) — deliberately NOT another grid card:
        full-bleed-ish photo on one side, story + CTA on the other, so the
@@ -342,8 +379,11 @@ const path = localizedPath('/pizza', lang);
             <p class="mt-2 text-base italic" style="color: var(--color-accent)">{t(featuredPizza.tagline, lang)}</p>
           )}
           <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(featuredPizza.description, lang)}</p>
-          <div class="mt-6 flex flex-wrap items-center gap-4">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span class="font-bold text-2xl" style="color: var(--color-accent)">{featuredPizza.priceMAD} MAD</span>
+            <span class="text-xs" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(featuredPizza.priceMAD)} MAD</span>
+          </div>
+          <div class="mt-6 flex flex-wrap items-center gap-4">
             <Button href={orderCtaLabel.href} external variant="filled">{t(copy.featuredCta, lang)}</Button>
           </div>
         </div>
@@ -370,7 +410,10 @@ const path = localizedPath('/pizza', lang);
           <div class="p-6">
             <div class="flex items-baseline justify-between gap-3">
               <h3 class="menu-item-name font-display font-semibold text-xl" style="color: var(--color-text-primary)">{pizza.name}</h3>
-              <span class="menu-item-price font-bold text-lg shrink-0" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
+              <span class="shrink-0 text-right">
+                <span class="menu-item-price block font-bold text-lg" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
+                <span class="block text-[11px]" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(pizza.priceMAD)} MAD</span>
+              </span>
             </div>
             {pizza.tagline && (
               <p class="text-xs mt-1 italic" style="color: var(--color-accent)">{t(pizza.tagline, lang)}</p>
@@ -406,7 +449,10 @@ const path = localizedPath('/pizza', lang);
                 <h3 class="menu-item-name font-display font-semibold" style="color: var(--color-text-primary)">{item.name}</h3>
                 <p class="text-sm mt-1" style="color: var(--color-text-muted)">{t(item.description, lang)}</p>
               </div>
-              <span class="menu-item-price font-bold shrink-0" style="color: var(--color-accent)">{item.priceMAD} MAD</span>
+              <span class="shrink-0 text-right">
+                <span class="menu-item-price block font-bold" style="color: var(--color-accent)">{item.priceMAD} MAD</span>
+                <span class="block text-[11px]" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(item.priceMAD)} MAD</span>
+              </span>
             </div>
           ))}
         </div>
