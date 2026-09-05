@@ -72,12 +72,14 @@ const copy = {
   // (see the comment there) in favor of a short kicker + the brand name
   // alone, so there's nothing left here to keep in sync.
   selectionKicker: { fr: 'Sélection', en: 'Selection', ar: 'مختارات' },
-  // "Best pizza in Rabat" section, right under the hero — the hero's own
+  // "Best pizza in Agdal" section, right under the hero — the hero's own
   // oven/stamp moment exists to set this claim up, so the copy here
   // follows through on it directly rather than a generic "our pizzas"
-  // framing.
+  // framing. Client instruction: "Rabat" must never appear in this
+  // superlative — the claim is specifically "Agdal" everywhere on the
+  // site, matching the hero button and the /pizza page's own title.
   pizzaKicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
-  pizzaTitle: { fr: 'La meilleure pizza de Rabat', en: 'The best pizza in Rabat', ar: 'أفضل بيتزا في الرباط' },
+  pizzaTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
   pizzaIntro: {
     fr: 'Pâte fine, ingrédients frais, cuisson soignée au four — et une première à Rabat: chaque pizza est aussi disponible à la part.',
     en: 'Thin crust, fresh ingredients, carefully oven-baked — and a first in Rabat: every pizza is also available by the slice.',
@@ -381,7 +383,7 @@ const path = localizedPath('/', lang);
     </div>
   </section>
 
-  <!-- "Best pizza in Rabat" — trimmed to a compact teaser (client feedback:
+  <!-- "Best pizza in Agdal" — trimmed to a compact teaser (client feedback:
        the previous 4-photo showcase grid here, right after a hero that
        already carries the stamp + a "Meilleure pizza d'Agdal" button, read
        as too much before even reaching the menu highlights — and now that

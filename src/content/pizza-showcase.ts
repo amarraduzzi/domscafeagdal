@@ -1,5 +1,7 @@
-// "Best pizza in Rabat" homepage section — client's own priority push
-// ("We willen de beste pizza van Rabat gaan promoten"). Names, prices and
+// "Best pizza in Agdal" homepage section — client's own priority push
+// ("We willen de beste pizza van Rabat gaan promoten" — client's original
+// wording; later corrected sitewide to "Agdal" specifically, never "Rabat").
+// Names, prices and
 // ingredients pulled directly from domscafe.pages.dev's live menu (the
 // same source menu-highlights.ts already uses) — real dishes, not
 // invented ones. Photos are the client's own, supplied directly and
