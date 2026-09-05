@@ -42,12 +42,17 @@ const orderCtaLabel = getOrderCtaLabel(lang);
 const copy = {
   // Hero subtitle, right under the "Dom's Café" H1 — client asked for
   // something warm covering both the café itself and the pizza push
-  // ("het gezelligste café en beste pizza van Agdal"). Kept to one short
-  // line on purpose (see the comment where this is used).
+  // ("het gezelligste café en beste pizza van Agdal"). The two claims are
+  // deliberately scoped differently per the client's correction: "best
+  // café" is city-wide, but "best pizza" stays Agdal-specific because the
+  // owner also runs a separate pizzeria elsewhere in Rabat — a city-wide
+  // pizza claim here would compete with that other location instead of
+  // this one. Kept to one short line on purpose (see the comment where
+  // this is used).
   heroSubtitle: {
-    fr: "Le café le plus chaleureux d'Agdal — et la meilleure pizza de la ville.",
-    en: "Agdal's coziest café — and the best pizza in town.",
-    ar: 'أكثر مقهى دافئ في أكدال، وأفضل بيتزا في المدينة.',
+    fr: "Le café le plus chaleureux de la ville — et la meilleure pizza d'Agdal.",
+    en: 'The coziest café in the city — and the best pizza in Agdal.',
+    ar: 'أكثر مقهى دافئ في المدينة، وأفضل بيتزا في أكدال.',
   },
   // Keyword-first: the search term goes as far forward in the title as
   // possible (Google + AI answer engines both weight this), brand name
@@ -332,7 +337,19 @@ const path = localizedPath('/', lang);
              client's real priority instead ("de site moet de pizza veel
              aanprijzen"). It's deliberately styled as the bolder of the
              two (dark fill, gold border, pizza emoji) since promoting the
-             pizza matters more here than a second, quieter CTA would. -->
+             pizza matters more here than a second, quieter CTA would.
+
+             variant="filled" here on purpose, NOT "outline" — outline's
+             shared hover/press style (Button.astro) sweeps the whole
+             button solid gold AND, on this button only, the gold text
+             color was forced with !important to stay legible against the
+             dark background at rest. Those two collide: on tap (mobile
+             has no separate hover state, a tap IS the press state) the
+             button went full gold with gold text on top of it — exactly
+             the "helemaal bedekt met gouden kleuren, tekst niet meer
+             zichtbaar" bug reported. "filled" has no such color-swapping
+             sweep, just a brightness bump on press, so the text color
+             never conflicts with the background at any state. -->
         <div class="mt-5 flex flex-wrap gap-3">
           <Button
             href={orderCtaLabel.href}
@@ -343,8 +360,8 @@ const path = localizedPath('/', lang);
           </Button>
           <Button
             href={`${localizedPath('/menu', lang)}#pizzas`}
-            variant="outline"
-            class="!bg-black/60 backdrop-blur-sm !border-[var(--color-accent)] !text-[var(--color-accent)]"
+            variant="filled"
+            class="!bg-black/60 backdrop-blur-sm border border-[var(--color-accent)] !text-[var(--color-accent)] hover:!brightness-100 hover:!bg-black/75"
           >
             🍕 {t(common.meilleurePizzaAgdal, lang)}
           </Button>
