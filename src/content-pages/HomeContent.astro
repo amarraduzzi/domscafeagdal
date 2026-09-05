@@ -13,6 +13,7 @@ import PizzaBadge from '../components/PizzaBadge.astro';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { menuHighlights } from '../content/menu-highlights';
+import { pizzaShowcase } from '../content/pizza-showcase';
 import { testimonials, aggregateRating } from '../content/testimonials';
 import { t, arrow, localizedPath, isRTL, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
@@ -57,6 +58,18 @@ const copy = {
   // (see the comment there) in favor of a short kicker + the brand name
   // alone, so there's nothing left here to keep in sync.
   selectionKicker: { fr: 'Sélection', en: 'Selection', ar: 'مختارات' },
+  // "Best pizza in Rabat" section, right under the hero — the hero's own
+  // oven/stamp moment exists to set this claim up, so the copy here
+  // follows through on it directly rather than a generic "our pizzas"
+  // framing.
+  pizzaKicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
+  pizzaTitle: { fr: 'La meilleure pizza de Rabat', en: 'The best pizza in Rabat', ar: 'أفضل بيتزا في الرباط' },
+  pizzaIntro: {
+    fr: 'Pâte fine, ingrédients frais, cuisson soignée — voici les pizzas les plus commandées à Agdal.',
+    en: 'Thin crust, fresh ingredients, careful baking — the most-ordered pizzas in Agdal.',
+    ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن — أكثر أنواع البيتزا طلبًا في أكدال.',
+  },
+  pizzaPopularBadge: { fr: 'Populaire', en: 'Popular', ar: 'الأكثر طلبًا' },
   incontournablesTitle: { fr: 'Nos incontournables', en: 'Customer favorites', ar: 'أطباقنا المميزة' },
   platSignatureKicker: { fr: 'Formule signature', en: 'Signature formula', ar: 'الوجبة المميزة' },
   platSignatureQuote: {
@@ -326,6 +339,67 @@ const path = localizedPath('/', lang);
       </div>
     </div>
   </section>
+
+  <!-- "Best pizza in Rabat" — client priority push: this whole hero
+       oven/stamp moment above exists to set up THIS claim, so the section
+       backing it up needs to follow immediately, not after the general
+       menu highlights. Real dishes only: names, prices and ingredients
+       come straight from domscafe.pages.dev's live menu (see
+       pizza-showcase.ts's header comment) and the seven photos are the
+       client's own, stored locally — no stock/placeholder pizza photos.
+       section-tint-warm (not the neutral section-tint) on purpose: this
+       is the one section on the page that's explicitly about the food
+       itself, the food-forward use case that class's own comment in
+       global.css calls out. -->
+  <div class="section-tint-warm">
+    <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl mb-10 sm:mb-12" data-reveal>
+        <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-2" style="color: var(--color-accent)">{t(copy.pizzaKicker, lang)}</span>
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold" style="color: var(--color-text-primary)">{t(copy.pizzaTitle, lang)}</h2>
+        <p class="mt-3 text-sm sm:text-base leading-relaxed max-w-xl" style="color: var(--color-text-muted)">{t(copy.pizzaIntro, lang)}</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {pizzaShowcase.map((pizza, i) => (
+          <div
+            class="card-lift relative rounded-2xl overflow-hidden"
+            style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
+            data-reveal
+          >
+            {pizza.popular && (
+              <span
+                class="absolute top-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                style={`${rtl ? 'left' : 'right'}: 0.75rem; background-color: var(--color-accent); color: var(--color-background)`}
+              >
+                {t(copy.pizzaPopularBadge, lang)}
+              </span>
+            )}
+            <div class="photo-frame aspect-square">
+              <img src={pizza.image} alt={t(pizza.imageAlt, lang)} class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="p-5">
+              <h3 class="menu-item-name font-display font-semibold text-lg" style="color: var(--color-text-primary)">{pizza.name}</h3>
+              <p class="text-sm mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
+              <p class="menu-item-price mt-3 font-bold" style="color: var(--color-accent)">{pizza.priceMAD} MAD</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <Button href={localizedPath('/menu', lang)} variant="cta">
+          {t(common.voirLeMenuComplet, lang)} {arrow(lang)}
+        </Button>
+        <a
+          href={orderCtaLabel.href}
+          target="_blank"
+          rel="noreferrer"
+          class="text-sm font-bold"
+          style="color: var(--color-accent)"
+        >
+          {orderCtaLabel.label} {arrow(lang)}
+        </a>
+      </div>
+    </section>
+  </div>
 
   <!-- Menu highlights -->
   <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
