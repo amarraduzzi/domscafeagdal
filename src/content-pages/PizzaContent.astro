@@ -21,6 +21,18 @@
 // are untouched for this first draft (not asked to remove them) — worth
 // asking the client whether those should now link here too instead of
 // duplicating the grid, during finetuning.
+//
+// Round 2 ("maak er een klapper van"): three upgrades, all buildable
+// without new client assets (a looping oven video and a real pizza-specific
+// review quote were also on the table — deliberately skipped until real
+// footage/quotes exist, see the chat for why). (1) The one pizza flagged
+// `popular` in pizza-showcase.ts (Pollo) is pulled out of the grid into its
+// own large editorial feature, so the page has a clear focal point instead
+// of 7 equally-weighted cards. (2) Every showcase pizza now carries a short
+// mood/sensory `tagline` (see pizza-showcase.ts's own comment on why these
+// are never factual claims). (3) A mobile-only sticky order bar fades in
+// once the hero is scrolled past — see the <script> at the bottom of this
+// file and its own comment for the mechanism.
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
@@ -29,14 +41,13 @@ import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { pizzaShowcase } from '../content/pizza-showcase';
 import { fullMenu } from '../content/full-menu';
-import { t, localizedPath, arrow, isRTL, type Language } from '../i18n/languages';
+import { t, localizedPath, arrow, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
 
 interface Props {
   lang?: Language;
 }
 const { lang = 'fr' } = Astro.props;
-const rtl = isRTL(lang);
 
 const { name } = siteConfig.identity;
 const city = t(place.city, lang);
@@ -52,6 +63,13 @@ const pizzaCategory = fullMenu.find((c) => c.slug === 'pizzas')!;
 const unphotographedPizzas = pizzaCategory.items.filter(
   (item) => !photographedNames.has(item.name.replace(/\s+Pizza$/i, '').toLowerCase())
 );
+
+// The one real `popular` pizza (see pizza-showcase.ts) gets pulled out of
+// the grid into its own editorial feature below the hero — everything else
+// falls back to the regular grid. `find`/`filter` rather than a hardcoded
+// name so this stays correct if the client's bestseller ever changes.
+const featuredPizza = pizzaShowcase.find((p) => p.popular);
+const gridPizzas = featuredPizza ? pizzaShowcase.filter((p) => p !== featuredPizza) : pizzaShowcase;
 
 const copy = {
   metaTitle: {
@@ -71,7 +89,6 @@ const copy = {
     en: 'Thin crust, fresh ingredients, carefully oven-baked — discover every one of our pizzas.',
     ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن بالفرن — اكتشف كل أنواع البيتزا لدينا واحدة تلو الأخرى.',
   },
-  popularBadge: { fr: 'Populaire', en: 'Popular', ar: 'الأكثر طلبًا' },
   alsoOnMenuKicker: { fr: 'Aussi sur la carte', en: 'Also on the menu', ar: 'أيضًا في القائمة' },
   alsoOnMenuTitle: { fr: 'Deux autres façons de se régaler', en: 'Two more ways to enjoy', ar: 'طريقتان أخريان للاستمتاع' },
   alsoOnMenuIntro: {
@@ -80,6 +97,8 @@ const copy = {
     ar: 'لم تُصوَّر بعد في هذه الصفحة، لكنها حاضرة فعليًا في قائمة Dom\'s Café.',
   },
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
+  featuredKicker: { fr: 'Le coup de cœur', en: 'The favorite', ar: 'المفضلة' },
+  featuredCta: { fr: 'Commander cette pizza', en: 'Order this pizza', ar: 'اطلب هذه البيتزا' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
 const pizzaJsonLd = {
@@ -138,35 +157,67 @@ const path = localizedPath('/pizza', lang);
     </div>
   </section>
 
-  <!-- The 7 photographed pizzas — bigger, more spacious cards than the
-       compact homepage/menu teaser (PizzaShowcaseGrid.astro): 3 per row
+  <!-- Marks where the hero ends, for the sticky mobile order bar's
+       IntersectionObserver below — the bar appears once this leaves the
+       viewport, i.e. once someone has scrolled past the hero. -->
+  <div id="hero-end-marker"></div>
+
+  <!-- Editorial feature for the one real bestseller (see the
+       `featuredPizza` comment above) — deliberately NOT another grid card:
+       full-bleed-ish photo on one side, story + CTA on the other, so the
+       page has one clear "look at THIS one" moment before settling into
+       the calmer grid of everything else. -->
+  {featuredPizza && (
+    <section class="max-w-6xl mx-auto px-5 sm:px-8 pt-4 pb-16 sm:pb-20">
+      <div class="grid lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden" style="background-color: var(--color-surface); border: 1px solid var(--color-border)" data-reveal>
+        <div class="photo-frame aspect-[4/3] lg:aspect-auto">
+          <img
+            src={featuredPizza.image}
+            alt={t(featuredPizza.imageAlt, lang)}
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+        </div>
+        <div class="p-8 sm:p-10 flex flex-col justify-center">
+          <span class="block text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style="color: var(--color-accent)">{t(copy.featuredKicker, lang)}</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{featuredPizza.name}</h2>
+          {featuredPizza.tagline && (
+            <p class="mt-2 text-base italic" style="color: var(--color-accent)">{t(featuredPizza.tagline, lang)}</p>
+          )}
+          <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(featuredPizza.description, lang)}</p>
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <span class="font-bold text-2xl" style="color: var(--color-accent)">{featuredPizza.priceMAD} MAD</span>
+            <Button href={orderCtaLabel.href} external variant="filled">{t(copy.featuredCta, lang)}</Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- The remaining photographed pizzas — bigger, more spacious cards than
+       the compact homepage/menu teaser (PizzaShowcaseGrid.astro): 3 per row
        instead of 4, a taller photo, and the description gets more room
        to breathe, since this page's whole reason to exist is giving
        pizza the spotlight the client asked for. -->
   <section id="pizzas" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-      {pizzaShowcase.map((pizza, i) => (
+      {gridPizzas.map((pizza, i) => (
         <div
           class="card-lift relative rounded-2xl overflow-hidden"
           style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
           data-reveal
         >
-          {pizza.popular && (
-            <span
-              class="absolute top-4 z-10 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide"
-              style={`${rtl ? 'left' : 'right'}: 1rem; background-color: var(--color-accent); color: var(--color-background)`}
-            >
-              {t(copy.popularBadge, lang)}
-            </span>
-          )}
           <div class="photo-frame aspect-[4/3]">
             <img src={pizza.image} alt={t(pizza.imageAlt, lang)} class="w-full h-full object-cover" loading="lazy" />
           </div>
           <div class="p-6">
             <div class="flex items-baseline justify-between gap-3">
-              <h2 class="menu-item-name font-display font-semibold text-xl" style="color: var(--color-text-primary)">{pizza.name}</h2>
+              <h3 class="menu-item-name font-display font-semibold text-xl" style="color: var(--color-text-primary)">{pizza.name}</h3>
               <span class="menu-item-price font-bold text-lg shrink-0" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
             </div>
+            {pizza.tagline && (
+              <p class="text-xs mt-1 italic" style="color: var(--color-accent)">{t(pizza.tagline, lang)}</p>
+            )}
             <p class="text-sm mt-2 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
           </div>
         </div>
@@ -211,4 +262,67 @@ const path = localizedPath('/pizza', lang);
     <p class="text-sm mb-4" style="color: var(--color-text-muted)">{t(copy.readyToOrder, lang)}</p>
     <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label} {arrow(lang)}</Button>
   </section>
+
+  <!-- Mobile-only sticky order bar (see the <script> below for the
+       show/hide mechanism) — desktop already has "Commander" in the header,
+       but on mobile that's easy to lose track of on a page this long, and
+       this page's whole point is to convert pizza browsing into an order. -->
+  <div id="pizza-sticky-bar" class="pizza-sticky-bar sm:hidden" aria-hidden="true">
+    <a href={orderCtaLabel.href} target="_blank" rel="noreferrer" class="pizza-sticky-bar-link">
+      {orderCtaLabel.label}
+    </a>
+  </div>
 </Layout>
+
+<style>
+  .pizza-sticky-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  .pizza-sticky-bar.is-visible {
+    transform: translateY(0);
+  }
+  .pizza-sticky-bar-link {
+    display: block;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background-color: var(--color-accent);
+    color: var(--color-background);
+  }
+</style>
+
+<script>
+  // Fades the mobile order bar in once the hero (marked by #hero-end-marker
+  // just below the hero section) has scrolled out of view, and back out if
+  // someone scrolls back up to the top — an IntersectionObserver instead of
+  // a scroll listener so this stays cheap on low-end phones. Wrapped in
+  // 'astro:page-load' to match this codebase's convention for re-init on
+  // View Transitions navigation (see MenuContent.astro's own script).
+  document.addEventListener('astro:page-load', () => {
+    const bar = document.querySelector<HTMLElement>('#pizza-sticky-bar');
+    const marker = document.querySelector<HTMLElement>('#hero-end-marker');
+    if (!bar || !marker) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const pastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        bar.classList.toggle('is-visible', pastHero);
+        bar.setAttribute('aria-hidden', pastHero ? 'false' : 'true');
+      },
+      { threshold: 0 }
+    );
+    observer.observe(marker);
+  });
+</script>
