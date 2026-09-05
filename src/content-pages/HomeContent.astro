@@ -10,7 +10,7 @@ import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
 import PizzaBadge from '../components/PizzaBadge.astro';
-import PizzaShowcaseGrid from '../components/PizzaShowcaseGrid.astro';
+import { pizzaShowcase } from '../content/pizza-showcase';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { menuHighlights } from '../content/menu-highlights';
@@ -79,11 +79,11 @@ const copy = {
   pizzaKicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
   pizzaTitle: { fr: 'La meilleure pizza de Rabat', en: 'The best pizza in Rabat', ar: 'أفضل بيتزا في الرباط' },
   pizzaIntro: {
-    fr: 'Pâte fine, ingrédients frais, cuisson soignée — voici les pizzas les plus commandées à Agdal.',
-    en: 'Thin crust, fresh ingredients, careful baking — the most-ordered pizzas in Agdal.',
-    ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن — أكثر أنواع البيتزا طلبًا في أكدال.',
+    fr: 'Pâte fine, ingrédients frais, cuisson soignée au four — et une première à Rabat: chaque pizza est aussi disponible à la part.',
+    en: 'Thin crust, fresh ingredients, carefully oven-baked — and a first in Rabat: every pizza is also available by the slice.',
+    ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن بالفرن، والأولى من نوعها في الرباط: كل بيتزا متوفرة أيضًا بالقطعة.',
   },
-  pizzaPopularBadge: { fr: 'Populaire', en: 'Popular', ar: 'الأكثر طلبًا' },
+  pizzaTeaserCta: { fr: 'Voir toutes nos pizzas', en: 'See all our pizzas', ar: 'شاهد كل أنواع البيتزا' },
   incontournablesTitle: { fr: 'Nos incontournables', en: 'Customer favorites', ar: 'أطباقنا المميزة' },
   platSignatureKicker: { fr: 'Formule signature', en: 'Signature formula', ar: 'الوجبة المميزة' },
   platSignatureQuote: {
@@ -162,6 +162,12 @@ const restaurantJsonLd = {
 };
 
 const highlightItems = menuHighlights.flatMap((c) => c.items).slice(0, 4);
+
+// Background photo for the compact pizza teaser banner below the hero (see
+// that section's own comment) — the one real `popular` pizza's own photo,
+// falling back to the first showcase pizza if none is flagged, so this
+// never breaks if that flag ever moves.
+const pizzaTeaserPhoto = pizzaShowcase.find((p) => p.popular) ?? pizzaShowcase[0];
 
 const path = localizedPath('/', lang);
 ---
@@ -363,26 +369,45 @@ const path = localizedPath('/', lang);
     </div>
   </section>
 
-  <!-- "Best pizza in Rabat" — client priority push: this whole hero
-       oven/stamp moment above exists to set up THIS claim, so the section
-       backing it up needs to follow immediately, not after the general
-       menu highlights. Real dishes only: names, prices and ingredients
-       come straight from domscafe.pages.dev's live menu (see
-       pizza-showcase.ts's header comment) and the seven photos are the
-       client's own, stored locally — no stock/placeholder pizza photos.
-       Markup now lives in PizzaShowcaseGrid.astro, shared with the /menu
-       page's own #pizzas section (see MenuContent.astro) so the new hero
-       button "Beste pizza van Agdal" has a matching landing spot there,
-       not just here on Home. -->
-  <PizzaShowcaseGrid
-    lang={lang}
-    kicker={t(copy.pizzaKicker, lang)}
-    title={t(copy.pizzaTitle, lang)}
-    intro={t(copy.pizzaIntro, lang)}
-    popularBadge={t(copy.pizzaPopularBadge, lang)}
-    orderCtaHref={orderCtaLabel.href}
-    orderCtaLabel={orderCtaLabel.label}
-  />
+  <!-- "Best pizza in Rabat" — trimmed to a compact teaser (client feedback:
+       the previous 4-photo showcase grid here, right after a hero that
+       already carries the stamp + a "Meilleure pizza d'Agdal" button, read
+       as too much before even reaching the menu highlights — and now that
+       the dedicated /pizza page exists with its own full showcase, slice
+       pricing and bestseller feature, repeating all of that here was pure
+       duplication). This keeps the visual break and the pizza push, just
+       as one photo + a short line + a single CTA into that richer page,
+       instead of a second full section. The 4-photo grid itself
+       (PizzaShowcaseGrid.astro) stays on the /menu page, where visitors
+       browsing the full card still expect photos per category — see
+       MenuContent.astro. -->
+  <section class="relative overflow-hidden min-h-[380px] sm:h-[46vh]" data-reveal="scale">
+    <img
+      src={pizzaTeaserPhoto.image}
+      alt={t(pizzaTeaserPhoto.imageAlt, lang)}
+      class="absolute inset-0 w-full h-full object-cover"
+      loading="lazy"
+    />
+    <!-- No gradient scrim here on purpose — same reasoning as the
+         "signature spotlight" section further down this page (see its own
+         comment): a directional gradient assumes the text sits on one
+         fixed physical side, but this block (like that one) is a flex row
+         that mirrors to the opposite side in RTL — so a left-dark-fading
+         gradient would leave the text over the LIGHTEST part of the photo
+         once it flips to the right for Arabic. Text-shadow reads correctly
+         against any part of the photo regardless of which side it lands
+         on, so it's the one approach that's actually direction-safe. -->
+    <div class="relative z-10 h-full flex items-center max-w-7xl mx-auto px-5 sm:px-8 py-12 sm:py-0">
+      <div class="max-w-md">
+        <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-2 [text-shadow:0_2px_10px_rgba(0,0,0,0.85)]" style="color: var(--color-accent)">{t(copy.pizzaKicker, lang)}</span>
+        <h2 class="font-display text-2xl sm:text-4xl font-semibold [text-shadow:0_2px_14px_rgba(0,0,0,0.85)]" style="color: var(--color-text-primary)">{t(copy.pizzaTitle, lang)}</h2>
+        <p class="mt-3 text-sm sm:text-base leading-relaxed [text-shadow:0_1px_10px_rgba(0,0,0,0.9)]" style="color: var(--color-text-primary)">{t(copy.pizzaIntro, lang)}</p>
+        <div class="mt-6">
+          <Button href={localizedPath('/pizza', lang)} variant="filled">{t(copy.pizzaTeaserCta, lang)} {arrow(lang)}</Button>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Menu highlights -->
   <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
