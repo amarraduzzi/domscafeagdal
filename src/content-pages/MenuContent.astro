@@ -24,9 +24,9 @@ const orderCtaLabel = getOrderCtaLabel(lang);
 const copy = {
   // Keyword-first, same reasoning as HomeContent.astro's metaTitle.
   metaTitle: {
-    fr: `${primaryKeyword} à ${city} — Menu | ${name}`,
-    en: `${primaryKeyword} in ${city} — Menu | ${name}`,
-    ar: `${primaryKeyword} في ${city} — القائمة | ${name}`,
+    fr: `${primaryKeyword} à ${city}, Menu | ${name}`,
+    en: `${primaryKeyword} in ${city}, Menu | ${name}`,
+    ar: `${primaryKeyword} في ${city}, القائمة | ${name}`,
   },
   metaDescription: {
     fr: `Découvrez le menu de ${name}, ${primaryKeyword} à ${city} : boissons, petits-déjeuners, crêpes, pizzas, sandwiches, pâtes et desserts. Commandez en ligne ou sur place.`,
@@ -69,7 +69,7 @@ const copy = {
 const menuJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Menu',
-  name: `Menu — ${name}`,
+  name: `Menu, ${name}`,
   hasMenuSection: fullMenu.map((cat) => ({
     '@type': 'MenuSection',
     name: t(cat.label, lang),

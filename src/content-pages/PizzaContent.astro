@@ -78,9 +78,9 @@ const slicePrice = (wholePizzaPrice: number) => Math.round((wholePizzaPrice / 8)
 
 const copy = {
   metaTitle: {
-    fr: `Meilleure pizza d'Agdal — ${name} | ${city}`,
-    en: `Best pizza in Agdal — ${name} | ${city}`,
-    ar: `أفضل بيتزا في أكدال — ${name} | ${city}`,
+    fr: `Meilleure pizza d'Agdal, ${name} | ${city}`,
+    en: `Best pizza in Agdal, ${name} | ${city}`,
+    ar: `أفضل بيتزا في أكدال, ${name} | ${city}`,
   },
   metaDescription: {
     fr: `Découvrez toutes les pizzas de ${name} à Agdal, ${city} : pâte fine, ingrédients frais, cuisson soignée. La pizza la plus commandée du quartier.`,
@@ -90,9 +90,9 @@ const copy = {
   kicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
   heroTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
   heroSubtitle: {
-    fr: 'Des recettes audacieuses et uniques, introuvables ailleurs en ville — pâte fine, ingrédients frais, et disponibles à la part, une première à Rabat.',
-    en: "Bold, one-of-a-kind recipes found nowhere else in the city — thin crust, fresh ingredients, and available by the slice, a first in Rabat.",
-    ar: 'وصفات جريئة وفريدة لا تجدونها في أي مكان آخر بالمدينة — عجينة رفيعة، مكونات طازجة، ومتوفرة بالقطعة، وهي الأولى من نوعها في الرباط.',
+    fr: 'Des recettes audacieuses et uniques, introuvables ailleurs en ville : pâte fine, ingrédients frais, et disponibles à la part, une première à Rabat.',
+    en: "Bold, one-of-a-kind recipes found nowhere else in the city: thin crust, fresh ingredients, and available by the slice, a first in Rabat.",
+    ar: 'وصفات جريئة وفريدة لا تجدونها في أي مكان آخر بالمدينة: عجينة رفيعة، مكونات طازجة، ومتوفرة بالقطعة، وهي الأولى من نوعها في الرباط.',
   },
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
   featuredKicker: { fr: 'Le coup de cœur', en: 'The favorite', ar: 'المفضلة' },
@@ -100,8 +100,8 @@ const copy = {
   sliceBadge: { fr: 'Une première à Rabat', en: 'A first in Rabat', ar: 'الأولى من نوعها في الرباط' },
   sliceTitle: { fr: 'La pizza à la part', en: 'Pizza by the slice', ar: 'البيتزا بالقطعة' },
   sliceIntro: {
-    fr: "Chez nous, pas besoin de commander une pizza entière pour se faire plaisir. Chaque pizza de notre carte est aussi disponible à la part — une idée encore rare à Rabat, et que nous sommes fiers d'être les premiers à proposer.",
-    en: "You don't need to order a whole pizza to enjoy one here. Every pizza on our menu is also available by the slice — still a rare idea in Rabat, and one we're proud to be the first to offer.",
+    fr: "Chez nous, pas besoin de commander une pizza entière pour se faire plaisir. Chaque pizza de notre carte est aussi disponible à la part, une idée encore rare à Rabat, et que nous sommes fiers d'être les premiers à proposer.",
+    en: "You don't need to order a whole pizza to enjoy one here. Every pizza on our menu is also available by the slice, still a rare idea in Rabat, and one we're proud to be the first to offer.",
     ar: 'ليس من الضروري طلب بيتزا كاملة للاستمتاع بها عندنا. كل بيتزا في قائمتنا متوفرة أيضًا بالقطعة، وهي فكرة لا تزال نادرة في الرباط، ونحن فخورون بأننا أول من يقدمها.',
   },
   sliceStep1: { fr: 'On la découpe', en: 'We cut it', ar: 'نقطعها' },
@@ -112,8 +112,8 @@ const copy = {
   },
   sliceStep2: { fr: 'Vous choisissez', en: 'You choose', ar: 'تختارون' },
   sliceStep2Desc: {
-    fr: "Une part, deux parts, ou plusieurs pizzas différentes à la part — à vous de composer.",
-    en: 'One slice, two slices, or several different pizzas by the slice — you decide the mix.',
+    fr: "Une part, deux parts, ou plusieurs pizzas différentes à la part, à vous de composer.",
+    en: 'One slice, two slices, or several different pizzas by the slice, you decide the mix.',
     ar: 'قطعة واحدة أو قطعتان أو عدة أنواع مختلفة بالقطعة، الاختيار لكم.',
   },
   sliceStep3: { fr: 'Vous dégustez', en: 'You enjoy', ar: 'تستمتعون' },
@@ -141,7 +141,7 @@ const copy = {
 const pizzaJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Menu',
-  name: `Pizza — ${name}`,
+  name: `Pizza, ${name}`,
   hasMenuSection: [
     {
       '@type': 'MenuSection',

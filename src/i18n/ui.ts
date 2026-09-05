@@ -52,7 +52,7 @@ export const common = {
   vegetarienUniquement: { fr: 'Végétarien', en: 'Vegetarian', ar: 'نباتي' } satisfies LocalizedText,
   noteMoyenneClients: { fr: 'note moyenne de nos clients', en: 'average customer rating', ar: 'متوسط تقييم عملائنا' } satisfies LocalizedText,
   platsPreparesCommande: { fr: 'plats faits maison' , en: 'homemade dishes', ar: 'أطباق منزلية الصنع' } satisfies LocalizedText,
-  preparesCommandeLine: { fr: 'de notre carte est préparée maison, à la commande — boissons, snacks et plats.', en: 'of our menu is homemade, cooked to order — drinks, snacks and dishes alike.', ar: 'من قائمتنا محضّرة منزليًا عند الطلب — مشروبات ووجبات خفيفة وأطباق.' } satisfies LocalizedText,
+  preparesCommandeLine: { fr: 'de notre carte est préparée maison, à la commande : boissons, snacks et plats.', en: 'of our menu is homemade, cooked to order: drinks, snacks and dishes alike.', ar: 'من قائمتنا محضّرة منزليًا عند الطلب: مشروبات ووجبات خفيفة وأطباق.' } satisfies LocalizedText,
 
   // Shared trust badge — used on Home ("why us") and Menu (hero).
   homemadeBadge: { fr: 'Fait maison', en: 'Homemade', ar: 'صناعة منزلية' } satisfies LocalizedText,

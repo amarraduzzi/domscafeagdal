@@ -50,17 +50,17 @@ const copy = {
   // this one. Kept to one short line on purpose (see the comment where
   // this is used).
   heroSubtitle: {
-    fr: "Le café le plus chaleureux de la ville — et la meilleure pizza d'Agdal.",
-    en: 'The coziest café in the city — and the best pizza in Agdal.',
+    fr: "Le café le plus chaleureux de la ville, et la meilleure pizza d'Agdal.",
+    en: 'The coziest café in the city, and the best pizza in Agdal.',
     ar: 'أكثر مقهى دافئ في المدينة، وأفضل بيتزا في أكدال.',
   },
   // Keyword-first: the search term goes as far forward in the title as
   // possible (Google + AI answer engines both weight this), brand name
   // last as a trust signal.
   metaTitle: {
-    fr: `${primaryKeyword} à ${city} — ${siteConfig.identity.name}`,
-    en: `${primaryKeyword} in ${city} — ${siteConfig.identity.name}`,
-    ar: `${primaryKeyword} في ${city} — ${siteConfig.identity.name}`,
+    fr: `${primaryKeyword} à ${city}, ${siteConfig.identity.name}`,
+    en: `${primaryKeyword} in ${city}, ${siteConfig.identity.name}`,
+    ar: `${primaryKeyword} في ${city}, ${siteConfig.identity.name}`,
   },
   metaDescription: {
     fr: `${siteConfig.identity.name} est un ${primaryKeyword} au cœur d'Agdal, ${city}. Boissons, petits-déjeuners, crêpes, pizzas et plats faits maison, à commander en ligne ou sur place.`,
@@ -81,17 +81,17 @@ const copy = {
   pizzaKicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
   pizzaTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
   pizzaIntro: {
-    fr: 'Pâte fine, ingrédients frais, cuisson soignée au four — et une première à Rabat: chaque pizza est aussi disponible à la part.',
-    en: 'Thin crust, fresh ingredients, carefully oven-baked — and a first in Rabat: every pizza is also available by the slice.',
+    fr: 'Pâte fine, ingrédients frais, cuisson soignée au four, et une première à Rabat : chaque pizza est aussi disponible à la part.',
+    en: 'Thin crust, fresh ingredients, carefully oven-baked, and a first in Rabat: every pizza is also available by the slice.',
     ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن بالفرن، والأولى من نوعها في الرباط: كل بيتزا متوفرة أيضًا بالقطعة.',
   },
   pizzaTeaserCta: { fr: 'Voir toutes nos pizzas', en: 'See all our pizzas', ar: 'شاهد كل أنواع البيتزا' },
   incontournablesTitle: { fr: 'Nos incontournables', en: 'Customer favorites', ar: 'أطباقنا المميزة' },
   platSignatureKicker: { fr: 'Formule signature', en: 'Signature formula', ar: 'الوجبة المميزة' },
   platSignatureQuote: {
-    fr: "La formule Dom's : boisson chaude, jus d'orange, toasts, œufs, fromage et charcuterie — notre petit-déjeuner le plus commandé.",
-    en: "The Dom's formula: hot drink, orange juice, toasts, eggs, cheese and cold cuts — our most-ordered breakfast.",
-    ar: "وجبة Dom's: مشروب ساخن، عصير برتقال، توست، بيض، جبن ولحوم باردة — فطورنا الأكثر طلبًا.",
+    fr: "La formule Dom's : boisson chaude, jus d'orange, toasts, œufs, fromage et charcuterie, notre petit-déjeuner le plus commandé.",
+    en: "The Dom's formula: hot drink, orange juice, toasts, eggs, cheese and cold cuts, our most-ordered breakfast.",
+    ar: "وجبة Dom's: مشروب ساخن، عصير برتقال، توست، بيض، جبن ولحوم باردة، فطورنا الأكثر طلبًا.",
   },
   ambianceKicker: { fr: 'Notre espace jeu', en: 'Our game room', ar: 'قاعة الألعاب' },
   ambianceTitle: { fr: "Dom's Pool", en: "Dom's Pool", ar: "Dom's Pool" },
@@ -120,9 +120,9 @@ const copy = {
     {
       title: { fr: 'Fait maison', en: 'Homemade', ar: 'صناعة منزلية' },
       body: {
-        fr: 'Boissons, snacks et plats préparés maison — jamais réchauffés, jamais à l\'avance.',
-        en: 'Drinks, snacks and dishes made in-house — never reheated, never made in advance.',
-        ar: 'مشروبات ووجبات خفيفة وأطباق محضّرة في المكان — لا تُسخّن أبدًا ولا تُجهّز مسبقًا.',
+        fr: 'Boissons, snacks et plats préparés maison, jamais réchauffés, jamais à l\'avance.',
+        en: 'Drinks, snacks and dishes made in-house, never reheated, never made in advance.',
+        ar: 'مشروبات ووجبات خفيفة وأطباق محضّرة في المكان، لا تُسخّن أبدًا ولا تُجهّز مسبقًا.',
       },
     },
     {
@@ -136,9 +136,9 @@ const copy = {
     {
       title: { fr: 'Commande directe', en: 'Direct ordering', ar: 'طلب مباشر' },
       body: {
-        fr: `Commande en ligne reliée directement à notre cuisine à ${city} — préparation immédiate.`,
-        en: `Online orders go straight to our kitchen in ${city} — prepared right away.`,
-        ar: `الطلبات الإلكترونية تصل مباشرة إلى مطبخنا في ${city} — تُحضَّر فورًا.`,
+        fr: `Commande en ligne reliée directement à notre cuisine à ${city} : préparation immédiate.`,
+        en: `Online orders go straight to our kitchen in ${city}: prepared right away.`,
+        ar: `الطلبات الإلكترونية تصل مباشرة إلى مطبخنا في ${city}: تُحضَّر فورًا.`,
       },
     },
   ],
@@ -581,7 +581,7 @@ const path = localizedPath('/', lang);
                 {tItem.name.charAt(0)}
               </span>
               <p class="pull-quote">{t(tItem.text, lang)}</p>
-              <p class="mt-6 text-sm font-bold" style="color: var(--color-accent)">— {tItem.name}</p>
+              <p class="mt-6 text-sm font-bold" style="color: var(--color-accent)">{tItem.name}</p>
             </div>
           ))}
         </div>

@@ -89,9 +89,9 @@ for (let mins = open * 60; mins + slotMinutes <= close * 60; mins += slotMinutes
 
 const copy = {
   metaTitle: {
-    fr: `Réserver un billard ou le snooker — Dom's Pool | ${name}`,
-    en: `Book a pool or snooker table — Dom's Pool | ${name}`,
-    ar: `احجز طاولة بيلياردو أو سنوكر — Dom's Pool | ${name}`,
+    fr: `Réserver un billard ou le snooker, Dom's Pool | ${name}`,
+    en: `Book a pool or snooker table, Dom's Pool | ${name}`,
+    ar: `احجز طاولة بيلياردو أو سنوكر, Dom's Pool | ${name}`,
   },
   metaDescription: {
     fr: `Réservez en ligne l'une des 2 tables de billard ou la table de snooker de Dom's Pool, par créneau de ${slotMinutes} minutes. Paiement sur place.`,
@@ -101,9 +101,9 @@ const copy = {
   kicker: { fr: "Dom's Pool", en: "Dom's Pool", ar: "Dom's Pool" },
   title: { fr: 'Réserver une table', en: 'Book a table', ar: 'احجز طاولة' },
   intro: {
-    fr: `Choisissez une table et un créneau de ${slotMinutes} minutes. Paiement sur place, comme d'habitude — la réservation garantit juste que la table est à vous.`,
-    en: `Choose a table and a ${slotMinutes}-minute slot. Pay on site as usual — the booking just guarantees the table is yours.`,
-    ar: `اختر طاولة وفترة ${slotMinutes} دقيقة. الدفع في المكان كالمعتاد — الحجز يضمن فقط أن الطاولة لك.`,
+    fr: `Choisissez une table et un créneau de ${slotMinutes} minutes. Paiement sur place, comme d'habitude : la réservation garantit juste que la table est à vous.`,
+    en: `Choose a table and a ${slotMinutes}-minute slot. Pay on site as usual: the booking just guarantees the table is yours.`,
+    ar: `اختر طاولة وفترة ${slotMinutes} دقيقة. الدفع في المكان كالمعتاد: الحجز يضمن فقط أن الطاولة لك.`,
   },
   dateLabel: { fr: 'Date', en: 'Date', ar: 'التاريخ' },
   todayLabel: { fr: "Aujourd'hui", en: 'Today', ar: 'اليوم' },
@@ -120,13 +120,13 @@ const copy = {
   cancelCta: { fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' },
   successMessage: { fr: 'Réservé ! À bientôt.', en: 'Booked! See you soon.', ar: 'تم الحجز! نراكم قريبًا.' },
   takenMessage: {
-    fr: "Ce créneau vient d'être pris par quelqu'un d'autre — choisissez-en un autre.",
-    en: 'This slot was just taken by someone else — please pick another one.',
-    ar: 'تم للتو حجز هذه الفترة من قبل شخص آخر — يرجى اختيار فترة أخرى.',
+    fr: "Ce créneau vient d'être pris par quelqu'un d'autre, choisissez-en un autre.",
+    en: 'This slot was just taken by someone else, please pick another one.',
+    ar: 'تم للتو حجز هذه الفترة من قبل شخص آخر، يرجى اختيار فترة أخرى.',
   },
   errorMessage: {
     fr: "Une erreur est survenue, réessayez ou contactez-nous directement.",
-    en: 'Something went wrong — please try again or contact us directly.',
+    en: 'Something went wrong, please try again or contact us directly.',
     ar: 'حدث خطأ، يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.',
   },
   nameRequired: { fr: 'Le nom est obligatoire.', en: 'Name is required.', ar: 'الاسم مطلوب.' },
@@ -518,7 +518,7 @@ const path = localizedPath('/billard', lang);
           if (booking) {
             // Stays clickable (not disabled): clicking a booked slot is how
             // staff cancels it — see handleCancelClick below.
-            statusSpan.textContent = `${copyStrings.bookedBy} — ${booking.customer_name}`;
+            statusSpan.textContent = `${copyStrings.bookedBy}: ${booking.customer_name}`;
             btn.dataset.booked = 'true';
             btn.dataset.past = 'false';
             btn.dataset.customerName = booking.customer_name;
@@ -635,7 +635,7 @@ const path = localizedPath('/billard', lang);
           return;
         }
         const confirmed = window.confirm(
-          `${copyStrings.cancelConfirmPrefix} ${btn.dataset.customerName} — ${btn.dataset.start} ?`
+          `${copyStrings.cancelConfirmPrefix} ${btn.dataset.customerName}, ${btn.dataset.start} ?`
         );
         if (!confirmed) return;
         try {
