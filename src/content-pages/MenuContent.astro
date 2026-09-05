@@ -195,15 +195,26 @@ const path = localizedPath('/menu', lang);
         style="background-color: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text-primary)"
       />
     </div>
-    <div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
-      <button type="button" class="menu-filter-btn is-active" data-cat-filter="all">{t(common.toutLeMenu, lang)}</button>
+    <!-- Was `flex flex-wrap ... overflow-x-auto` — flex-wrap and
+         overflow-x-auto fight each other: wrapping onto new lines means
+         the row never actually overflows, so it can never scroll (that's
+         the bug the client flagged — 17 categories all wrapping into a
+         tall block instead of one scrollable strip). `flex-nowrap` fixes
+         it: the row stays one line, overflows, and scrolls — in whichever
+         direction is natural for the language (RTL just works here, no
+         extra handling needed, since it's native horizontal scroll not a
+         custom carousel). `menu-filter-scroll` (see <style> below) hides
+         the scrollbar itself so it reads as a clean pill strip rather than
+         a webpage with a visible scrollbar glued under it. -->
+    <div class="menu-filter-scroll flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
+      <button type="button" class="menu-filter-btn is-active shrink-0" data-cat-filter="all">{t(common.toutLeMenu, lang)}</button>
       {fullMenu.map((category) => (
-        <button type="button" class="menu-filter-btn" data-cat-filter={category.slug}>
+        <button type="button" class="menu-filter-btn shrink-0" data-cat-filter={category.slug}>
           {category.emoji} {t(category.label, lang)}
         </button>
       ))}
       <span class="w-px h-5 mx-1 shrink-0" style="background-color: var(--color-border)" />
-      <button type="button" class="menu-filter-btn" data-veg-toggle>🌱 {t(common.vegetarienUniquement, lang)}</button>
+      <button type="button" class="menu-filter-btn shrink-0" data-veg-toggle>🌱 {t(common.vegetarienUniquement, lang)}</button>
     </div>
   </section>
 
@@ -265,6 +276,16 @@ const path = localizedPath('/menu', lang);
 </Layout>
 
 <style>
+  /* Hides the scrollbar itself (Firefox + WebKit/Blink) so the category
+     row reads as a plain pill strip — the horizontal scroll still works
+     by touch/drag/trackpad, this only hides the bar's own chrome. */
+  .menu-filter-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .menu-filter-scroll::-webkit-scrollbar {
+    display: none;
+  }
   .menu-filter-btn {
     font-size: 0.8rem;
     font-weight: 700;
