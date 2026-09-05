@@ -1,0 +1,414 @@
+---
+// "Dom's Pool" table booking (client request, see chat — the client sent
+// real photos of the room and wants a self-service, 30-minute-slot booking
+// system for the 2 pool tables + 1 snooker table, shown on a screen in the
+// café and bookable by guests on their own phone via a QR code). Same
+// architecture as the Indian Flavors reservation system this client also
+// commissioned: a Supabase project called directly from the browser via
+// plain `fetch` to its REST/PostgREST endpoint — no server of our own, no
+// new npm dependency, this stays a fully static site. See
+// doms_pool_setup.sql (given to the client separately) for the table
+// schema + RLS policies + column grants this page relies on: guests can
+// INSERT a booking and SELECT (table, date, time, name) but never phone
+// numbers — those stay staff-only, readable in the Supabase dashboard.
+//
+// Staff booking a walk-in: client explicitly chose "same form as guests"
+// for v1 (see chat) rather than a separate login-gated staff view — so
+// this one page serves both, typically opened on a tablet/the lobby
+// screen's browser for staff, and via the QR code on the screen for guests.
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+import { siteConfig } from '../config/site.config';
+import { t, localizedPath, type Language } from '../i18n/languages';
+
+interface Props {
+  lang?: Language;
+}
+const { lang = 'fr' } = Astro.props;
+
+const { name } = siteConfig.identity;
+const { tables, slotMinutes, supabaseUrl, supabaseAnonKey } = siteConfig.billiards;
+const { open, close } = siteConfig.contact.hours;
+
+// Not yet wired up to a real Supabase project (see site.config.ts's own
+// comment) — render an honest "coming soon" state instead of shipping a
+// page that silently fails every fetch call.
+const isConfigured = !supabaseUrl.includes('YOUR-PROJECT-REF') && !supabaseAnonKey.includes('YOUR-ANON-KEY');
+
+// Time slots as "HH:MM" strings from opening to closing, one entry per
+// `slotMinutes` — computed once here instead of hand-typed, so a future
+// change to opening hours or slot length (site.config.ts / siteConfig)
+// updates this automatically. The LAST slot's start still leaves a full
+// slot before closing (e.g. closing at 23:00 with 30-min slots means the
+// last bookable start is 22:30, not 23:00).
+function pad(n: number) {
+  return n.toString().padStart(2, '0');
+}
+const slots: { start: string; end: string }[] = [];
+for (let mins = open * 60; mins + slotMinutes <= close * 60; mins += slotMinutes) {
+  const startH = Math.floor(mins / 60);
+  const startM = mins % 60;
+  const endMins = mins + slotMinutes;
+  const endH = Math.floor(endMins / 60);
+  const endM = endMins % 60;
+  slots.push({ start: `${pad(startH)}:${pad(startM)}`, end: `${pad(endH)}:${pad(endM)}` });
+}
+
+const copy = {
+  metaTitle: {
+    fr: `Réserver un billard ou le snooker — Dom's Pool | ${name}`,
+    en: `Book a pool or snooker table — Dom's Pool | ${name}`,
+    ar: `احجز طاولة بيلياردو أو سنوكر — Dom's Pool | ${name}`,
+  },
+  metaDescription: {
+    fr: `Réservez en ligne l'une des 2 tables de billard ou la table de snooker de Dom's Pool, par créneau de ${slotMinutes} minutes. Paiement sur place.`,
+    en: `Book one of Dom's Pool's 2 pool tables or the snooker table online, in ${slotMinutes}-minute slots. Pay on site.`,
+    ar: `احجز إحدى طاولتي البيلياردو أو طاولة السنوكر في Dom's Pool عبر الإنترنت، بفترات ${slotMinutes} دقيقة. الدفع في المكان.`,
+  },
+  kicker: { fr: "Dom's Pool", en: "Dom's Pool", ar: "Dom's Pool" },
+  title: { fr: 'Réserver une table', en: 'Book a table', ar: 'احجز طاولة' },
+  intro: {
+    fr: `Choisissez une table et un créneau de ${slotMinutes} minutes. Paiement sur place, comme d'habitude — la réservation garantit juste que la table est à vous.`,
+    en: `Choose a table and a ${slotMinutes}-minute slot. Pay on site as usual — the booking just guarantees the table is yours.`,
+    ar: `اختر طاولة وفترة ${slotMinutes} دقيقة. الدفع في المكان كالمعتاد — الحجز يضمن فقط أن الطاولة لك.`,
+  },
+  dateLabel: { fr: 'Date', en: 'Date', ar: 'التاريخ' },
+  loading: { fr: 'Chargement des disponibilités…', en: 'Loading availability…', ar: 'جارٍ تحميل الأوقات المتاحة…' },
+  free: { fr: 'Libre', en: 'Free', ar: 'متاحة' },
+  bookedBy: { fr: 'Réservé', en: 'Booked', ar: 'محجوزة' },
+  past: { fr: 'Passé', en: 'Past', ar: 'منتهية' },
+  formTitle: { fr: 'Confirmer la réservation', en: 'Confirm the booking', ar: 'تأكيد الحجز' },
+  nameLabel: { fr: 'Nom', en: 'Name', ar: 'الاسم' },
+  phoneLabel: { fr: 'Téléphone (optionnel)', en: 'Phone (optional)', ar: 'الهاتف (اختياري)' },
+  confirmCta: { fr: 'Confirmer', en: 'Confirm', ar: 'تأكيد' },
+  cancelCta: { fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' },
+  successMessage: { fr: 'Réservé ! À bientôt.', en: 'Booked! See you soon.', ar: 'تم الحجز! نراكم قريبًا.' },
+  takenMessage: {
+    fr: "Ce créneau vient d'être pris par quelqu'un d'autre — choisissez-en un autre.",
+    en: 'This slot was just taken by someone else — please pick another one.',
+    ar: 'تم للتو حجز هذه الفترة من قبل شخص آخر — يرجى اختيار فترة أخرى.',
+  },
+  errorMessage: {
+    fr: "Une erreur est survenue, réessayez ou contactez-nous directement.",
+    en: 'Something went wrong — please try again or contact us directly.',
+    ar: 'حدث خطأ، يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.',
+  },
+  nameRequired: { fr: 'Le nom est obligatoire.', en: 'Name is required.', ar: 'الاسم مطلوب.' },
+  comingSoonTitle: { fr: 'Bientôt disponible', en: 'Coming soon', ar: 'قريبًا' },
+  comingSoonBody: {
+    fr: "La réservation en ligne des tables arrive très bientôt. En attendant, demandez au bar quelle table est libre.",
+    en: 'Online table booking is launching very soon. In the meantime, ask at the counter which table is free.',
+    ar: 'الحجز الإلكتروني للطاولات قادم قريبًا جدًا. في الأثناء، اسأل عند الطاولة عن الطاولة المتاحة.',
+  },
+} satisfies Record<string, { fr: string; en: string; ar: string }>;
+
+const path = localizedPath('/billard', lang);
+---
+<Layout
+  title={t(copy.metaTitle, lang)}
+  description={t(copy.metaDescription, lang)}
+  path={path}
+  lang={lang}
+>
+  <section class="max-w-5xl mx-auto px-5 sm:px-8 pt-12 sm:pt-16 pb-6 text-center">
+    <span class="block text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style="color: var(--color-accent)">{t(copy.kicker, lang)}</span>
+    <h1 class="font-display text-3xl sm:text-5xl font-semibold" style="color: var(--color-text-primary)">{t(copy.title, lang)}</h1>
+    <p class="mt-3 max-w-xl mx-auto text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.intro, lang)}</p>
+  </section>
+
+  {!isConfigured ? (
+    <section class="max-w-2xl mx-auto px-5 sm:px-8 pb-24">
+      <div class="rounded-2xl p-8 text-center" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
+        <h2 class="font-display text-xl font-semibold mb-2" style="color: var(--color-text-primary)">{t(copy.comingSoonTitle, lang)}</h2>
+        <p class="text-sm" style="color: var(--color-text-muted)">{t(copy.comingSoonBody, lang)}</p>
+      </div>
+    </section>
+  ) : (
+    <section id="billard-app" class="max-w-5xl mx-auto px-5 sm:px-8 pb-24" data-slot-minutes={slotMinutes}>
+      <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+          <label for="billard-date" class="block text-xs font-bold uppercase tracking-wide mb-1.5" style="color: var(--color-accent)">{t(copy.dateLabel, lang)}</label>
+          <input
+            id="billard-date"
+            type="date"
+            class="rounded-lg px-3 py-2 text-sm font-semibold"
+            style="background-color: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text-primary)"
+          />
+        </div>
+        <div class="flex items-center gap-4 text-xs" style="color: var(--color-text-muted)">
+          {tables.map((table) => (
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: var(--color-accent)"></span>
+              {t(table.label, lang)}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <p id="billard-status" class="text-sm mb-4" style="color: var(--color-text-muted)">{t(copy.loading, lang)}</p>
+
+      <div class="overflow-x-auto rounded-2xl" style="border: 1px solid var(--color-border)">
+        <table id="billard-grid" class="w-full text-sm border-collapse min-w-[560px]">
+          <thead>
+            <tr style="background-color: var(--color-surface)">
+              <th class="text-left font-semibold px-3 py-3 sticky left-0" style="color: var(--color-text-muted); background-color: var(--color-surface)"></th>
+              {tables.map((table) => (
+                <th class="text-center font-semibold px-3 py-3" style="color: var(--color-text-primary)">{t(table.label, lang)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {slots.map((slot) => (
+              <tr style="border-top: 1px solid var(--color-border)">
+                <td class="px-3 py-2 font-semibold whitespace-nowrap sticky left-0" style="color: var(--color-text-muted); background-color: var(--color-background)">
+                  {slot.start}
+                </td>
+                {tables.map((table) => (
+                  <td class="px-2 py-2 text-center">
+                    <button
+                      type="button"
+                      class="billard-slot w-full min-w-[92px] rounded-lg px-2 py-1.5 text-xs font-bold transition-colors"
+                      data-table={table.id}
+                      data-start={slot.start}
+                      data-end={slot.end}
+                      style="background-color: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-accent)"
+                    >
+                      {t(copy.free, lang)}
+                    </button>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  <!-- Booking form overlay — plain hidden/flex toggle rather than <dialog>,
+       to avoid a11y/polyfill inconsistencies across the three RTL/LTR
+       layouts this site ships. Stays in the DOM always; only its
+       visibility and the slot summary text change. -->
+  <div id="billard-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background-color: rgba(10,6,3,0.72)">
+    <div class="w-full max-w-sm rounded-2xl p-6" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
+      <h2 class="font-display text-lg font-semibold mb-1" style="color: var(--color-text-primary)">{t(copy.formTitle, lang)}</h2>
+      <p id="billard-modal-summary" class="text-sm mb-4" style="color: var(--color-accent)"></p>
+      <form id="billard-form" class="space-y-3">
+        <div>
+          <label for="billard-name" class="block text-xs font-bold uppercase tracking-wide mb-1" style="color: var(--color-text-muted)">{t(copy.nameLabel, lang)}</label>
+          <input
+            id="billard-name"
+            type="text"
+            required
+            class="w-full rounded-lg px-3 py-2 text-sm"
+            style="background-color: var(--color-background); border: 1px solid var(--color-border); color: var(--color-text-primary)"
+          />
+        </div>
+        <div>
+          <label for="billard-phone" class="block text-xs font-bold uppercase tracking-wide mb-1" style="color: var(--color-text-muted)">{t(copy.phoneLabel, lang)}</label>
+          <input
+            id="billard-phone"
+            type="tel"
+            class="w-full rounded-lg px-3 py-2 text-sm"
+            style="background-color: var(--color-background); border: 1px solid var(--color-border); color: var(--color-text-primary)"
+          />
+        </div>
+        <p id="billard-form-error" class="text-xs hidden" style="color: #e07a5f"></p>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 rounded-full py-2.5 text-sm font-bold" style="background-color: var(--color-accent); color: var(--color-background)">
+            {t(copy.confirmCta, lang)}
+          </button>
+          <button type="button" id="billard-modal-cancel" class="rounded-full py-2.5 px-4 text-sm font-bold" style="border: 1px solid var(--color-border); color: var(--color-text-primary)">
+            {t(copy.cancelCta, lang)}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+{isConfigured && (
+  <script define:vars={{
+    supabaseUrl,
+    supabaseAnonKey,
+    tableLabels: Object.fromEntries(tables.map((t2) => [t2.id, t(t2.label, lang)])),
+    slotMinutes,
+    copyStrings: {
+      bookedBy: t(copy.bookedBy, lang),
+      past: t(copy.past, lang),
+      free: t(copy.free, lang),
+      loading: t(copy.loading, lang),
+      successMessage: t(copy.successMessage, lang),
+      takenMessage: t(copy.takenMessage, lang),
+      errorMessage: t(copy.errorMessage, lang),
+      nameRequired: t(copy.nameRequired, lang),
+    },
+  }}>
+    document.addEventListener('astro:page-load', () => {
+      const app = document.querySelector('#billard-app');
+      if (!app || app.dataset.wired === 'true') return;
+      app.dataset.wired = 'true';
+
+      const dateInput = document.querySelector('#billard-date');
+      const statusEl = document.querySelector('#billard-status');
+      const modal = document.querySelector('#billard-modal');
+      const modalSummary = document.querySelector('#billard-modal-summary');
+      const form = document.querySelector('#billard-form');
+      const formError = document.querySelector('#billard-form-error');
+      const nameInput = document.querySelector('#billard-name');
+      const phoneInput = document.querySelector('#billard-phone');
+      const cancelBtn = document.querySelector('#billard-modal-cancel');
+
+      // Local dates (not UTC) so "today" matches the visitor's own day —
+      // toISOString() would drift a day around midnight in some timezones.
+      function localISODate(d) {
+        const y = d.getFullYear();
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+      const today = new Date();
+      const maxDate = new Date();
+      maxDate.setDate(today.getDate() + 6);
+      dateInput.min = localISODate(today);
+      dateInput.max = localISODate(maxDate);
+      dateInput.value = localISODate(today);
+
+      let pendingSlot = null; // { table, start, end }
+      let refreshTimer = null;
+
+      function headers() {
+        return {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+        };
+      }
+
+      async function loadBookings() {
+        const date = dateInput.value;
+        statusEl.textContent = copyStrings.loading;
+        try {
+          const url = `${supabaseUrl}/rest/v1/bookings?booking_date=eq.${date}&select=table_name,start_time,end_time,customer_name`;
+          const res = await fetch(url, { headers: headers() });
+          if (!res.ok) throw new Error('fetch failed');
+          const bookings = await res.json();
+          renderGrid(bookings, date);
+          statusEl.textContent = '';
+        } catch {
+          statusEl.textContent = copyStrings.errorMessage;
+        }
+      }
+
+      function renderGrid(bookings, date) {
+        const isToday = date === localISODate(new Date());
+        const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+
+        document.querySelectorAll('.billard-slot').forEach((btn) => {
+          const table = btn.dataset.table;
+          const start = btn.dataset.start;
+          const [h, m] = start.split(':').map(Number);
+          const slotMinutesOfDay = h * 60 + m;
+          const isPast = isToday && slotMinutesOfDay < nowMinutes;
+
+          const booking = bookings.find((b) => b.table_name === table && b.start_time.slice(0, 5) === start);
+
+          btn.disabled = false;
+          if (booking) {
+            btn.textContent = `${copyStrings.bookedBy} — ${booking.customer_name}`;
+            btn.disabled = true;
+            btn.style.backgroundColor = 'color-mix(in srgb, var(--color-text-muted) 18%, transparent)';
+            btn.style.color = 'var(--color-text-muted)';
+            btn.style.cursor = 'default';
+          } else if (isPast) {
+            btn.textContent = copyStrings.past;
+            btn.disabled = true;
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = 'var(--color-text-muted)';
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'default';
+          } else {
+            btn.textContent = copyStrings.free;
+            btn.style.backgroundColor = 'color-mix(in srgb, var(--color-accent) 14%, transparent)';
+            btn.style.color = 'var(--color-accent)';
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+          }
+        });
+      }
+
+      function openModal(table, start, end) {
+        pendingSlot = { table, start, end };
+        modalSummary.textContent = `${tableLabels[table] || table} · ${start} – ${end}`;
+        formError.classList.add('hidden');
+        nameInput.value = '';
+        phoneInput.value = '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        nameInput.focus();
+      }
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        pendingSlot = null;
+      }
+
+      app.addEventListener('click', (e) => {
+        const btn = e.target.closest('.billard-slot');
+        if (!btn || btn.disabled) return;
+        openModal(btn.dataset.table, btn.dataset.start, btn.dataset.end);
+      });
+      cancelBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!pendingSlot) return;
+        const customerName = nameInput.value.trim();
+        if (!customerName) {
+          formError.textContent = copyStrings.nameRequired;
+          formError.classList.remove('hidden');
+          return;
+        }
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        try {
+          const res = await fetch(`${supabaseUrl}/rest/v1/bookings`, {
+            method: 'POST',
+            headers: { ...headers(), Prefer: 'return=minimal' },
+            body: JSON.stringify({
+              table_name: pendingSlot.table,
+              booking_date: dateInput.value,
+              start_time: pendingSlot.start,
+              end_time: pendingSlot.end,
+              customer_name: customerName,
+              customer_phone: phoneInput.value.trim() || null,
+            }),
+          });
+          if (res.status === 409) {
+            formError.textContent = copyStrings.takenMessage;
+            formError.classList.remove('hidden');
+            await loadBookings();
+            return;
+          }
+          if (!res.ok) throw new Error('insert failed');
+          closeModal();
+          statusEl.textContent = copyStrings.successMessage;
+          await loadBookings();
+        } catch {
+          formError.textContent = copyStrings.errorMessage;
+          formError.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      dateInput.addEventListener('change', loadBookings);
+
+      loadBookings();
+      refreshTimer = setInterval(loadBookings, 20000);
+    });
+  </script>
+)}

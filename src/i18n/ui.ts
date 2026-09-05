@@ -7,13 +7,17 @@
 // genuinely repeat (nav, buttons) still have exactly one source of truth.
 import type { LocalizedText } from './languages';
 
-export const nav: Record<'accueil' | 'menu' | 'pizza' | 'aPropos' | 'avis' | 'faq' | 'contact', LocalizedText> = {
+export const nav: Record<'accueil' | 'menu' | 'pizza' | 'billard' | 'aPropos' | 'avis' | 'faq' | 'contact', LocalizedText> = {
   accueil: { fr: 'Accueil', en: 'Home', ar: 'الرئيسية' },
   menu: { fr: 'Menu', en: 'Menu', ar: 'القائمة' },
   // New dedicated pizza page (client request) — sits right after Menu in
   // the nav since it's effectively a spotlighted subset of it, not an
   // unrelated section.
   pizza: { fr: 'Pizza', en: 'Pizza', ar: 'البيتزا' },
+  // Dom's Pool table booking page (client request) — sits right after
+  // Pizza, mirroring that same "own page, own nav slot" treatment rather
+  // than being buried as a subsection of something else.
+  billard: { fr: 'Billard', en: 'Pool', ar: 'البيلياردو' },
   aPropos: { fr: 'À propos', en: 'About', ar: 'من نحن' },
   avis: { fr: 'Avis', en: 'Reviews', ar: 'التقييمات' },
   faq: { fr: 'FAQ', en: 'FAQ', ar: 'الأسئلة الشائعة' },

@@ -98,6 +98,7 @@ const copy = {
     en: '2 pool tables and 1 snooker table, right inside the café.',
     ar: 'طاولتا بيلياردو وطاولة سنوكر واحدة، داخل المقهى.',
   },
+  ambianceCta: { fr: 'Réserver une table', en: 'Book a table', ar: 'احجز طاولة' },
   ambianceAlt1: {
     fr: "La salle Dom's Pool, avec ses billards et sa table de snooker",
     en: "The Dom's Pool room, with its pool and snooker tables",
@@ -512,6 +513,9 @@ const path = localizedPath('/', lang);
         <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale" style="transition-delay: 120ms">
           <img src="/images/dom/pool/pool-balls-closeup.webp" alt={t(copy.ambianceAlt3, lang)} class="w-full h-full object-cover" loading="lazy" />
         </div>
+      </div>
+      <div class="mt-8" data-reveal>
+        <Button href={localizedPath('/billard', lang)} variant="filled">{t(copy.ambianceCta, lang)} {arrow(lang)}</Button>
       </div>
     </section>
   </div>

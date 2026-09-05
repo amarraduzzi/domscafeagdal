@@ -1,0 +1,169 @@
+---
+// "Dom's Pool" lobby-screen display — the physical-screen half of the
+// booking system (see BillardContent.astro's own header comment for the
+// full architecture: a Supabase project queried directly from the browser,
+// no server of our own). This page is meant to sit open, full-screen, on
+// the café's own screen all day: it shows today's bookings per table so
+// staff/guests can see at a glance who's up next, plus a QR code guests
+// scan on their own phone to book a slot themselves (BillardContent.astro,
+// the /billard page). Deliberately single-language (French) and
+// deliberately NOT part of the public nav — nobody browses to a kiosk
+// display, it's opened once on the café's screen and left running.
+//
+// minimalHeader + showFooter=false (Layout.astro's props for exactly this
+// "stands alone, not a normal browsable page" case) so this doesn't carry
+// the full site nav/footer chrome a screen has no use for.
+import Layout from '../layouts/Layout.astro';
+import { siteConfig } from '../config/site.config';
+import { localizedPath } from '../i18n/languages';
+
+const { tables, supabaseUrl, supabaseAnonKey } = siteConfig.billiards;
+const isConfigured = !supabaseUrl.includes('YOUR-PROJECT-REF') && !supabaseAnonKey.includes('YOUR-ANON-KEY');
+const bookingPath = localizedPath('/billard', 'fr');
+const bookingUrl = `${siteConfig.identity.siteUrl.replace(/\/$/, '')}${bookingPath}`;
+---
+<Layout
+  title="Dom's Pool — écran"
+  description="Écran de réservation Dom's Pool"
+  path="/ecran-billard"
+  lang="fr"
+  noindex={true}
+  minimalHeader={true}
+  showFooter={false}
+>
+  <section id="ecran-billard" class="min-h-screen px-8 py-8 flex flex-col" data-configured={isConfigured ? 'true' : 'false'}>
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <img src="/images/dom/logo.webp" alt={siteConfig.identity.name} class="h-14 w-auto object-contain" />
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.25em]" style="color: var(--color-accent)">Dom's Pool</p>
+          <h1 class="font-display text-2xl font-semibold" style="color: var(--color-text-primary)">Disponibilité des tables</h1>
+        </div>
+      </div>
+      <div class="text-right">
+        <p id="ecran-clock" class="font-display text-4xl font-semibold tabular-nums" style="color: var(--color-text-primary)"></p>
+        <p id="ecran-date" class="text-sm" style="color: var(--color-text-muted)"></p>
+      </div>
+    </div>
+
+    {!isConfigured ? (
+      <div class="flex-1 flex items-center justify-center">
+        <p class="text-lg" style="color: var(--color-text-muted)">Réservation en ligne bientôt disponible.</p>
+      </div>
+    ) : (
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {tables.map((table) => (
+          <div class="ecran-table-col rounded-2xl p-5 flex flex-col" data-table={table.id} style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
+            <h2 class="font-display text-xl font-semibold mb-4 pb-3" style="color: var(--color-text-primary); border-bottom: 1px solid var(--color-border)">
+              {table.label.fr}
+            </h2>
+            <div class="ecran-table-list flex-1 space-y-2 overflow-y-auto"></div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {isConfigured && (
+      <div class="mt-8 flex items-center justify-center gap-4 rounded-2xl p-5" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
+        <div id="ecran-qr" class="shrink-0 rounded-lg overflow-hidden" style="background: #fff; padding: 8px; width: 96px; height: 96px"></div>
+        <div>
+          <p class="font-display text-lg font-semibold" style="color: var(--color-text-primary)">Réservez votre table depuis votre téléphone</p>
+          <p class="text-sm" style="color: var(--color-text-muted)">Scannez le code — paiement sur place, comme d'habitude.</p>
+        </div>
+      </div>
+    )}
+  </section>
+</Layout>
+
+{isConfigured && (
+  <>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script define:vars={{ supabaseUrl, supabaseAnonKey, bookingUrl, tableLabels: Object.fromEntries(tables.map((t) => [t.id, t.label.fr])) }}>
+      document.addEventListener('astro:page-load', () => {
+        const root = document.querySelector('#ecran-billard');
+        if (!root || root.dataset.wired === 'true') return;
+        root.dataset.wired = 'true';
+
+        // QR code — generated once, client-side, no static asset to keep in
+        // sync with the eventual real domain (site.config.ts's siteUrl is
+        // still a placeholder as of this build — see that file's header
+        // note). Whatever the domain is on the day this actually loads is
+        // what gets encoded.
+        if (window.QRCode) {
+          window.QRCode.toCanvas(document.createElement('canvas'), bookingUrl, { width: 80, margin: 0 }, (err, canvas) => {
+            if (!err) document.querySelector('#ecran-qr').appendChild(canvas);
+          });
+        }
+
+        function pad(n) {
+          return n.toString().padStart(2, '0');
+        }
+        function localISODate(d) {
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
+        function updateClock() {
+          const now = new Date();
+          document.querySelector('#ecran-clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          document.querySelector('#ecran-date').textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+        updateClock();
+        setInterval(updateClock, 15000);
+
+        async function loadBookings() {
+          const date = localISODate(new Date());
+          try {
+            const url = `${supabaseUrl}/rest/v1/bookings?booking_date=eq.${date}&select=table_name,start_time,end_time,customer_name&order=start_time.asc`;
+            const res = await fetch(url, {
+              headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
+            });
+            if (!res.ok) throw new Error('fetch failed');
+            const bookings = await res.json();
+            renderColumns(bookings);
+          } catch {
+            // Transient network hiccup on an all-day kiosk display — leave
+            // the last known good state on screen rather than blanking it,
+            // and just try again on the next poll.
+          }
+        }
+
+        function renderColumns(bookings) {
+          const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+          document.querySelectorAll('.ecran-table-col').forEach((col) => {
+            const tableId = col.dataset.table;
+            const list = col.querySelector('.ecran-table-list');
+            const rows = bookings.filter((b) => b.table_name === tableId);
+            if (rows.length === 0) {
+              list.innerHTML = '<p class="text-sm" style="color: var(--color-text-muted)">Aucune réservation aujourd\'hui.</p>';
+              return;
+            }
+            list.innerHTML = rows
+              .map((b) => {
+                const [sh, sm] = b.start_time.slice(0, 5).split(':').map(Number);
+                const [eh, em] = b.end_time.slice(0, 5).split(':').map(Number);
+                const startMin = sh * 60 + sm;
+                const endMin = eh * 60 + em;
+                const isNow = nowMinutes >= startMin && nowMinutes < endMin;
+                const badge = isNow
+                  ? '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style="background-color: var(--color-accent); color: var(--color-background)">En cours</span>'
+                  : '';
+                return `<div class="flex items-center justify-between gap-2 rounded-lg px-3 py-2" style="background-color: var(--color-background)">
+                  <span class="font-semibold text-sm" style="color: var(--color-text-primary)">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)} · ${b.customer_name}</span>
+                  ${badge}
+                </div>`;
+              })
+              .join('');
+          });
+        }
+
+        loadBookings();
+        setInterval(loadBookings, 15000);
+
+        // All-day kiosk display: a soft reload every 6 hours keeps this from
+        // slowly accumulating memory/DOM state across a full day of nobody
+        // ever closing the tab — cheap insurance for a page nobody is
+        // watching to notice it degrade.
+        setTimeout(() => window.location.reload(), 6 * 60 * 60 * 1000);
+      });
+    </script>
+  </>
+)}

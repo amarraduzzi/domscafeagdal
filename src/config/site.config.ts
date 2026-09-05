@@ -75,6 +75,22 @@ export interface SiteConfig {
     googleRating?: string;
     googleReviewCount?: string;
   };
+  // "Dom's Pool" table booking (client request, see chat) — same
+  // architecture as the Indian Flavors reservation system: a Supabase
+  // project called directly from the browser (fetch to its REST/PostgREST
+  // endpoint, no server of our own), so this stays a plain static site.
+  // supabaseUrl/supabaseAnonKey are placeholders until the client creates
+  // the "doms-cafe" Supabase project and hands over the real values —
+  // BillardContent.astro/EcranBillardContent.astro will show a clear
+  // "not configured yet" state rather than fail silently until then.
+  billiards: {
+    supabaseUrl: string;
+    supabaseAnonKey: string;
+    // Table ids match the `table_name` check constraint in the `bookings`
+    // table (see doms_pool_setup.sql) — the label is what's actually shown.
+    tables: { id: 'pool_1' | 'pool_2' | 'snooker'; label: LocalizedString }[];
+    slotMinutes: number;
+  };
 }
 
 export const siteConfig: SiteConfig = {
@@ -123,6 +139,20 @@ export const siteConfig: SiteConfig = {
     googleReviewsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent("Dom's Café Agdal Rabat avis"),
     googleRating: '4.1', // verified — see standing note above
     googleReviewCount: '47',
+  },
+  billiards: {
+    // Real "doms-cafe" Supabase project. The publishable/anon key is safe to
+    // ship client-side by design (Supabase's RLS policies + column grants in
+    // doms_pool_setup.sql are what actually restrict access) — never put the
+    // secret/service_role key here.
+    supabaseUrl: 'https://jloocljaouuoyxblanxw.supabase.co',
+    supabaseAnonKey: 'sb_publishable_ZRyt2rjfCvK4Ds-tnjOwAQ_cgKbRig1',
+    tables: [
+      { id: 'pool_1', label: { fr: 'Billard 1', en: 'Pool table 1', ar: 'بيلياردو 1' } },
+      { id: 'pool_2', label: { fr: 'Billard 2', en: 'Pool table 2', ar: 'بيلياردو 2' } },
+      { id: 'snooker', label: { fr: 'Snooker', en: 'Snooker', ar: 'سنوكر' } },
+    ],
+    slotMinutes: 30,
   },
 };
 
