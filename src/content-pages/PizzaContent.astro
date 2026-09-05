@@ -81,51 +81,6 @@ const gridPizzas = featuredPizza ? pizzaShowcase.filter((p) => p !== featuredPiz
 // uses fractional MAD).
 const slicePrice = (wholePizzaPrice: number) => Math.round((wholePizzaPrice / 8) * 1.25);
 
-// "Une pizza, huit parts" — option 2 of the "iets spectaculairs" round (see
-// chat; option 1 was the full-bleed cheese-pull break further down this
-// file). Pure CSS/SVG, no photography needed: an illustrated pizza built
-// from 8 self-contained wedges (each its own tiny crust+sauce+cheese+
-// pepperoni stack, not one pizza sliced into pieces via clip-path) that
-// visually pull apart into 8 equal slices once scrolled into view, reusing
-// the same [data-reveal]/.is-visible mechanism already wired sitewide
-// (Layout.astro's IntersectionObserver) rather than new JS. Geometry is
-// computed once here instead of 8 hand-typed path strings, so the slice
-// count or radius can change without re-deriving coordinates by hand.
-// Colors match PizzaBadge.astro's own pizza illustration (crust #CB8D48,
-// sauce #9C2B22, cheese #E8B94A, pepperoni #B8412B) so this reads as the
-// same illustrated-pizza language already established there, not a new
-// unrelated graphic style.
-const SLICE_COUNT = 8;
-function wedgePath(index: number, radius: number) {
-  const startDeg = -90 + index * (360 / SLICE_COUNT);
-  const endDeg = startDeg + 360 / SLICE_COUNT;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const x1 = (100 + radius * Math.cos(toRad(startDeg))).toFixed(2);
-  const y1 = (100 + radius * Math.sin(toRad(startDeg))).toFixed(2);
-  const x2 = (100 + radius * Math.cos(toRad(endDeg))).toFixed(2);
-  const y2 = (100 + radius * Math.sin(toRad(endDeg))).toFixed(2);
-  return `M100,100 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
-}
-const sliceWedges = Array.from({ length: SLICE_COUNT }, (_, i) => {
-  const midDeg = -90 + i * (360 / SLICE_COUNT) + 360 / SLICE_COUNT / 2;
-  const midRad = (midDeg * Math.PI) / 180;
-  const dx = Math.cos(midRad);
-  const dy = Math.sin(midRad);
-  return {
-    crust: wedgePath(i, 100),
-    sauce: wedgePath(i, 88),
-    cheese: wedgePath(i, 76),
-    pepperoniX: (100 + dx * 52).toFixed(2),
-    pepperoniY: (100 + dy * 52).toFixed(2),
-    dx: dx.toFixed(4),
-    dy: dy.toFixed(4),
-  };
-});
-// The one wedge the "1 part" callout points to — top-center wedge (index 0)
-// reads most naturally as "the first slice" without needing extra copy to
-// explain why that particular one is singled out.
-const taggedWedge = sliceWedges[0];
-
 const copy = {
   metaTitle: {
     fr: `Meilleure pizza d'Agdal — ${name} | ${city}`,
@@ -192,13 +147,6 @@ const copy = {
     en: 'The moment everyone photographs.',
     ar: 'اللحظة التي يصورها الجميع.',
   },
-  splitTitle: { fr: 'Une pizza, huit parts égales', en: 'One pizza, eight equal slices', ar: 'بيتزا واحدة، ثماني قطع متساوية' },
-  splitIntro: {
-    fr: 'Chaque pizza est découpée en 8 — commandez-en une seule part, plusieurs, ou la pizza entière.',
-    en: 'Every pizza is cut into 8 — order just one slice, several, or the whole pizza.',
-    ar: 'تُقطّع كل بيتزا إلى 8 قطع، اطلبوا قطعة واحدة أو أكثر أو البيتزا كاملة.',
-  },
-  splitTag: { fr: '1 part', en: '1 slice', ar: 'قطعة واحدة' },
   sliceCta: { fr: 'Commander à la part', en: 'Order by the slice', ar: 'اطلب بالقطعة' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
@@ -377,19 +325,19 @@ const path = localizedPath('/pizza', lang);
     </div>
   </section>
 
-  <!-- Full-bleed cheese-pull break — option 1 of the "iets spectaculairs"
-       ask (see chat): no new photography, no new interaction code, just
-       the existing lift shot blown up to the full width of the page and
-       given room to actually breathe, with one short line over it instead
-       of another content block. This is deliberately the simplest of the
-       three options discussed (a scroll-triggered "pizza splits into 8
-       slices" animation was floated as a likely round 2 — see the header
-       comment at the top of this file when that's built) — proof that
-       "spectacular" doesn't have to mean "complicated", just confident
-       enough to let one real photo fill the whole screen. object-position
-       is tuned (not plain `center`) so the actual cheese pull — the part
-       of the photo doing the work — stays in frame at every viewport
-       width instead of being cropped by object-cover. -->
+  <!-- Full-bleed cheese-pull break — the "iets spectaculairs" ask (see
+       chat): no new photography, no new interaction code, just the
+       existing lift shot blown up to the full width of the page and given
+       room to actually breathe, with one short line over it instead of
+       another content block. A second option (a scroll-triggered "pizza
+       splits into 8 slices" illustration) was built and shipped, then the
+       client asked for it to be removed outright ("ik wil dat niet") — so
+       this full-bleed photo break is the one visual flourish this page
+       keeps, proof that "spectacular" doesn't have to mean "complicated",
+       just confident enough to let one real photo fill the whole screen.
+       object-position is tuned (not plain `center`) so the actual cheese
+       pull — the part of the photo doing the work — stays in frame at
+       every viewport width instead of being cropped by object-cover. -->
   <section class="relative overflow-hidden h-[60vh] sm:h-[80vh]">
     <img
       src="/images/dom/pizzas/slice-lift.webp"
@@ -406,40 +354,6 @@ const path = localizedPath('/pizza', lang);
     >
       {t(copy.cheesePullCaption, lang)}
     </p>
-  </section>
-
-  <!-- "Une pizza, huit parts" — option 2 of the "iets spectaculairs" round,
-       see this file's header comment (near `sliceWedges`) for the full
-       reasoning on why this is 8 self-contained illustrated wedges rather
-       than a clipped photo, and why no new JS was needed. -->
-  <section class="max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-24 text-center">
-    <div class="max-w-lg mx-auto mb-10 sm:mb-14" data-reveal>
-      <h2 class="font-display text-2xl sm:text-3xl font-semibold" style="color: var(--color-text-primary)">
-        {t(copy.splitTitle, lang)}
-      </h2>
-      <p class="mt-3 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">
-        {t(copy.splitIntro, lang)}
-      </p>
-    </div>
-
-    <div class="pizza-split relative mx-auto w-60 h-60 sm:w-80 sm:h-80" data-reveal="scale">
-      <svg viewBox="0 0 200 200" class="w-full h-full overflow-visible" aria-hidden="true">
-        {sliceWedges.map((w, i) => (
-          <g class="pizza-wedge" style={`--dx: ${w.dx}; --dy: ${w.dy}; transition-delay: ${i * 45}ms`}>
-            <path d={w.crust} fill="#CB8D48" stroke="#7C4A22" stroke-width="1.5" />
-            <path d={w.sauce} fill="#9C2B22" />
-            <path d={w.cheese} fill="#E8B94A" />
-            <circle cx={w.pepperoniX} cy={w.pepperoniY} r="6.5" fill="#B8412B" stroke="#7A2318" stroke-width="1" />
-          </g>
-        ))}
-      </svg>
-      <span
-        class="pizza-slice-tag absolute px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap"
-        style={`left: calc(50% + ${taggedWedge.dx} * 46%); top: calc(50% + ${taggedWedge.dy} * 46%); background-color: var(--color-accent); color: var(--color-background)`}
-      >
-        {t(copy.splitTag, lang)}
-      </span>
-    </div>
   </section>
 
   <!-- Editorial feature for the one real bestseller (see the
@@ -703,42 +617,6 @@ const path = localizedPath('/pizza', lang);
       animation: none;
       transform: rotateX(-112deg);
       opacity: 0;
-    }
-  }
-
-  /* ============================================================================
-     "Une pizza, huit parts" — the 8 illustrated wedges (see the
-     `sliceWedges` comment in the frontmatter above for the full reasoning).
-     Each <g> travels outward along its own precomputed --dx/--dy unit
-     vector once the wrapper picks up `.is-visible` — the same class
-     Layout.astro's sitewide IntersectionObserver already adds to any
-     [data-reveal] element, so no new JS was needed here at all. Values are
-     in the SVG's own 200x200 user-unit space, not real pixels, since the
-     transform is applied to elements inside the <svg> itself. */
-  .pizza-wedge {
-    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform: translate(0, 0);
-  }
-  .pizza-split.is-visible .pizza-wedge {
-    transform: translate(calc(var(--dx) * 16px), calc(var(--dy) * 16px));
-  }
-  .pizza-slice-tag {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    transition:
-      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s,
-      opacity 0.3s ease 0.6s;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  }
-  .pizza-split.is-visible .pizza-slice-tag {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .pizza-wedge,
-    .pizza-slice-tag {
-      transition: none;
     }
   }
 </style>

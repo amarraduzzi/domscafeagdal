@@ -243,19 +243,19 @@ const path = localizedPath('/', lang);
 
     <!-- "Best pizza in Agdal" moment — take three. Attempt 1 was a small
          medal tucked in a corner ("niet opvallend"), attempt 2 a big
-         static starburst ("ook niet speciaal genoeg"). This version is
-         the client's own direction: the WHOLE hero photo is staged as the
-         inside of a pizza oven. #oven-doors-big below covers the entire
-         section as two opaque oven-door panels the instant the page
-         paints, flashes a warm glow in the seam, then swings both doors
-         open in 3D to reveal the photo/title/buttons that were sitting
-         there the whole time. Only once the doors are basically all the
-         way open does PizzaBadge's stamp slam down — see its own
-         animation delays, retimed to start ~1.5s in so the two pieces
-         read as one continuous beat instead of two unrelated animations.
-         Landing spot: bottom-right and large on desktop, centered and
-         large above the title on mobile — both per the client's explicit
-         placement choice, not a default corner-badge treatment. -->
+         static starburst ("ook niet speciaal genoeg"). Take three was the
+         oven-door-opening reveal (two opaque steel-panel doors covering
+         the whole hero, swinging open in 3D before the stamp slammed
+         down) — client later asked (see chat) to keep that theatrical
+         door reveal EXCLUSIVE to the dedicated /pizza page and have Home
+         go back to just showing the stamp directly, so it doesn't compete
+         with that page's own reveal. `immediate` here is the same prop
+         PizzaBadge already exposes for the /pizza page's hero (no oven
+         doors to sync against there either) — see that component's own
+         comment for what it changes. Landing spot: bottom-right and large
+         on desktop, centered and large above the title on mobile — both
+         per the client's explicit placement choice, not a default
+         corner-badge treatment. -->
     <!-- Mobile size brought down from w-52 (208px, roughly half the
          screen width on a real phone) to w-36 (144px) — client feedback:
          "de stempel is te groot in de mobiele versie". Desktop/lg sizes
@@ -263,37 +263,9 @@ const path = localizedPath('/', lang);
     <PizzaBadge
       lang={lang}
       href={localizedPath('/avis', lang)}
+      immediate
       class={`absolute z-20 w-36 h-36 top-4 left-1/2 -translate-x-1/2 sm:top-1/2 sm:left-auto sm:translate-x-0 sm:-translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96 sm:bottom-auto ${stampSide}`}
     />
-
-    <!-- The whole hero as an oven — take two on the door mechanism. The
-         first version was two cabinet-style doors splitting down the
-         middle and swinging outward; client feedback with real oven/
-         handle reference photos was explicit that a real pizza-deck oven
-         door is ONE flat stainless-steel panel, hinged at the top, that
-         you grab by a single handle and flip UP AND BACK to open — not
-         two doors parting in the middle. This is that: one brushed-steel
-         panel (gradient + diagonal highlight bands standing in for the
-         photo's specular sheen, no image asset) with a single black D
-         handle, hinged along its top edge (see transform-origin on
-         .oven-door-steel) and rotated open with rotateX instead of the
-         previous rotateY. Opaque, sitting above every other layer (z-50)
-         so the photo, title, buttons and the stamp's frame are completely
-         hidden the instant the page paints — then it swings up and away
-         in 3D to reveal all of it at once. Pure CSS, no JS, no video
-         asset; prefers-reduced-motion skips straight to "door already
-         open" with no flash and no motion. -->
-    <div class="oven-doors-big" aria-hidden="true">
-      <div class="oven-glow-big"></div>
-      <div class="oven-door-steel">
-        <div class="oven-door-steel-hinge-shadow"></div>
-        <div class="oven-door-handle">
-          <span class="oven-door-handle-bracket"></span>
-          <span class="oven-door-handle-bar"></span>
-          <span class="oven-door-handle-bracket"></span>
-        </div>
-      </div>
-    </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-14 sm:pt-0 pb-24 sm:pb-0 w-full">
       <div class="max-w-xl">
@@ -678,10 +650,13 @@ const path = localizedPath('/', lang);
 
       // Stamp "thud" — a short, synthesized impact sound (low thump +
       // filtered paper-tap noise burst) timed to the moment PizzaBadge's
-      // stamp actually lands (see its stamp-slam/impact-ring delays,
-      // retimed alongside the hero door's new slower 1.7s open so the two
-      // still land together). Generated with the Web Audio API rather
-      // than an audio file — nothing to host, nothing to fetch.
+      // stamp actually lands. Home no longer has an oven-door reveal in
+      // front of it (that theatrical door is /pizza-only now — see the
+      // hero markup comment above), so the badge here renders with the
+      // `immediate` prop and slams down almost at once; this timeout is
+      // retimed to match that fast entrance instead of the old ~2.1s
+      // door-synced one. Generated with the Web Audio API rather than an
+      // audio file — nothing to host, nothing to fetch.
       //
       // Browsers block audio from playing before the visitor has
       // interacted with the page at all (autoplay policy, not something
@@ -740,11 +715,11 @@ const path = localizedPath('/', lang);
           }
         }
 
-        // Hardcoded to match PizzaBadge.astro's impact-ring delay (2.15s)
-        // rather than reading the CSS — same trade-off as the rest of
-        // this hero's choreography (see the HomeContent.astro/
-        // PizzaBadge.astro comments on the door-open/stamp-slam timing).
-        window.setTimeout(playStampThud, 2150);
+        // Hardcoded to match PizzaBadge.astro's `immediate`-mode
+        // impact-flash/ring delay (0.3s) rather than reading the CSS —
+        // same trade-off as before, just retimed for the fast entrance
+        // now that there's no door to sync against on this page.
+        window.setTimeout(playStampThud, 300);
       });
     });
   </script>
@@ -759,137 +734,6 @@ const path = localizedPath('/', lang);
     #home-hero {
       height: 100vh;
       height: 100svh;
-    }
-  }
-
-  /* ============================================================================
-     "Whole hero is the oven" door — see the comment above .oven-doors-big
-     in the markup. #home-hero needs its own `perspective` so the door
-     panel rotates in 3D relative to the hero itself (its parent), not the
-     whole page. Single top-hinged stainless panel (rotateX) — the
-     previous version's two side-hinged cabinet doors (rotateY) are gone;
-     a real pizza-deck oven door is one flat metal panel, one handle,
-     hinged at the top, per the client's own reference photos.
-     ============================================================================ */
-  #home-hero {
-    perspective: 2200px;
-  }
-  .oven-doors-big {
-    position: absolute;
-    inset: 0;
-    z-index: 50;
-    pointer-events: none;
-  }
-  .oven-glow-big {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(255, 170, 80, 0.95) 0%, rgba(200, 100, 30, 0.5) 42%, transparent 72%);
-    opacity: 0;
-    animation: hero-glow-flash 1s ease-out 0.15s both;
-  }
-
-  /* Brushed stainless steel panel: a base metal gradient plus two overlay
-     layers — a fine repeating vertical hairline texture (the brushed
-     grain) and a soft diagonal band of highlights (the specular sheen
-     real stainless catches under light, see the reference photos) —
-     instead of a flat tint, so it actually reads as metal rather than a
-     grey rectangle. Hinged along the TOP edge (transform-origin) and
-     rotated with rotateX so it swings up and back like a real oven door
-     lid, not sideways like a cabinet door. */
-  .oven-door-steel {
-    position: absolute;
-    inset: 0;
-    transform-origin: top center;
-    background:
-      linear-gradient(
-        100deg,
-        rgba(255, 255, 255, 0.4) 0%,
-        transparent 14%,
-        transparent 38%,
-        rgba(255, 255, 255, 0.3) 47%,
-        transparent 56%,
-        transparent 80%,
-        rgba(255, 255, 255, 0.22) 92%,
-        transparent 100%
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.07) 0px,
-        rgba(255, 255, 255, 0.07) 1px,
-        transparent 1px,
-        transparent 3px
-      ),
-      linear-gradient(160deg, #e9ebed 0%, #c4c7cc 28%, #f0f1f2 45%, #a7abb1 64%, #d8dadd 100%);
-    box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.28);
-    backface-visibility: hidden;
-    /* Slowed from 1.15s to 1.7s per client feedback ("iets langzamer") —
-       see the PizzaBadge.astro comment for how its stamp timing was
-       retimed to match this new, later completion (~2.05s). */
-    animation: hero-door-open 1.7s cubic-bezier(0.7, 0, 0.3, 1) 0.35s both;
-  }
-  .oven-door-steel-hinge-shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent);
-  }
-
-  /* The single black D-handle — the one thing on the door that isn't
-     metal, so it reads immediately as "the part you grab", same as every
-     real oven-door handle in the reference photos. Two small brackets
-     hold a glossy black bar off the surface, with its own drop shadow
-     for a bit of real depth instead of a flat painted stripe. */
-  .oven-door-handle {
-    position: absolute;
-    left: 50%;
-    top: 60%;
-    transform: translate(-50%, -50%);
-    width: 34%;
-    min-width: 160px;
-    height: 6%;
-    min-height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2%;
-  }
-  .oven-door-handle-bracket {
-    width: 8%;
-    min-width: 14px;
-    height: 150%;
-    background: linear-gradient(180deg, #9a9da3, #6c6f74);
-    border-radius: 3px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
-  }
-  .oven-door-handle-bar {
-    flex: 1;
-    height: 100%;
-    background: linear-gradient(180deg, #3a3a3c 0%, #1c1c1e 45%, #050505 100%);
-    border-radius: 9999px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  }
-
-  @keyframes hero-door-open {
-    0% { transform: rotateX(0deg); }
-    100% { transform: rotateX(-112deg); }
-  }
-  @keyframes hero-glow-flash {
-    0% { opacity: 0; }
-    40% { opacity: 1; }
-    70% { opacity: 0.35; }
-    100% { opacity: 0; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .oven-glow-big {
-      display: none;
-    }
-    .oven-door-steel {
-      animation: none;
-      transform: rotateX(-112deg);
-      opacity: 0;
     }
   }
 </style>
