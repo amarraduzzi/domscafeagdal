@@ -11,11 +11,11 @@
 // (its own category pills don't actually filter/hide anything — verified
 // via the page's own JS — they're just quick-jump anchors), so the
 // category boundaries below are reconstructed from that same order plus
-// each dish's own ingredients; the two pizzas without a client photo (Four
-// Cheese, Four Seasons) are included here as plain text items, alongside
-// the seven photographed ones from pizza-showcase.ts — no invented photos
-// for those two, just no photo at all, consistent with this codebase's
-// "only ever show a real photo of the real dish" rule.
+// each dish's own ingredients. Pizza section fully replaced (client
+// request, September 2026): all 8 items below are the new lineup and
+// match pizza-showcase.ts's 8 items exactly — every current pizza has a
+// client photo now, so (unlike before) there's no unphotographed
+// plain-text-only pizza left here.
 //
 // Descriptions: French is the primary/default language on this site, so
 // each description was translated from the live site's English source text
@@ -176,15 +176,14 @@ export const fullMenu: FullMenuCategory[] = [
     emoji: '🍕',
     label: { fr: 'Pizzas', en: 'Pizzas', ar: 'البيتزا' },
     items: [
-      { name: 'Margarita', description: { fr: 'Mozzarella, sauce tomate, olives noires, basilic.', en: 'Mozzarella, tomato sauce, black olives, basil.', ar: 'موزاريلا، صلصة الطماطم، زيتون أسود، ريحان.' }, priceMAD: 32, vegetarian: true },
-      { name: 'Vegetarian', description: { fr: 'Mozzarella, sauce tomate, légumes de saison.', en: 'Mozzarella, tomato sauce, seasonal vegetables.', ar: 'موزاريلا، صلصة الطماطم، خضروات الموسم.' }, priceMAD: 36, vegetarian: true },
-      { name: 'Tuna Pizza', description: { fr: 'Mozzarella, thon, poivrons, olives noires.', en: 'Mozzarella, tuna, bell peppers, black olives.', ar: 'موزاريلا، تونة، فلفل، زيتون أسود.' }, priceMAD: 42 },
-      { name: 'Pollo Pizza', description: { fr: 'Mozzarella, poulet, poivrons, champignons, sauce tomate.', en: 'Mozzarella, chicken, bell peppers, mushrooms, tomato sauce.', ar: 'موزاريلا، دجاج، فلفل، فطر، صلصة الطماطم.' }, priceMAD: 42, popular: true },
-      { name: 'American Pizza', description: { fr: 'Mozzarella, pepperoni, sauce tomate, olives noires.', en: 'Mozzarella, pepperoni, tomato sauce, black olives.', ar: 'موزاريلا، ببروني، صلصة الطماطم، زيتون أسود.' }, priceMAD: 44 },
-      { name: 'Vivanda Pizza', description: { fr: 'Mozzarella, viande hachée, champignons, poivrons, sauce tomate, olives noires.', en: 'Mozzarella, minced beef, mushrooms, bell peppers, tomato sauce, black olives.', ar: 'موزاريلا، لحم مفروم، فطر، فلفل، صلصة الطماطم، زيتون أسود.' }, priceMAD: 47 },
-      { name: 'Four Cheese Pizza', description: { fr: 'Edam, bleu, brie, mozzarella, crème fraîche, sauce tomate.', en: 'Edam, blue cheese, brie, mozzarella, heavy cream, tomato sauce.', ar: 'إيدام، جبن أزرق، بري، موزاريلا، كريمة، صلصة الطماطم.' }, priceMAD: 48, vegetarian: true },
-      { name: 'Fisherman Pizza', description: { fr: 'Mozzarella, crevettes, calamars, surimi, sauce tomate, olives noires.', en: 'Mozzarella, shrimp, squid, surimi, tomato sauce, black olives.', ar: 'موزاريلا، روبيان، حبار، سوريمي، صلصة الطماطم، زيتون أسود.' }, priceMAD: 55 },
-      { name: 'Four Seasons Pizza', description: { fr: 'Composez votre propre pizza façon quatre saisons.', en: 'Build your own seasonal style pizza.', ar: 'كوّن بيتزا الفصول الأربعة الخاصة بك.' }, priceMAD: 55 },
+      { name: 'Signature "Rabat Nights"', description: { fr: 'Mozzarella, khlea effilochée, oignons caramélisés, olives noires, œuf au plat, filet d\'amlou.', en: 'Mozzarella, shredded khlea (confit beef), caramelized onions, black olives, fried egg, amlou drizzle.', ar: 'موزاريلا، خليع مفروم، بصل مكرمل، زيتون أسود، بيضة مقلية، صلصة أملو.' }, priceMAD: 55, popular: true },
+      { name: 'Margherita Superiore', description: { fr: 'Mozzarella fondante, sauce tomate, basilic frais, filet d\'huile d\'olive.', en: 'Melted mozzarella, tomato sauce, fresh basil, olive oil drizzle.', ar: 'موزاريلا ذائبة، صلصة طماطم، ريحان طازج، زيت الزيتون.' }, priceMAD: 38, vegetarian: true },
+      { name: 'Manzo Ricco', description: { fr: 'Mozzarella, bœuf braisé effiloché, oignons caramélisés, copeaux de parmesan.', en: 'Mozzarella, braised pulled beef, caramelized onions, parmesan shavings.', ar: 'موزاريلا، لحم بقري مطهو ببطء، بصل مكرمل، رقائق البارميزان.' }, priceMAD: 50 },
+      { name: 'Tonijn Riviera', description: { fr: 'Mozzarella, thon émietté, oignon rouge, câpres, olives kalamata, zeste de citron.', en: 'Mozzarella, flaked tuna, red onion, capers, kalamata olives, lemon zest.', ar: 'موزاريلا، تونة مفتتة، بصل أحمر، كبر، زيتون كالاماتا، قشر ليمون.' }, priceMAD: 46 },
+      { name: 'Poulet Chermoula', description: { fr: 'Mozzarella, poulet grillé façon chermoula, oignons caramélisés, poivrons, coriandre fraîche.', en: 'Mozzarella, chermoula-spiced grilled chicken, caramelized onions, bell peppers, fresh coriander.', ar: 'موزاريلا، دجاج مشوي بالشرمولة، بصل مكرمل، فلفل حلو، كزبرة طازجة.' }, priceMAD: 46 },
+      { name: 'Merguez Piquante', description: { fr: 'Mozzarella, merguez grillée, poivrons rôtis, huile de harissa, œuf au plat.', en: 'Mozzarella, grilled merguez, roasted peppers, harissa oil, fried egg.', ar: 'موزاريلا، مرقاز مشوي، فلفل مشوي، زيت الهريسة، بيضة مقلية.' }, priceMAD: 48 },
+      { name: 'El Reto', description: { fr: 'Mozzarella, sauce tomate au harissa, jalapeños, piments doux, viande épicée, sauce piquante.', en: 'Mozzarella, harissa-spiced tomato sauce, jalapeños, sweet chili peppers, spiced beef, hot sauce.', ar: 'موزاريلا، صلصة طماطم بالهريسة، هالبينو، فلفل حار خفيف، لحم متبل، صلصة حارة.' }, priceMAD: 50 },
+      { name: 'Quattro Formaggi Nobile', description: { fr: 'Mozzarella, gorgonzola, chèvre, copeaux de parmesan, filet de miel.', en: 'Mozzarella, gorgonzola, goat cheese, parmesan shavings, honey drizzle.', ar: 'موزاريلا، جبن غورغونزولا، جبن الماعز، رقائق البارميزان، صلصة العسل.' }, priceMAD: 50, vegetarian: true },
     ],
   },
   {

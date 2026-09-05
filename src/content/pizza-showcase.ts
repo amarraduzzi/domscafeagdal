@@ -1,12 +1,15 @@
 // "Best pizza in Agdal" homepage section — client's own priority push
 // ("We willen de beste pizza van Rabat gaan promoten" — client's original
 // wording; later corrected sitewide to "Agdal" specifically, never "Rabat").
-// Names, prices and
-// ingredients pulled directly from domscafe.pages.dev's live menu (the
-// same source menu-highlights.ts already uses) — real dishes, not
-// invented ones. Photos are the client's own, supplied directly and
-// stored locally at /images/dom/pizzas/ (resized/converted to webp) —
-// no hotlinking here, unlike menu-highlights.ts's placeholder photos.
+// Menu fully replaced (client request, September 2026): all 8 pizzas below
+// are a brand-new lineup that replaces the previous 7-pizza menu entirely
+// (Margarita, Vegetarian, Tuna, Pollo, American, Vivanda, Fisherman all
+// removed — Four Cheese/Four Seasons, which never had photos, are also
+// gone now that every current pizza has one). Names, prices, ingredients
+// and photos all supplied directly by the client for this new lineup —
+// photos stored locally at /images/dom/pizzas/ (resized/converted to
+// webp), no hotlinking here, unlike menu-highlights.ts's placeholder
+// photos (also updated to this same new lineup).
 import type { LocalizedText } from '../i18n/languages';
 
 export interface PizzaShowcaseItem {
@@ -19,97 +22,108 @@ export interface PizzaShowcaseItem {
   // Short, evocative one-liner — used on the dedicated /pizza page
   // (PizzaContent.astro) to give each pizza a bit of personality beyond its
   // ingredient list. Deliberately mood/sensory copy, not a factual claim
-  // (no invented "best-seller since X" type lines) — the one exception is
-  // Pollo's, which leans on the already-real `popular` flag above rather
-  // than asserting anything new. Optional so PizzaShowcaseGrid.astro (the
-  // compact Home/Menu teaser) can keep ignoring it.
+  // (no invented "best-seller since X" type lines). Optional so
+  // PizzaShowcaseGrid.astro (the compact Home/Menu teaser) can keep
+  // ignoring it.
   tagline?: LocalizedText;
 }
 
 export const pizzaShowcase: PizzaShowcaseItem[] = [
   {
-    name: 'Fisherman',
+    name: 'Signature "Rabat Nights"',
     description: {
-      fr: 'Mozzarella, crevettes, calamars, surimi, sauce tomate, olives noires.',
-      en: 'Mozzarella, shrimp, squid, surimi, tomato sauce, black olives.',
-      ar: 'موزاريلا، روبيان، حبار، سوريمي، صلصة الطماطم، زيتون أسود.',
+      fr: 'Mozzarella, khlea effilochée, oignons caramélisés, olives noires, œuf au plat, filet d\'amlou.',
+      en: 'Mozzarella, shredded khlea (confit beef), caramelized onions, black olives, fried egg, amlou drizzle.',
+      ar: 'موزاريلا، خليع مفروم، بصل مكرمل، زيتون أسود، بيضة مقلية، صلصة أملو.',
     },
     priceMAD: 55,
-    image: '/images/dom/pizzas/fisherman.webp',
-    imageAlt: { fr: 'Pizza Fisherman aux fruits de mer', en: 'Fisherman seafood pizza', ar: 'بيتزا فيشرمان بالمأكولات البحرية' },
-    tagline: { fr: 'Toute la mer, sur une seule pizza.', en: 'The whole sea, on a single pizza.', ar: 'كل نكهات البحر في بيتزا واحدة.' },
-  },
-  {
-    name: 'Pollo',
-    description: {
-      fr: 'Mozzarella, poulet, poivrons, champignons, sauce tomate.',
-      en: 'Mozzarella, chicken, bell peppers, mushrooms, tomato sauce.',
-      ar: 'موزاريلا، دجاج، فلفل، فطر، صلصة الطماطم.',
-    },
-    priceMAD: 42,
-    image: '/images/dom/pizzas/pollo.webp',
-    imageAlt: { fr: 'Pizza Pollo au poulet', en: 'Pollo chicken pizza', ar: 'بيتزا بولو بالدجاج' },
+    image: '/images/dom/pizzas/rabat-nights.webp',
+    imageAlt: { fr: 'Pizza Signature Rabat Nights au khlea et œuf', en: 'Signature Rabat Nights pizza with khlea and egg', ar: 'بيتزا التوقيع ليالي الرباط بالخليع والبيضة' },
     popular: true,
-    tagline: { fr: 'La pizza préférée de nos clients.', en: "Our customers' favorite.", ar: 'المفضلة لدى عملائنا.' },
+    tagline: { fr: 'Notre signature. Le Maroc dans une pizza.', en: 'Our signature. Morocco, on a pizza.', ar: 'توقيعنا الخاص. المغرب في بيتزا واحدة.' },
   },
   {
-    name: 'American',
+    name: 'Margherita Superiore',
     description: {
-      fr: 'Mozzarella, pepperoni, sauce tomate, olives noires.',
-      en: 'Mozzarella, pepperoni, tomato sauce, black olives.',
-      ar: 'موزاريلا، ببروني، صلصة الطماطم، زيتون أسود.',
+      fr: 'Mozzarella fondante, sauce tomate, basilic frais, filet d\'huile d\'olive.',
+      en: 'Melted mozzarella, tomato sauce, fresh basil, olive oil drizzle.',
+      ar: 'موزاريلا ذائبة، صلصة طماطم، ريحان طازج، زيت الزيتون.',
     },
-    priceMAD: 44,
-    image: '/images/dom/pizzas/american.webp',
-    imageAlt: { fr: 'Pizza American au pepperoni', en: 'American pepperoni pizza', ar: 'بيتزا أمريكان بالببروني' },
-    tagline: { fr: 'Simple, généreuse, et redoutablement efficace.', en: 'Simple, generous, dangerously good.', ar: 'بسيطة وسخية ولذيذة جدًا.' },
+    priceMAD: 38,
+    image: '/images/dom/pizzas/margherita-superiore.webp',
+    imageAlt: { fr: 'Pizza Margherita Superiore au basilic frais', en: 'Margherita Superiore pizza with fresh basil', ar: 'بيتزا مارغريتا سوبيريوري بالريحان الطازج' },
+    tagline: { fr: 'La classique, portée à un autre niveau.', en: 'The classic, taken further.', ar: 'الكلاسيكية، بمستوى أرقى.' },
   },
   {
-    name: 'Tuna',
+    name: 'Manzo Ricco',
     description: {
-      fr: 'Mozzarella, thon, poivrons, olives noires.',
-      en: 'Mozzarella, tuna, bell peppers, black olives.',
-      ar: 'موزاريلا، تونة، فلفل، زيتون أسود.',
+      fr: 'Mozzarella, bœuf braisé effiloché, oignons caramélisés, copeaux de parmesan.',
+      en: 'Mozzarella, braised pulled beef, caramelized onions, parmesan shavings.',
+      ar: 'موزاريلا، لحم بقري مطهو ببطء، بصل مكرمل، رقائق البارميزان.',
     },
-    priceMAD: 42,
-    image: '/images/dom/pizzas/tuna.webp',
-    imageAlt: { fr: 'Pizza Tuna au thon', en: 'Tuna pizza', ar: 'بيتزا تونة' },
-    tagline: { fr: "Le thon et les olives, comme on l'aime à Rabat.", en: 'Tuna and olives, just how Rabat likes it.', ar: 'تونة وزيتون، بالطريقة التي يحبها أهل الرباط.' },
+    priceMAD: 50,
+    image: '/images/dom/pizzas/manzo-ricco.webp',
+    imageAlt: { fr: 'Pizza Manzo Ricco au bœuf braisé', en: 'Manzo Ricco braised beef pizza', ar: 'بيتزا مانزو ريكو باللحم البقري المطهو ببطء' },
+    tagline: { fr: 'Riche, fondante, mijotée avec patience.', en: 'Rich, tender, slow-cooked patience.', ar: 'غنية وطرية، ثمرة صبر في الطهي.' },
   },
   {
-    name: 'Vivanda',
+    name: 'Tonijn Riviera',
     description: {
-      fr: 'Mozzarella, viande hachée, champignons, poivrons, sauce tomate, olives noires.',
-      en: 'Mozzarella, minced beef, mushrooms, bell peppers, tomato sauce, black olives.',
-      ar: 'موزاريلا، لحم مفروم، فطر، فلفل، صلصة الطماطم، زيتون أسود.',
+      fr: 'Mozzarella, thon émietté, oignon rouge, câpres, olives kalamata, zeste de citron.',
+      en: 'Mozzarella, flaked tuna, red onion, capers, kalamata olives, lemon zest.',
+      ar: 'موزاريلا، تونة مفتتة، بصل أحمر، كبر، زيتون كالاماتا، قشر ليمون.',
     },
-    priceMAD: 47,
-    image: '/images/dom/pizzas/vivanda.webp',
-    imageAlt: { fr: 'Pizza Vivanda à la viande hachée', en: 'Vivanda minced beef pizza', ar: 'بيتزا فيفاندا باللحم المفروم' },
-    tagline: { fr: 'Une pizza qui a du caractère.', en: 'A pizza with character.', ar: 'بيتزا ذات طابع مميز.' },
+    priceMAD: 46,
+    image: '/images/dom/pizzas/tonijn-riviera.webp',
+    imageAlt: { fr: 'Pizza Tonijn Riviera au thon et citron', en: 'Tonijn Riviera tuna pizza with lemon', ar: 'بيتزا تونيجن ريفييرا بالتونة والليمون' },
+    tagline: { fr: 'Fraîche et ensoleillée, comme la Méditerranée.', en: 'Fresh and sun-drenched, like the Mediterranean.', ar: 'منعشة ومشمسة، كأجواء المتوسط.' },
   },
   {
-    name: 'Vegetarian',
+    name: 'Poulet Chermoula',
     description: {
-      fr: 'Mozzarella, sauce tomate, légumes de saison.',
-      en: 'Mozzarella, tomato sauce, seasonal vegetables.',
-      ar: 'موزاريلا، صلصة الطماطم، خضروات الموسم.',
+      fr: 'Mozzarella, poulet grillé façon chermoula, oignons caramélisés, poivrons, coriandre fraîche.',
+      en: 'Mozzarella, chermoula-spiced grilled chicken, caramelized onions, bell peppers, fresh coriander.',
+      ar: 'موزاريلا، دجاج مشوي بالشرمولة، بصل مكرمل، فلفل حلو، كزبرة طازجة.',
     },
-    priceMAD: 36,
-    image: '/images/dom/pizzas/vegetarian.webp',
-    imageAlt: { fr: 'Pizza Vegetarian aux légumes', en: 'Vegetarian pizza', ar: 'بيتزا نباتية' },
-    tagline: { fr: 'Fraîche, légère, pleine de couleurs.', en: 'Fresh, light, full of color.', ar: 'طازجة وخفيفة ومليئة بالألوان.' },
+    priceMAD: 46,
+    image: '/images/dom/pizzas/poulet-chermoula.webp',
+    imageAlt: { fr: 'Pizza Poulet Chermoula au poulet grillé', en: 'Poulet Chermoula grilled chicken pizza', ar: 'بيتزا بولي شرمولة بالدجاج المشوي' },
+    tagline: { fr: 'Le goût du Maroc, grillé au feu de bois.', en: 'The taste of Morocco, wood-fire grilled.', ar: 'نكهة المغرب، مشوية على نار الحطب.' },
   },
   {
-    name: 'Margarita',
+    name: 'Merguez Piquante',
     description: {
-      fr: 'Mozzarella, sauce tomate, olives noires, basilic.',
-      en: 'Mozzarella, tomato sauce, black olives, basil.',
-      ar: 'موزاريلا، صلصة الطماطم، زيتون أسود، ريحان.',
+      fr: 'Mozzarella, merguez grillée, poivrons rôtis, huile de harissa, œuf au plat.',
+      en: 'Mozzarella, grilled merguez, roasted peppers, harissa oil, fried egg.',
+      ar: 'موزاريلا، مرقاز مشوي، فلفل مشوي، زيت الهريسة، بيضة مقلية.',
     },
-    priceMAD: 32,
-    image: '/images/dom/pizzas/margarita.webp',
-    imageAlt: { fr: 'Pizza Margarita', en: 'Margherita pizza', ar: 'بيتزا مارغريتا' },
-    tagline: { fr: 'La classique. Celle qui ne trompe jamais.', en: 'The classic. Never fails.', ar: 'الكلاسيكية التي لا تخيب أبدًا.' },
+    priceMAD: 48,
+    image: '/images/dom/pizzas/merguez-piquante.webp',
+    imageAlt: { fr: 'Pizza Merguez Piquante à l\'œuf', en: 'Merguez Piquante pizza with fried egg', ar: 'بيتزا مرقاز حار بالبيضة' },
+    tagline: { fr: 'Épicée, généreuse, sans compromis.', en: 'Spicy, generous, no compromise.', ar: 'حارة وسخية، بلا مساومة.' },
+  },
+  {
+    name: 'El Reto',
+    description: {
+      fr: 'Mozzarella, sauce tomate au harissa, jalapeños, piments doux, viande épicée, sauce piquante.',
+      en: 'Mozzarella, harissa-spiced tomato sauce, jalapeños, sweet chili peppers, spiced beef, hot sauce.',
+      ar: 'موزاريلا، صلصة طماطم بالهريسة، هالبينو، فلفل حار خفيف، لحم متبل، صلصة حارة.',
+    },
+    priceMAD: 50,
+    image: '/images/dom/pizzas/el-reto.webp',
+    imageAlt: { fr: 'Pizza El Reto épicée aux jalapeños', en: 'El Reto spicy jalapeño pizza', ar: 'بيتزا الريتو الحارة بالهالبينو' },
+    tagline: { fr: 'Le défi. À ne commander que si vous osez.', en: 'The challenge. Order only if you dare.', ar: 'التحدي. اطلبها إن كنت تجرؤ.' },
+  },
+  {
+    name: 'Quattro Formaggi Nobile',
+    description: {
+      fr: 'Mozzarella, gorgonzola, chèvre, copeaux de parmesan, filet de miel.',
+      en: 'Mozzarella, gorgonzola, goat cheese, parmesan shavings, honey drizzle.',
+      ar: 'موزاريلا، جبن غورغونزولا، جبن الماعز، رقائق البارميزان، صلصة العسل.',
+    },
+    priceMAD: 50,
+    image: '/images/dom/pizzas/quattro-formaggi.webp',
+    imageAlt: { fr: 'Pizza Quattro Formaggi Nobile au miel', en: 'Quattro Formaggi Nobile pizza with honey', ar: 'بيتزا كواترو فورماجي نوبيلي بالعسل' },
+    tagline: { fr: 'Quatre fromages nobles, une touche de miel.', en: 'Four noble cheeses, a touch of honey.', ar: 'أربعة أجبان فاخرة، ولمسة من العسل.' },
   },
 ];
