@@ -391,10 +391,11 @@ const path = localizedPath('/', lang);
        pricing and bestseller feature, repeating all of that here was pure
        duplication). This keeps the visual break and the pizza push, just
        as one photo + a short line + a single CTA into that richer page,
-       instead of a second full section. The 4-photo grid itself
-       (PizzaShowcaseGrid.astro) stays on the /menu page, where visitors
-       browsing the full card still expect photos per category — see
-       MenuContent.astro. -->
+       instead of a second full section. PizzaShowcaseGrid.astro no longer
+       renders anywhere as of the Sept 2026 pass that trimmed /menu's own
+       pizza section to a compact teaser too (see MenuContent.astro) — it's
+       unused, kept only in case a future page wants the full-grid layout
+       back. -->
   <section class="relative overflow-hidden min-h-[380px] sm:h-[46vh]" data-reveal="scale">
     <img
       src={pizzaTeaserPhoto.image}

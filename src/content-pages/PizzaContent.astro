@@ -407,6 +407,22 @@ const path = localizedPath('/pizza', lang);
               <p class="text-xs mt-1 italic" style="color: var(--color-accent)">{t(pizza.tagline, lang)}</p>
             )}
             <p class="text-sm mt-2 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
+            <!-- Per-card order link — every other pizza on this page (the
+                 featured one above, the whole-page CTA below) had a direct
+                 order action except these grid cards, which only showed
+                 info. This is the moment someone actually decides on a
+                 specific pizza, so it needs its own path to ordering
+                 instead of relying on them remembering the sticky bar or
+                 scrolling to the bottom. -->
+            <a
+              href={orderCtaLabel.href}
+              target="_blank"
+              rel="noreferrer"
+              class="mt-4 inline-flex items-center gap-1.5 text-sm font-bold"
+              style="color: var(--color-accent)"
+            >
+              {orderCtaLabel.label} {arrow(lang)}
+            </a>
           </div>
         </div>
       ))}

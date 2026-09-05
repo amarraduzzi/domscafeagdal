@@ -65,7 +65,22 @@ const rtl = isRTL(lang);
           <div class="p-5">
             <h3 class="menu-item-name font-display font-semibold text-lg" style="color: var(--color-text-primary)">{pizza.name}</h3>
             <p class="text-sm mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
-            <p class="menu-item-price mt-3 font-bold" style="color: var(--color-accent)">{pizza.priceMAD} MAD</p>
+            <div class="flex items-center justify-between gap-3 mt-3">
+              <p class="menu-item-price font-bold" style="color: var(--color-accent)">{pizza.priceMAD} MAD</p>
+              <!-- Per-card order link — this grid used to only get a
+                   shared CTA under the whole section, so the moment
+                   someone actually settled on one pizza there was nothing
+                   to click right there. -->
+              <a
+                href={orderCtaHref}
+                target="_blank"
+                rel="noreferrer"
+                class="text-xs font-bold shrink-0"
+                style="color: var(--color-accent)"
+              >
+                {orderCtaLabel} {arrow(lang)}
+              </a>
+            </div>
           </div>
         </div>
       ))}
