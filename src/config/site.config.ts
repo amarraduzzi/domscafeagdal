@@ -90,6 +90,15 @@ export interface SiteConfig {
     // table (see doms_pool_setup.sql) — the label is what's actually shown.
     tables: { id: 'pool_1' | 'pool_2' | 'snooker'; label: LocalizedString }[];
     slotMinutes: number;
+    // Staff-only PIN to cancel a booking directly from the /billard grid.
+    // ⚠ This is a UI deterrent, NOT real security: since there's no login
+    // system (v1 choice, see chat), the Supabase anon key that ships in this
+    // page's own JS can technically delete rows without going through this
+    // PIN prompt at all (e.g. via curl) — same trust model already accepted
+    // for booking (anyone could already POST a fake booking the same way).
+    // Change this PIN whenever staff turnover makes sense; it lives here so
+    // it's not buried in a script file.
+    staffCancelPin: string;
   };
 }
 
@@ -153,6 +162,9 @@ export const siteConfig: SiteConfig = {
       { id: 'snooker', label: { fr: 'Snooker', en: 'Snooker', ar: 'سنوكر' } },
     ],
     slotMinutes: 30,
+    // ⚠ Change this to a real staff PIN before going live — see the note on
+    // staffCancelPin above for what this does and doesn't protect against.
+    staffCancelPin: '1234',
   },
 };
 

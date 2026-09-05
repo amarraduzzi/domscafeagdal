@@ -16,6 +16,12 @@
 // for v1 (see chat) rather than a separate login-gated staff view — so
 // this one page serves both, typically opened on a tablet/the lobby
 // screen's browser for staff, and via the QR code on the screen for guests.
+//
+// Cancelling: clicking an already-booked slot prompts for the staff PIN
+// (site.config.ts's billiards.staffCancelPin) and, if correct, deletes that
+// booking after a confirm(). This is a UI deterrent only — see the PIN's
+// own comment in site.config.ts for why it isn't real access control in
+// this no-login v1.
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import { siteConfig } from '../config/site.config';
@@ -27,7 +33,7 @@ interface Props {
 const { lang = 'fr' } = Astro.props;
 
 const { name } = siteConfig.identity;
-const { tables, slotMinutes, supabaseUrl, supabaseAnonKey } = siteConfig.billiards;
+const { tables, slotMinutes, supabaseUrl, supabaseAnonKey, staffCancelPin } = siteConfig.billiards;
 const { open, close } = siteConfig.contact.hours;
 
 // Not yet wired up to a real Supabase project (see site.config.ts's own
@@ -79,7 +85,7 @@ const copy = {
   past: { fr: 'Passé', en: 'Past', ar: 'منتهية' },
   formTitle: { fr: 'Confirmer la réservation', en: 'Confirm the booking', ar: 'تأكيد الحجز' },
   nameLabel: { fr: 'Nom', en: 'Name', ar: 'الاسم' },
-  phoneLabel: { fr: 'Téléphone (optionnel)', en: 'Phone (optional)', ar: 'الهاتف (اختياري)' },
+  phoneLabel: { fr: 'Téléphone', en: 'Phone', ar: 'الهاتف' },
   confirmCta: { fr: 'Confirmer', en: 'Confirm', ar: 'تأكيد' },
   cancelCta: { fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' },
   successMessage: { fr: 'Réservé ! À bientôt.', en: 'Booked! See you soon.', ar: 'تم الحجز! نراكم قريبًا.' },
@@ -94,6 +100,19 @@ const copy = {
     ar: 'حدث خطأ، يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.',
   },
   nameRequired: { fr: 'Le nom est obligatoire.', en: 'Name is required.', ar: 'الاسم مطلوب.' },
+  phoneRequired: { fr: 'Le téléphone est obligatoire.', en: 'Phone number is required.', ar: 'رقم الهاتف مطلوب.' },
+  cancelPinPrompt: {
+    fr: 'Code personnel pour annuler cette réservation :',
+    en: 'Staff PIN to cancel this booking:',
+    ar: 'رمز الموظف لإلغاء هذا الحجز:',
+  },
+  cancelWrongPin: { fr: 'Code incorrect.', en: 'Incorrect PIN.', ar: 'رمز غير صحيح.' },
+  cancelConfirmPrefix: {
+    fr: 'Annuler la réservation de',
+    en: 'Cancel the booking for',
+    ar: 'إلغاء حجز',
+  },
+  cancelSuccess: { fr: 'Réservation annulée.', en: 'Booking cancelled.', ar: 'تم إلغاء الحجز.' },
   comingSoonTitle: { fr: 'Bientôt disponible', en: 'Coming soon', ar: 'قريبًا' },
   comingSoonBody: {
     fr: "La réservation en ligne des tables arrive très bientôt. En attendant, demandez au bar quelle table est libre.",
@@ -209,6 +228,7 @@ const path = localizedPath('/billard', lang);
           <input
             id="billard-phone"
             type="tel"
+            required
             class="w-full rounded-lg px-3 py-2 text-sm"
             style="background-color: var(--color-background); border: 1px solid var(--color-border); color: var(--color-text-primary)"
           />
@@ -231,6 +251,7 @@ const path = localizedPath('/billard', lang);
   <script define:vars={{
     supabaseUrl,
     supabaseAnonKey,
+    staffCancelPin,
     tableLabels: Object.fromEntries(tables.map((t2) => [t2.id, t(t2.label, lang)])),
     slotMinutes,
     copyStrings: {
@@ -242,6 +263,11 @@ const path = localizedPath('/billard', lang);
       takenMessage: t(copy.takenMessage, lang),
       errorMessage: t(copy.errorMessage, lang),
       nameRequired: t(copy.nameRequired, lang),
+      phoneRequired: t(copy.phoneRequired, lang),
+      cancelPinPrompt: t(copy.cancelPinPrompt, lang),
+      cancelWrongPin: t(copy.cancelWrongPin, lang),
+      cancelConfirmPrefix: t(copy.cancelConfirmPrefix, lang),
+      cancelSuccess: t(copy.cancelSuccess, lang),
     },
   }}>
     document.addEventListener('astro:page-load', () => {
@@ -315,20 +341,25 @@ const path = localizedPath('/billard', lang);
 
           btn.disabled = false;
           if (booking) {
+            // Stays clickable (not disabled): clicking a booked slot is how
+            // staff cancels it — see handleCancelClick below.
             btn.textContent = `${copyStrings.bookedBy} — ${booking.customer_name}`;
-            btn.disabled = true;
+            btn.dataset.booked = 'true';
+            btn.dataset.customerName = booking.customer_name;
             btn.style.backgroundColor = 'color-mix(in srgb, var(--color-text-muted) 18%, transparent)';
             btn.style.color = 'var(--color-text-muted)';
-            btn.style.cursor = 'default';
+            btn.style.cursor = 'pointer';
           } else if (isPast) {
             btn.textContent = copyStrings.past;
             btn.disabled = true;
+            btn.dataset.booked = 'false';
             btn.style.backgroundColor = 'transparent';
             btn.style.color = 'var(--color-text-muted)';
             btn.style.opacity = '0.5';
             btn.style.cursor = 'default';
           } else {
             btn.textContent = copyStrings.free;
+            btn.dataset.booked = 'false';
             btn.style.backgroundColor = 'color-mix(in srgb, var(--color-accent) 14%, transparent)';
             btn.style.color = 'var(--color-accent)';
             btn.style.opacity = '1';
@@ -353,9 +384,38 @@ const path = localizedPath('/billard', lang);
         pendingSlot = null;
       }
 
+      async function handleCancelClick(btn) {
+        const pin = window.prompt(copyStrings.cancelPinPrompt);
+        if (pin === null) return; // staff dismissed the prompt
+        if (pin !== staffCancelPin) {
+          statusEl.textContent = copyStrings.cancelWrongPin;
+          return;
+        }
+        const confirmed = window.confirm(
+          `${copyStrings.cancelConfirmPrefix} ${btn.dataset.customerName} — ${btn.dataset.start} ?`
+        );
+        if (!confirmed) return;
+        try {
+          const url = `${supabaseUrl}/rest/v1/bookings?table_name=eq.${btn.dataset.table}&booking_date=eq.${dateInput.value}&start_time=eq.${btn.dataset.start}`;
+          const res = await fetch(url, { method: 'DELETE', headers: headers() });
+          if (!res.ok) throw new Error('delete failed');
+          await loadBookings();
+          // loadBookings() sets its own loading/error/empty status text as
+          // it goes — set the cancel confirmation AFTER it settles so it
+          // isn't immediately overwritten.
+          statusEl.textContent = copyStrings.cancelSuccess;
+        } catch {
+          statusEl.textContent = copyStrings.errorMessage;
+        }
+      }
+
       app.addEventListener('click', (e) => {
         const btn = e.target.closest('.billard-slot');
         if (!btn || btn.disabled) return;
+        if (btn.dataset.booked === 'true') {
+          handleCancelClick(btn);
+          return;
+        }
         openModal(btn.dataset.table, btn.dataset.start, btn.dataset.end);
       });
       cancelBtn.addEventListener('click', closeModal);
@@ -372,6 +432,12 @@ const path = localizedPath('/billard', lang);
           formError.classList.remove('hidden');
           return;
         }
+        const customerPhone = phoneInput.value.trim();
+        if (!customerPhone) {
+          formError.textContent = copyStrings.phoneRequired;
+          formError.classList.remove('hidden');
+          return;
+        }
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         try {
@@ -384,7 +450,7 @@ const path = localizedPath('/billard', lang);
               start_time: pendingSlot.start,
               end_time: pendingSlot.end,
               customer_name: customerName,
-              customer_phone: phoneInput.value.trim() || null,
+              customer_phone: customerPhone,
             }),
           });
           if (res.status === 409) {
