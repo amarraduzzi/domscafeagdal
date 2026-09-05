@@ -128,26 +128,29 @@ const path = localizedPath('/pizza', lang);
   lang={lang}
   jsonLd={pizzaJsonLd}
 >
-  <!-- Bespoke hero — deliberately NOT a pizza photo behind it: with a
-       full page of real pizza photos coming up right below, the hero's
-       job is to be the clean, calm "stage" the stamp lands on, not to
-       compete with those photos. Dark radial glow standing in for oven
-       warmth (same visual language as the Home oven-door glow, just
-       static here) plus the stamp itself, sized bigger than anywhere
-       else on the site since this page exists specifically to give it
-       room. `immediate` on PizzaBadge — see that component's own comment
-       — since there's no oven-door sequence here to sync its slam to. -->
-  <section class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5" style="background: radial-gradient(ellipse 70% 60% at 50% 30%, color-mix(in srgb, var(--color-primary-dark) 45%, var(--color-background)) 0%, var(--color-background) 70%)">
+  <!-- Bespoke hero — atmospheric rooftop-at-sunset background image behind
+       the stamp, requested by the client (see chat) as the "wow" opener
+       for this page specifically. A dark gradient sits over the photo
+       (rgba layer below, not just a filter) so the white H1 and the stamp
+       stay readable regardless of where the busiest part of the image
+       lands, and so it blends into the plain dark sections that follow
+       rather than cutting off sharply. `immediate` on PizzaBadge — see
+       that component's own comment — since there's no oven-door sequence
+       here to sync its slam to. -->
+  <section
+    class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5 bg-cover bg-center"
+    style="background-image: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.7) 55%, var(--color-background) 100%), url('/images/dom/pizzas/hero-rooftop.webp')"
+  >
     <span class="block text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
 
     <div class="relative w-56 h-56 sm:w-72 sm:h-72 my-6" data-reveal="scale">
       <PizzaBadge lang={lang} href={`${localizedPath('/pizza', lang)}#pizzas`} immediate class="absolute inset-0" />
     </div>
 
-    <h1 class="font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary)">
+    <h1 class="font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6)">
       {t(copy.heroTitle, lang)}
     </h1>
-    <p class="mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-muted)">
+    <p class="mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-primary); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6)">
       {t(copy.heroSubtitle, lang)}
     </p>
 
