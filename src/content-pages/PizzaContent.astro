@@ -9,10 +9,12 @@
 // stamp (PizzaBadge) brought back as a feature rather than a small hero
 // accent. This page is that — its own bespoke hero built around the
 // stamp (no oven doors here, so PizzaBadge's `immediate` prop is used —
-// see that component's own comment for why), then every real pizza on
-// the menu: the 7 with the client's own photos front and center, and the
-// 2 that don't have a photo yet (Four Cheese, Four Seasons) listed
-// underneath rather than skipped or given a stock photo.
+// see that component's own comment for why), then every photographed pizza
+// on the menu. (A "Deux autres façons de se régaler" section used to list
+// the 2 unphotographed pizzas — Four Cheese, Four Seasons — underneath;
+// client asked for it gone entirely as of the desktop-layout round, not
+// just re-hidden, so `unphotographedPizzas`/`photographedNames` were
+// removed too rather than left as dead code.)
 //
 // Home's hero button and this page are now the two places pointing at
 // pizza specifically — Home's "Meilleure pizza d'Agdal" button now links
@@ -53,16 +55,10 @@ const { name } = siteConfig.identity;
 const city = t(place.city, lang);
 const orderCtaLabel = getOrderCtaLabel(lang);
 
-// The 2 pizzas that exist on the real menu but don't have a client photo
-// yet (see this file's header comment) — pulled from the single source of
-// truth (full-menu.ts's pizzas category) by excluding whatever pizza-
-// showcase.ts already covers, so adding a photo for one of these later
-// just means adding it to pizza-showcase.ts; nothing here needs editing.
-const photographedNames = new Set(pizzaShowcase.map((p) => p.name.toLowerCase()));
+// `pizzaCategory` is the single source of truth for every real pizza + its
+// menu price (used for the slice-price grid and structured data below) —
+// see also `slicePrice` further down, which reads from it too.
 const pizzaCategory = fullMenu.find((c) => c.slug === 'pizzas')!;
-const unphotographedPizzas = pizzaCategory.items.filter(
-  (item) => !photographedNames.has(item.name.replace(/\s+Pizza$/i, '').toLowerCase())
-);
 
 // The one real `popular` pizza (see pizza-showcase.ts) gets pulled out of
 // the grid into its own editorial feature below the hero — everything else
@@ -75,10 +71,9 @@ const gridPizzas = featuredPizza ? pizzaShowcase.filter((p) => p !== featuredPiz
 // price ÷ 8 slices, +25% for the convenience of buying a single slice.
 // Derived from `pizzaCategory.items` (full-menu.ts) rather than hardcoded
 // per pizza, so this stays correct automatically if a whole-pizza price
-// ever changes — exactly the same "one source of truth" reasoning as
-// `unphotographedPizzas` above. Rounded to the nearest whole MAD to match
-// how every other price on this site is displayed (no site price currently
-// uses fractional MAD).
+// ever changes. Rounded to the nearest whole MAD to match how every other
+// price on this site is displayed (no site price currently uses fractional
+// MAD).
 const slicePrice = (wholePizzaPrice: number) => Math.round((wholePizzaPrice / 8) * 1.25);
 
 const copy = {
@@ -98,13 +93,6 @@ const copy = {
     fr: 'Pâte fine, ingrédients frais, cuisson soignée au four — découvrez toutes nos pizzas, une par une.',
     en: 'Thin crust, fresh ingredients, carefully oven-baked — discover every one of our pizzas.',
     ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن بالفرن — اكتشف كل أنواع البيتزا لدينا واحدة تلو الأخرى.',
-  },
-  alsoOnMenuKicker: { fr: 'Aussi sur la carte', en: 'Also on the menu', ar: 'أيضًا في القائمة' },
-  alsoOnMenuTitle: { fr: 'Deux autres façons de se régaler', en: 'Two more ways to enjoy', ar: 'طريقتان أخريان للاستمتاع' },
-  alsoOnMenuIntro: {
-    fr: "Pas encore en photo sur cette page, mais bien réelles sur la carte de Dom's Café.",
-    en: "Not photographed on this page yet, but very real on Dom's Café's menu.",
-    ar: 'لم تُصوَّر بعد في هذه الصفحة، لكنها حاضرة فعليًا في قائمة Dom\'s Café.',
   },
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
   featuredKicker: { fr: 'Le coup de cœur', en: 'The favorite', ar: 'المفضلة' },
@@ -424,41 +412,6 @@ const path = localizedPath('/pizza', lang);
       ))}
     </div>
   </section>
-
-  <!-- The 2 pizzas without a photo yet — real, honest, no invented or
-       stock imagery (see this file's header comment and pizza-
-       showcase.ts's own comment on the same principle). Simple text
-       cards, clearly a step down in visual weight from the photographed
-       ones above so nothing here reads as a missing/broken photo. -->
-  {unphotographedPizzas.length > 0 && (
-    <div class="section-tint-warm">
-      <section class="max-w-4xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-        <div class="max-w-xl mb-8" data-reveal>
-          <span class="block text-[10px] font-bold uppercase tracking-[0.25em] mb-2" style="color: var(--color-accent)">{t(copy.alsoOnMenuKicker, lang)}</span>
-          <h2 class="font-display text-2xl sm:text-3xl font-semibold" style="color: var(--color-text-primary)">{t(copy.alsoOnMenuTitle, lang)}</h2>
-          <p class="mt-2 text-sm" style="color: var(--color-text-muted)">{t(copy.alsoOnMenuIntro, lang)}</p>
-        </div>
-        <div class="grid sm:grid-cols-2 gap-4">
-          {unphotographedPizzas.map((item, j) => (
-            <div
-              class="card-lift flex items-start justify-between gap-4 rounded-xl p-4"
-              style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${j * 70}ms`}
-              data-reveal
-            >
-              <div class="min-w-0">
-                <h3 class="menu-item-name font-display font-semibold" style="color: var(--color-text-primary)">{item.name}</h3>
-                <p class="text-sm mt-1" style="color: var(--color-text-muted)">{t(item.description, lang)}</p>
-              </div>
-              <span class="shrink-0 text-right">
-                <span class="menu-item-price block font-bold" style="color: var(--color-accent)">{item.priceMAD} MAD</span>
-                <span class="block text-[11px]" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(item.priceMAD)} MAD</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  )}
 
   <Ornament />
   <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 text-center">
