@@ -128,33 +128,58 @@ const path = localizedPath('/pizza', lang);
   lang={lang}
   jsonLd={pizzaJsonLd}
 >
-  <!-- Bespoke hero — atmospheric rooftop-at-sunset background image behind
-       the stamp, requested by the client (see chat) as the "wow" opener
-       for this page specifically. A dark gradient sits over the photo
-       (rgba layer below, not just a filter) so the white H1 and the stamp
-       stay readable regardless of where the busiest part of the image
-       lands, and so it blends into the plain dark sections that follow
-       rather than cutting off sharply. `immediate` on PizzaBadge — see
-       that component's own comment — since there's no oven-door sequence
-       here to sync its slam to. -->
-  <section
-    class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5 bg-cover bg-center"
-    style="background-image: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.7) 55%, var(--color-background) 100%), url('/images/dom/pizzas/hero-rooftop.webp')"
-  >
-    <span class="block text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
+  <!-- Bespoke hero — atmospheric rooftop-at-sunset photo behind the stamp
+       (client's own asset, see chat). Two separate images rather than one
+       CSS background — the client supplied a true portrait crop for
+       mobile (the landscape version was cropping badly on phones) —
+       following the exact same <img>/<img> sm:hidden / hidden sm:block
+       pattern HomeContent.astro's own hero already uses for the same
+       reason. Same reasoning on the oven-door reveal: client asked for
+       "hetzelfde effect als op de hoofdpagina" — this is a straight port
+       of Home's #home-hero door mechanism (see this file's <style> block
+       at the bottom, and Home's own much longer comment on the door
+       markup for the full reasoning) onto this hero, just re-scoped to
+       #pizza-hero so Astro's per-component CSS scoping keeps the two
+       independent. Because the door now provides its own reveal beat,
+       PizzaBadge no longer uses `immediate` here — its default ~2.1s
+       delay is what's tuned to match this exact door timing on Home, so
+       dropping the prop is what makes the two "read as one continuous
+       beat" the same way Home's does. -->
+  <section id="pizza-hero" class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5">
+    <img src="/images/dom/pizzas/hero-rooftop-mobile.webp" alt="" aria-hidden="true" class="sm:hidden absolute inset-0 w-full h-full object-cover" />
+    <img src="/images/dom/pizzas/hero-rooftop.webp" alt="" aria-hidden="true" class="hidden sm:block absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.7) 55%, var(--color-background) 100%)"></div>
 
-    <div class="relative w-56 h-56 sm:w-72 sm:h-72 my-6" data-reveal="scale">
-      <PizzaBadge lang={lang} href={`${localizedPath('/pizza', lang)}#pizzas`} immediate class="absolute inset-0" />
+    <!-- Same top-hinged brushed-steel oven door as Home's hero — see this
+         file's header comment above for why it's duplicated rather than
+         shared, and the <style> block below for the actual CSS (a literal
+         port of Home's, just re-scoped). -->
+    <div class="oven-doors-big" aria-hidden="true">
+      <div class="oven-glow-big"></div>
+      <div class="oven-door-steel">
+        <div class="oven-door-steel-hinge-shadow"></div>
+        <div class="oven-door-handle">
+          <span class="oven-door-handle-bracket"></span>
+          <span class="oven-door-handle-bar"></span>
+          <span class="oven-door-handle-bracket"></span>
+        </div>
+      </div>
     </div>
 
-    <h1 class="font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6)">
+    <span class="relative z-10 block text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
+
+    <div class="relative z-10 w-56 h-56 sm:w-72 sm:h-72 my-6" data-reveal="scale">
+      <PizzaBadge lang={lang} href={`${localizedPath('/pizza', lang)}#pizzas`} class="absolute inset-0" />
+    </div>
+
+    <h1 class="relative z-10 font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6)">
       {t(copy.heroTitle, lang)}
     </h1>
-    <p class="mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-primary); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6)">
+    <p class="relative z-10 mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-primary); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6)">
       {t(copy.heroSubtitle, lang)}
     </p>
 
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+    <div class="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-3">
       <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label}</Button>
       <Button href={localizedPath('/menu', lang)} variant="outline">{t(common.voirLeMenuComplet, lang)}</Button>
     </div>
@@ -303,6 +328,121 @@ const path = localizedPath('/pizza', lang);
     font-size: 0.95rem;
     background-color: var(--color-accent);
     color: var(--color-background);
+  }
+
+  /* ============================================================================
+     Oven-door hero reveal — a straight port of HomeContent.astro's own
+     #home-hero door mechanism (see the header comment above the markup for
+     why it's duplicated rather than shared as a component: it's tightly
+     coupled to this hero's own perspective/id, and Astro scopes each
+     component's <style> block separately anyway, so copy-and-rescope is
+     the honest option here, not a hack). Every rule below is identical to
+     Home's except the selector (#home-hero → #pizza-hero) — see that
+     file's own much longer comment block for the full design reasoning
+     (brushed-steel panel construction, why rotateX not rotateY, the
+     client's real-photo-driven feedback that led here, etc). */
+  #pizza-hero {
+    perspective: 2200px;
+  }
+  .oven-doors-big {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .oven-glow-big {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255, 170, 80, 0.95) 0%, rgba(200, 100, 30, 0.5) 42%, transparent 72%);
+    opacity: 0;
+    animation: hero-glow-flash 1s ease-out 0.15s both;
+  }
+  .oven-door-steel {
+    position: absolute;
+    inset: 0;
+    transform-origin: top center;
+    background:
+      linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        transparent 14%,
+        transparent 38%,
+        rgba(255, 255, 255, 0.3) 47%,
+        transparent 56%,
+        transparent 80%,
+        rgba(255, 255, 255, 0.22) 92%,
+        transparent 100%
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.07) 0px,
+        rgba(255, 255, 255, 0.07) 1px,
+        transparent 1px,
+        transparent 3px
+      ),
+      linear-gradient(160deg, #e9ebed 0%, #c4c7cc 28%, #f0f1f2 45%, #a7abb1 64%, #d8dadd 100%);
+    box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.28);
+    backface-visibility: hidden;
+    animation: hero-door-open 1.7s cubic-bezier(0.7, 0, 0.3, 1) 0.35s both;
+  }
+  .oven-door-steel-hinge-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5%;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent);
+  }
+  .oven-door-handle {
+    position: absolute;
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+    width: 34%;
+    min-width: 160px;
+    height: 6%;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2%;
+  }
+  .oven-door-handle-bracket {
+    width: 8%;
+    min-width: 14px;
+    height: 150%;
+    background: linear-gradient(180deg, #9a9da3, #6c6f74);
+    border-radius: 3px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+  }
+  .oven-door-handle-bar {
+    flex: 1;
+    height: 100%;
+    background: linear-gradient(180deg, #3a3a3c 0%, #1c1c1e 45%, #050505 100%);
+    border-radius: 9999px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  }
+
+  @keyframes hero-door-open {
+    0% { transform: rotateX(0deg); }
+    100% { transform: rotateX(-112deg); }
+  }
+  @keyframes hero-glow-flash {
+    0% { opacity: 0; }
+    40% { opacity: 1; }
+    70% { opacity: 0.35; }
+    100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .oven-glow-big {
+      display: none;
+    }
+    .oven-door-steel {
+      animation: none;
+      transform: rotateX(-112deg);
+      opacity: 0;
+    }
   }
 </style>
 
