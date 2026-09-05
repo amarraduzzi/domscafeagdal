@@ -7,22 +7,20 @@
 // that mismatch is on their side, not something this marketing site should
 // repeat just because it's their own copy.
 //
-// `testimonials` below are 4 REAL Google reviews, copied verbatim (or
+// `testimonials` below are 5 REAL Google reviews, copied verbatim (or
 // trimmed at a natural sentence break where Google's own UI truncated the
 // text behind a "More" link — never padded or continued by guessing) from
 // screenshots the client sent of Dom's Café's actual Google Maps listing.
-// Two were originally in French and shown here via Google's own on-page
+// Some were originally in French and shown here via Google's own on-page
 // translation ("Translated by Google" — same wording Google showed the
-// client); those two also got fr/ar translations added for this site's
-// other languages, done here, not by Google. Reviewer names, review
-// counts/"Local Guide" status and star ratings are exactly as shown.
-// `date` is only an ISO approximation: Google shows relative time ("a year
-// ago", "3 years ago") only, screenshotted 2026-09, so exact dates are
-// unknown — do not treat these as precise.
-//
-// Client asked for a minimum of 5; only 4 distinct reviews were supplied so
-// far. Add a 5th real one here the same way (screenshot -> verbatim/trimmed
-// quote) rather than inventing one to hit the round number.
+// client) or, for Jason Statham's review, the reviewer's own original French
+// ("Tres bonnes service bravo" — kept exactly as written, informal grammar
+// and all, in the `fr` field); every non-French original also got fr/ar
+// translations added for this site's other languages, done here, not by
+// Google. Reviewer names, review counts/"Local Guide" status and star
+// ratings are exactly as shown. `date` is only an ISO approximation: Google
+// shows relative time ("a year ago", "9 months ago") only, screenshotted
+// 2026-09, so exact dates are unknown — do not treat these as precise.
 import type { LocalizedText } from '../i18n/languages';
 
 export interface Testimonial {
@@ -86,6 +84,17 @@ export const testimonials: Testimonial[] = [
       ar: 'دومز مقهى يقع في قلب أكدال بالرباط. يقدمون تشكيلة من الأطعمة والمشروبات، ويضمون أيضًا صالة بلياردو داخل المقهى. جربت عصير الليمون، لكنه لم يرقَ تمامًا إلى توقعاتي. للإشارة، التدخين مسموح داخل المقهى.',
     },
     date: '2023-09-01',
+    sourceUrl: GOOGLE_LISTING_URL,
+  },
+  {
+    name: 'Jason Statham',
+    rating: 5,
+    text: {
+      fr: 'Tres bonnes service bravo',
+      en: 'Very good service, well done.',
+      ar: 'خدمة جيدة جدًا، أحسنتم.',
+    },
+    date: '2025-12-01',
     sourceUrl: GOOGLE_LISTING_URL,
   },
 ];
