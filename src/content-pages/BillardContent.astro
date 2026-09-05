@@ -158,6 +158,16 @@ const copy = {
     en: "Dom's Pool's warm atmosphere",
     ar: 'أجواء دافئة في Dom\'s Pool',
   },
+  photoAlt4: {
+    fr: 'Bille noire et queues de billard croisées',
+    en: 'Black 8-ball with crossed cues',
+    ar: 'كرة سوداء رقم 8 مع عصي متقاطعة',
+  },
+  photoAlt5: {
+    fr: 'Triangle de billes de snooker',
+    en: 'Snooker balls racked in a triangle',
+    ar: 'مثلث كرات السنوكر',
+  },
   infoTitle: { fr: 'Bon à savoir', en: 'Good to know', ar: 'معلومة مفيدة' },
   infoSlotNote: {
     fr: `Chaque créneau dure ${slotMinutes} minutes.`,
@@ -202,18 +212,34 @@ const path = localizedPath('/billard', lang);
   </section>
 
   <div class="max-w-6xl mx-auto px-5 sm:px-8 pb-24 lg:grid lg:grid-cols-[220px_minmax(0,480px)_260px] lg:gap-8 lg:items-start lg:justify-center">
-    <!-- Left column — real photos of the room, desktop only (lg+). Same 3
-         photos used on the homepage's "Dom's Pool" section; on mobile this
-         column simply doesn't render, so the phone experience is untouched. -->
-    <div class="hidden lg:flex lg:flex-col gap-4" data-reveal="scale">
+    <!-- Left column — real photos of the room, desktop only (lg+), plus a
+         few closeup/mood shots of balls and cues to round out the strip.
+         `sticky` keeps this column pinned near the top instead of dangling
+         below the booking widget / info panel once those shorter columns
+         run out of content — the 3-stacked-photos version used a plain
+         flex column here and, on pages with few remaining time slots,
+         left a large empty gap under the sidebar once the middle/right
+         columns ended. One larger featured photo (the room's ambiance
+         shot, the one with the most "pull") plus a 2x2 grid of smaller
+         closeups reads calmer than 5 same-size photos stacked in a row,
+         and is shorter overall so it dangles less regardless. -->
+    <div class="hidden lg:flex lg:flex-col gap-3 lg:sticky lg:top-24 self-start" data-reveal="scale">
       <div class="photo-frame rounded-2xl">
-        <img src="/images/dom/pool/pool-room-narcos.webp" alt={t(copy.photoAlt1, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
+        <img src="/images/dom/pool/pool-room-sunset.webp" alt={t(copy.photoAlt3, lang)} class="w-full h-44 xl:h-52 object-cover" loading="lazy" />
       </div>
-      <div class="photo-frame rounded-2xl">
-        <img src="/images/dom/pool/pool-balls-closeup.webp" alt={t(copy.photoAlt2, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
-      </div>
-      <div class="photo-frame rounded-2xl">
-        <img src="/images/dom/pool/pool-room-sunset.webp" alt={t(copy.photoAlt3, lang)} class="w-full h-40 xl:h-48 object-cover" loading="lazy" />
+      <div class="grid grid-cols-2 gap-3">
+        <div class="photo-frame rounded-xl">
+          <img src="/images/dom/pool/pool-room-narcos.webp" alt={t(copy.photoAlt1, lang)} class="w-full aspect-square object-cover" loading="lazy" />
+        </div>
+        <div class="photo-frame rounded-xl">
+          <img src="/images/dom/pool/pool-balls-closeup.webp" alt={t(copy.photoAlt2, lang)} class="w-full aspect-square object-cover" loading="lazy" />
+        </div>
+        <div class="photo-frame rounded-xl">
+          <img src="/images/dom/pool/pool-8ball-cues.webp" alt={t(copy.photoAlt4, lang)} class="w-full aspect-square object-cover" loading="lazy" />
+        </div>
+        <div class="photo-frame rounded-xl">
+          <img src="/images/dom/pool/pool-snooker-triangle.webp" alt={t(copy.photoAlt5, lang)} class="w-full aspect-square object-cover" loading="lazy" />
+        </div>
       </div>
     </div>
 

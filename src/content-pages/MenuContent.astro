@@ -4,11 +4,11 @@
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
-import PizzaShowcaseGrid from '../components/PizzaShowcaseGrid.astro';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { fullMenu } from '../content/full-menu';
-import { t, localizedPath, type Language } from '../i18n/languages';
+import { pizzaShowcase } from '../content/pizza-showcase';
+import { t, localizedPath, arrow, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
 
 interface Props {
@@ -51,16 +51,18 @@ const copy = {
     ar: 'تشكيلة من أطباقنا المميزة. القائمة الكاملة، بجميع الخيارات والإضافات، متوفرة عند الطلب.',
   },
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
-  // "Best pizza" section — same copy as Home's own pizza section (see
-  // HomeContent.astro), repeated here since this is the OTHER end of the
-  // hero's new "Beste pizza van Agdal" deep link (#pizzas below).
-  pizzaKicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
-  pizzaTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
-  pizzaIntro: {
-    fr: 'Pâte fine, ingrédients frais, cuisson soignée — voici les pizzas les plus commandées à Agdal.',
-    en: 'Thin crust, fresh ingredients, careful baking — the most-ordered pizzas in Agdal.',
-    ar: 'عجينة رفيعة، مكونات طازجة، طهي متقن — أكثر أنواع البيتزا طلبًا في أكدال.',
+  // Compact pizza teaser (trimmed from the full PizzaShowcaseGrid — client
+  // feedback, Sept 2026: showing the whole "best pizza" showcase here with
+  // the same weight as the dedicated /pizza page delayed people from
+  // reaching the actual menu they came to this page for. The full sell —
+  // kicker, title, intro, 4 photo cards — now lives only on /pizza and on
+  // Home; this page just points there). See the slim band below.
+  pizzaTeaserText: {
+    fr: 'Envie de pizza ? Nos pizzas signature, cuites au feu de bois.',
+    en: 'Craving pizza? Our signature pizzas, wood-fired.',
+    ar: 'تشتهي بيتزا؟ بيتزا مميزة، مطهوة على نار الحطب.',
   },
+  pizzaTeaserCta: { fr: 'Voir nos pizzas', en: 'See our pizzas', ar: 'شاهد البيتزا' },
   pizzaPopularBadge: { fr: 'Populaire', en: 'Popular', ar: 'الأكثر طلبًا' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
@@ -144,24 +146,29 @@ const path = localizedPath('/menu', lang);
     </div>
   </div>
 
-  <!-- "Best pizza in Agdal" — the other end of the Home hero's new "Beste
-       pizza van Agdal" button (#pizzas). Same shared component as Home
-       (see PizzaShowcaseGrid.astro) so this is exactly as prominent here
-       as it is on Home, right at the top of the page, ahead of the rest
-       of the menu — the client's own instruction ("de site moet de pizza
-       veel aanprijzen"). showMenuCta is off here since "voir le menu
-       complet" makes no sense as a link to the page you're already on. -->
-  <PizzaShowcaseGrid
-    lang={lang}
-    id="pizzas"
-    kicker={t(copy.pizzaKicker, lang)}
-    title={t(copy.pizzaTitle, lang)}
-    intro={t(copy.pizzaIntro, lang)}
-    popularBadge={t(copy.pizzaPopularBadge, lang)}
-    orderCtaHref={orderCtaLabel.href}
-    orderCtaLabel={orderCtaLabel.label}
-    showMenuCta={false}
-  />
+  <!-- Compact pizza teaser — replaces the full PizzaShowcaseGrid that used
+       to sit here (client feedback, Sept 2026: this page's job is to let
+       people browse the whole menu, not re-sell one category with the
+       same weight as the dedicated /pizza page). Just enough to point
+       people who want pizza specifically toward the page that actually
+       sells it: a few thumbnails, one line, one button. -->
+  <section class="max-w-7xl mx-auto px-5 sm:px-8 py-8 sm:py-10" id="pizzas" data-reveal>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6 rounded-2xl p-5 sm:p-6" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
+      <div class="flex -space-x-3 rtl:space-x-reverse shrink-0">
+        {pizzaShowcase.slice(0, 3).map((pizza) => (
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden" style="border: 2px solid var(--color-surface)">
+            <img src={pizza.image} alt={t(pizza.imageAlt, lang)} class="w-full h-full object-cover" loading="lazy" />
+          </div>
+        ))}
+      </div>
+      <p class="flex-1 font-display text-base sm:text-lg font-semibold" style="color: var(--color-text-primary)">
+        {t(copy.pizzaTeaserText, lang)}
+      </p>
+      <Button href={localizedPath('/pizza', lang)} variant="cta" class="shrink-0 w-full sm:w-auto">
+        {t(copy.pizzaTeaserCta, lang)} {arrow(lang)}
+      </Button>
+    </div>
+  </section>
 
   <!-- Typographic moment — same oversized-number language as À propos,
        repeated here instead of only appearing on one page of the site. -->
