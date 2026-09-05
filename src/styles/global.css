@@ -46,8 +46,22 @@ html[lang='ar'] {
   --font-body: 'Noto Naskh Arabic', 'Inter', sans-serif;
 }
 
+/* Client feedback: the flat single-colour background reads as a bit "saai"
+   (dull) across a long page. Rather than a new image or pattern on every
+   page (upkeep risk, see the comment on section-tint-warm below for why
+   this codebase favours color-mix() tricks over new assets), two large,
+   very soft radial "glow" blobs in the brand gold/bronze — anchored near
+   the top of the body box (behind each page's hero) so they read as
+   ambient light rather than a decal. `background-repeat: no-repeat` keeps
+   them from tiling; they simply fade to nothing before the page's actual
+   content-heavy areas, so body text always sits on the plain flat colour
+   underneath and legibility never suffers. */
 body {
   background-color: var(--color-background);
+  background-image:
+    radial-gradient(1100px 750px at 15% -8%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 60%),
+    radial-gradient(900px 650px at 100% 12%, color-mix(in srgb, var(--color-primary-dark) 18%, transparent), transparent 55%);
+  background-repeat: no-repeat;
   color: var(--color-text-primary);
   font-family: var(--font-body);
 }

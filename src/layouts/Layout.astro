@@ -49,7 +49,19 @@ const rtl = isRTL(lang);
 // the cascade on a plain, non-!important :root rule. This is what caused
 // the whole site to render in the template's original red instead of
 // Dom's brown/gold. !important makes the override win unconditionally.
-const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary} !important;--color-accent:${siteConfig.colors.accent} !important;--color-background:${siteConfig.colors.background} !important;}`;
+//
+// --color-surface / --color-surface-muted were MISSING from this override
+// list — global.css's :root still declared them at their original
+// template values (#131315 / #1A1A1E), a neutral near-black with a
+// fractionally cooler channel balance than Dom's warm brown background.
+// Sitting right next to the now-brown --color-background, that leftover
+// neutral grey read as a faint blue-grey cast on every card/footer/form
+// surface (client caught this — "de kleuren lijken een donkere blauwe
+// kleur te zijn"). Fixed by deriving both from the real background colour
+// via color-mix() instead of a second hardcoded hex, so surfaces are
+// always a lighter shade of the SAME warm brown, never an independently
+// picked neutral that can drift out of sync again.
+const colorOverrides = `:root{--color-primary:${siteConfig.colors.primary} !important;--color-accent:${siteConfig.colors.accent} !important;--color-background:${siteConfig.colors.background} !important;--color-surface:color-mix(in srgb, ${siteConfig.colors.background} 88%, white) !important;--color-surface-muted:color-mix(in srgb, ${siteConfig.colors.background} 80%, white) !important;}`;
 ---
 <!doctype html>
 <html lang={lang} dir={rtl ? 'rtl' : 'ltr'}>
