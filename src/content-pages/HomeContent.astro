@@ -91,16 +91,27 @@ const copy = {
     en: "The Dom's formula: hot drink, orange juice, toasts, eggs, cheese and cold cuts — our most-ordered breakfast.",
     ar: "وجبة Dom's: مشروب ساخن، عصير برتقال، توست، بيض، جبن ولحوم باردة — فطورنا الأكثر طلبًا.",
   },
-  ambianceKicker: { fr: "L'ambiance", en: 'The ambiance', ar: 'الأجواء' },
-  ambianceTitle: {
-    fr: "Depuis des années au cœur d'Agdal",
-    en: 'Years in the heart of Agdal',
-    ar: 'منذ سنوات في قلب أكدال',
+  ambianceKicker: { fr: 'Notre espace jeu', en: 'Our game room', ar: 'قاعة الألعاب' },
+  ambianceTitle: { fr: "Dom's Pool", en: "Dom's Pool", ar: "Dom's Pool" },
+  ambianceIntro: {
+    fr: '2 tables de billard et 1 table de snooker, installées au cœur du café.',
+    en: '2 pool tables and 1 snooker table, right inside the café.',
+    ar: 'طاولتا بيلياردو وطاولة سنوكر واحدة، داخل المقهى.',
   },
   ambianceAlt1: {
-    fr: "L'intérieur chaleureux de Dom's Café",
-    en: "Dom's Café's warm interior",
-    ar: 'الأجواء الدافئة داخل Dom\'s Café',
+    fr: "La salle Dom's Pool, avec ses billards et sa table de snooker",
+    en: "The Dom's Pool room, with its pool and snooker tables",
+    ar: 'قاعة Dom\'s Pool، بطاولات البيلياردو والسنوكر',
+  },
+  ambianceAlt2: {
+    fr: 'Une des tables de billard de Dom\'s Pool',
+    en: "One of Dom's Pool's pool tables",
+    ar: 'إحدى طاولات البيلياردو في Dom\'s Pool',
+  },
+  ambianceAlt3: {
+    fr: 'Billes sur le tapis de la table de snooker',
+    en: 'Balls on the snooker table',
+    ar: 'كرات على طاولة السنوكر',
   },
   whyUs: [
     {
@@ -474,35 +485,32 @@ const path = localizedPath('/', lang);
     </div>
   </section>
 
-  <!-- Ambiance mood board — mood/reference imagery. Used to sit right below
-       a small, unheaded 2-photo gallery (the real reservation-hero + naan
-       shots); that made for two photo grids back to back with nothing to
-       break up the rhythm, and those two photos already appear elsewhere
-       on the site (reservation hero, menu naan category) so the standalone
-       block added little. Removed that block and kept this one — it has
-       its own kicker/heading and a fuller set of images, so it carries the
-       "gallery" role on its own now. The six images here are stand-ins for
-       the atmosphere while real on-site photography is being shot, so the
-       copy below (kicker + alt text) frames them as mood, never as "this is
-       our biryani" or "this is our dining room" — same honesty line the
-       rest of the site holds to, just applied to a different kind of image.
-       Swap these six for real shots as soon as they're in; no code changes
-       needed beyond the src attributes below. -->
+  <!-- "Dom's Pool" — the café's own game room (2 pool tables + 1 snooker
+       table), replacing the old "ambiance" mood board that used to run
+       three stand-in/AI-generated interior shots here (see git history):
+       the client sent real photos of the actual room instead, so this is
+       now honest, on-site photography like everywhere else on the site,
+       not a placeholder. Real dishes/real rooms only — same principle as
+       pizza-showcase.ts and the /pizza page's own photography. A future
+       online table-reservation system is planned for the lobby screen (see
+       chat) — once that exists, this section is the natural place for a
+       "Réserver une table" CTA pointing at it. -->
   <div class="section-tint">
     <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
       <div class="max-w-2xl mb-10 sm:mb-12" data-reveal>
         <p class="font-bold text-sm tracking-widest uppercase" style="color: var(--color-accent)">{t(copy.ambianceKicker, lang)}</p>
         <h2 class="font-display text-3xl sm:text-4xl font-semibold mt-2">{t(copy.ambianceTitle, lang)}</h2>
+        <p class="mt-2 text-sm sm:text-base" style="color: var(--color-text-muted)">{t(copy.ambianceIntro, lang)}</p>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale">
-          <img src="/images/dom/interior-1.jpg" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+          <img src="/images/dom/pool/pool-room-narcos.webp" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale" style="transition-delay: 60ms">
-          <img src="https://i.ibb.co/8LstVF4J/Chat-GPT-Image-21-jul-2026-00-50-06.webp" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+          <img src="/images/dom/pool/pool-room-sunset.webp" alt={t(copy.ambianceAlt2, lang)} class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="photo-frame rounded-2xl aspect-square" data-reveal="scale" style="transition-delay: 120ms">
-          <img src="https://i.ibb.co/9kJnfr2Z/Chat-GPT-Image-21-jul-2026-08-57-53.webp" alt={t(copy.ambianceAlt1, lang)} class="w-full h-full object-cover" loading="lazy" />
+          <img src="/images/dom/pool/pool-balls-closeup.webp" alt={t(copy.ambianceAlt3, lang)} class="w-full h-full object-cover" loading="lazy" />
         </div>
       </div>
     </section>
