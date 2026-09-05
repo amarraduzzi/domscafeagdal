@@ -40,6 +40,15 @@ const orderCtaLabel = getOrderCtaLabel(lang);
 // Page-specific copy — kept next to the markup that uses it rather than in
 // the shared src/i18n/ui.ts, since none of this repeats on other pages.
 const copy = {
+  // Hero subtitle, right under the "Dom's Café" H1 — client asked for
+  // something warm covering both the café itself and the pizza push
+  // ("het gezelligste café en beste pizza van Agdal"). Kept to one short
+  // line on purpose (see the comment where this is used).
+  heroSubtitle: {
+    fr: "Le café le plus chaleureux d'Agdal — et la meilleure pizza de la ville.",
+    en: "Agdal's coziest café — and the best pizza in town.",
+    ar: 'أكثر مقهى دافئ في أكدال، وأفضل بيتزا في المدينة.',
+  },
   // Keyword-first: the search term goes as far forward in the title as
   // possible (Google + AI answer engines both weight this), brand name
   // last as a trust signal.
@@ -242,10 +251,14 @@ const path = localizedPath('/', lang);
          Landing spot: bottom-right and large on desktop, centered and
          large above the title on mobile — both per the client's explicit
          placement choice, not a default corner-badge treatment. -->
+    <!-- Mobile size brought down from w-52 (208px, roughly half the
+         screen width on a real phone) to w-36 (144px) — client feedback:
+         "de stempel is te groot in de mobiele versie". Desktop/lg sizes
+         untouched, that feedback was mobile-only. -->
     <PizzaBadge
       lang={lang}
       href={localizedPath('/avis', lang)}
-      class={`absolute z-20 w-52 h-52 top-4 left-1/2 -translate-x-1/2 sm:top-1/2 sm:left-auto sm:translate-x-0 sm:-translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96 sm:bottom-auto ${stampSide}`}
+      class={`absolute z-20 w-36 h-36 top-4 left-1/2 -translate-x-1/2 sm:top-1/2 sm:left-auto sm:translate-x-0 sm:-translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96 sm:bottom-auto ${stampSide}`}
     />
 
     <!-- The whole hero as an oven — take two on the door mechanism. The
@@ -294,15 +307,20 @@ const path = localizedPath('/', lang);
              menu list — too much reading before anyone even sees a button.
              Now: a short kicker carries the keyword + neighborhood (still
              there for SEO/local-search, just not spelled out as a full
-             sentence), the H1 is just the brand name, and the descriptive
-             paragraph is gone entirely — the menu-highlights section right
-             below already says what's on offer. -->
+             sentence), the H1 is just the brand name. A one-line subtitle
+             is back below it (client request) — short and punchy on
+             purpose, not the old full descriptive paragraph, so it adds
+             warmth + the pizza claim without undoing why that paragraph
+             was cut in the first place. -->
         <span class="inline-block text-xs font-bold uppercase tracking-[0.3em] mb-3 [text-shadow:0_2px_10px_rgba(0,0,0,0.85)] sm:[text-shadow:none]" style="color: var(--color-accent)">
           {primaryKeyword} · Agdal, {city}
         </span>
         <h1 class="font-display text-4xl leading-[1.1] sm:text-6xl lg:text-7xl font-semibold tracking-tight [text-shadow:0_2px_14px_rgba(0,0,0,0.85)] sm:[text-shadow:none]" style="color: var(--color-text-primary)">
           {siteConfig.identity.name}
         </h1>
+        <p class="mt-3 text-base sm:text-lg max-w-md [text-shadow:0_1px_10px_rgba(0,0,0,0.85)] sm:[text-shadow:none]" style="color: var(--color-text-primary)">
+          {t(copy.heroSubtitle, lang)}
+        </p>
         <!-- Restyled per client feedback ("het moet andere knoppen
              worden") — both buttons are now solid blocks at every
              breakpoint instead of the previous transparent-outline-on-
