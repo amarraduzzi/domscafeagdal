@@ -4,10 +4,11 @@
 import Layout from '../layouts/Layout.astro';
 import PageHero from '../components/PageHero.astro';
 import Ornament from '../components/Ornament.astro';
+import Button from '../components/Button.astro';
 import { siteConfig } from '../config/site.config';
-import { aggregateRating } from '../content/testimonials';
+import { aggregateRating, testimonials } from '../content/testimonials';
 import { t, localizedPath, type Language } from '../i18n/languages';
-import { place } from '../i18n/ui';
+import { common, place, nav } from '../i18n/ui';
 
 interface Props {
   lang?: Language;
@@ -55,7 +56,19 @@ const copy = {
   statPlats: { fr: 'plats faits maison', en: 'homemade dishes', ar: 'أطباق منزلية الصنع' },
   statAvis: { fr: 'avis Google', en: 'Google reviews', ar: 'تقييم على Google' },
   noteMoyenne: { fr: 'note moyenne', en: 'average rating', ar: 'متوسط التقييم' },
+  // "Où nous trouver" section — client feedback: page felt too bare below
+  // the stats band. Reuses the exact same address/hours/map pattern as
+  // ContactContent.astro (see that file) rather than a lighter duplicate,
+  // so someone convinced by the story here doesn't have to leave the page
+  // to check "is it open now / where exactly".
+  findUsTitle: { fr: 'Nous trouver', en: 'Find us', ar: 'كيف تجدنا' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
+
+const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n);
+// Featured quote here is deliberately a different review than the one
+// Avis Clients leads with (testimonials[0]) — repeating the same pull-quote
+// verbatim on two pages would read as padding, not as more social proof.
+const featuredReview = testimonials[1] ?? testimonials[0];
 
 const path = localizedPath('/a-propos', lang);
 ---
@@ -134,5 +147,62 @@ const path = localizedPath('/a-propos', lang);
     </section>
   </div>
 
+  <!-- Real, sourced Google review (see src/content/testimonials.ts) as an
+       unboxed pull-quote — same treatment as Avis Clients' lead quote, but
+       a different review (see featuredReview above) so the two pages don't
+       just repeat each other. -->
+  {featuredReview && (
+    <section class="relative max-w-3xl mx-auto px-5 sm:px-8 pt-16 sm:pt-20 pb-4 text-center overflow-hidden" data-reveal>
+      <div class="section-glow" style="width: 360px; height: 360px; background: var(--color-accent); opacity: 0.08; left: -120px; top: -40px;"></div>
+      <span class="relative font-display block text-6xl leading-none mb-2" style="color: var(--color-accent)">"</span>
+      <p class="relative pull-quote -mt-6">{t(featuredReview.text, lang)}</p>
+      <p class="relative mt-6 text-sm font-bold" style="color: var(--color-accent)">
+        {featuredReview.name} · {stars(featuredReview.rating)}
+      </p>
+    </section>
+  )}
+
   <Ornament />
+
+  <!-- Opening hours + map, same pattern/markup as ContactContent.astro's
+       equivalent block (kept intentionally lighter here: no phone/WhatsApp
+       rows, since Contact already owns that — this is just "convinced by
+       the story, when can I come by"). -->
+  <section class="max-w-4xl mx-auto px-5 sm:px-8 pb-20 sm:pb-24">
+    <h2 class="font-display text-2xl sm:text-3xl font-semibold mb-6 text-center" style="color: var(--color-text-primary)" data-reveal>
+      {t(copy.findUsTitle, lang)}
+    </h2>
+    <div class="grid sm:grid-cols-2 gap-8 items-center">
+      <div class="space-y-4 text-sm sm:text-base text-center sm:text-left" style="color: var(--color-text-primary)" data-reveal>
+        <p>
+          <span class="font-bold text-xs uppercase tracking-wide block" style="color: var(--color-text-muted)">{t(common.adresse, lang)}</span>
+          {siteConfig.contact.address}
+        </p>
+        <p>
+          <span class="font-bold text-xs uppercase tracking-wide block" style="color: var(--color-text-muted)">{t(common.horaires, lang)}</span>
+          {t(siteConfig.contact.openingHours, lang)}
+        </p>
+        <div class="flex flex-wrap justify-center sm:justify-start gap-3 pt-2">
+          {siteConfig.contact.mapsUrl && (
+            <Button href={siteConfig.contact.mapsUrl} external variant="filled">{t(common.itineraire, lang)}</Button>
+          )}
+          <Button href={localizedPath('/contact', lang)} variant="outline">{t(nav.contact, lang)}</Button>
+        </div>
+      </div>
+      <div
+        class="rounded-2xl overflow-hidden aspect-[4/3]"
+        style="background-color: color-mix(in srgb, var(--color-primary-dark) 10%, var(--color-surface)); border: 1px solid var(--color-border)"
+        data-reveal
+      >
+        <iframe
+          src={`https://www.google.com/maps?q=${encodeURIComponent(siteConfig.contact.address)}&output=embed`}
+          class="w-full h-full grayscale-[35%] contrast-[1.05]"
+          style="border: 0; min-height: 260px;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title={`${name}, ${siteConfig.contact.address}`}
+        ></iframe>
+      </div>
+    </div>
+  </section>
 </Layout>
