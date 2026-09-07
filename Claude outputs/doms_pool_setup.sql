@@ -30,6 +30,18 @@ create policy "Anyone can view bookings"
   to anon
   using (true);
 
+-- Cancelling a booking on the Billard page is gated by a staff PIN entered
+-- in the browser (site.config.ts's billiards.staffCancelPin), which is a UI
+-- deterrent only, not real security — see the comment above staffCancelPin
+-- in site.config.ts. The database itself has to allow the delete, otherwise
+-- every cancel attempt fails regardless of the PIN. Change the PIN, not
+-- this policy, if that protection ever needs to be tightened.
+create policy "Anyone can cancel a booking"
+  on bookings for delete
+  to anon
+  using (true);
+
 revoke all on bookings from anon;
 grant insert (table_name, booking_date, start_time, end_time, customer_name, customer_phone) on bookings to anon;
 grant select (id, table_name, booking_date, start_time, end_time, customer_name) on bookings to anon;
+grant delete on bookings to anon;
