@@ -28,13 +28,33 @@
 // without new client assets (a looping oven video and a real pizza-specific
 // review quote were also on the table — deliberately skipped until real
 // footage/quotes exist, see the chat for why). (1) The one pizza flagged
-// `popular` in pizza-showcase.ts (Pollo) is pulled out of the grid into its
-// own large editorial feature, so the page has a clear focal point instead
-// of 7 equally-weighted cards. (2) Every showcase pizza now carries a short
+// `popular` in pizza-showcase.ts is pulled out of the grid into its own
+// large editorial feature, so the page has a clear focal point instead of
+// equally-weighted cards. (2) Every showcase pizza carries a short
 // mood/sensory `tagline` (see pizza-showcase.ts's own comment on why these
 // are never factual claims). (3) A mobile-only sticky order bar fades in
 // once the hero is scrolled past — see the <script> at the bottom of this
 // file and its own comment for the mechanism.
+//
+// Round 3 / September 2026 pivot: the whole concept behind this page
+// changed from "whole round pizza, cut into 8 triangular slices" to
+// "Roman-style square pizza (pizza al taglio / pizza romana), baked in a
+// tray and cut into rectangular pieces" — see pizza-showcase.ts's header
+// comment for the full reasoning. This is a content-and-copy pivot, not a
+// visual-language one: same hero/oven-door mechanism, same card styles,
+// same "sold by the piece, a first in Rabat" positioning, just reworded
+// away from the old round/8-slice specifics and with the old per-item
+// prices removed (client hasn't fixed pricing for the new format yet —
+// fixed-price-per-square vs. sold-by-weight is still an open question, see
+// chat). `pizzaCategory`/`slicePrice`, which used to compute a per-slice
+// price table from full-menu.ts's still-unrevised round-pizza prices, are
+// gone for the same reason: showing a slice price derived from the OLD
+// lineup's prices on the NEW lineup's page would be actively wrong. The
+// "Le prix, part par part" table is replaced by a plain, price-free list of
+// the 5 launch flavors below. full-menu.ts's own `pizzas` category (and the
+// separate /menu page that reads it) still lists the old round lineup with
+// real prices — deliberately left alone until the client has real prices
+// for the new format, see chat.
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
@@ -42,7 +62,6 @@ import PizzaBadge from '../components/PizzaBadge.astro';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { pizzaShowcase } from '../content/pizza-showcase';
-import { fullMenu } from '../content/full-menu';
 import { t, localizedPath, arrow, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
 
@@ -55,11 +74,6 @@ const { name } = siteConfig.identity;
 const city = t(place.city, lang);
 const orderCtaLabel = getOrderCtaLabel(lang);
 
-// `pizzaCategory` is the single source of truth for every real pizza + its
-// menu price (used for the slice-price grid and structured data below) —
-// see also `slicePrice` further down, which reads from it too.
-const pizzaCategory = fullMenu.find((c) => c.slug === 'pizzas')!;
-
 // The one real `popular` pizza (see pizza-showcase.ts) gets pulled out of
 // the grid into its own editorial feature below the hero — everything else
 // falls back to the regular grid. `find`/`filter` rather than a hardcoded
@@ -67,14 +81,11 @@ const pizzaCategory = fullMenu.find((c) => c.slug === 'pizzas')!;
 const featuredPizza = pizzaShowcase.find((p) => p.popular);
 const gridPizzas = featuredPizza ? pizzaShowcase.filter((p) => p !== featuredPizza) : pizzaShowcase;
 
-// "Pizza à la part" — client's own pricing rule (see chat): whole-pizza
-// price ÷ 8 slices, +25% for the convenience of buying a single slice.
-// Derived from `pizzaCategory.items` (full-menu.ts) rather than hardcoded
-// per pizza, so this stays correct automatically if a whole-pizza price
-// ever changes. Rounded to the nearest whole MAD to match how every other
-// price on this site is displayed (no site price currently uses fractional
-// MAD).
-const slicePrice = (wholePizzaPrice: number) => Math.round((wholePizzaPrice / 8) * 1.25);
+const priceSoonLabel: Record<Language, string> = {
+  fr: 'Prix bientôt',
+  en: 'Price soon',
+  ar: 'السعر قريبًا',
+};
 
 const copy = {
   metaTitle: {
@@ -83,38 +94,38 @@ const copy = {
     ar: `أفضل بيتزا في أكدال, ${name} | ${city}`,
   },
   metaDescription: {
-    fr: `Découvrez toutes les pizzas de ${name} à Agdal, ${city} : pâte fine, ingrédients frais, cuisson soignée. La pizza la plus commandée du quartier.`,
-    en: `Discover every pizza at ${name} in Agdal, ${city}: thin crust, fresh ingredients, careful baking. The most-ordered pizza in the neighborhood.`,
-    ar: `اكتشف جميع أنواع البيتزا في ${name} بأكدال، ${city}: عجينة رفيعة، مكونات طازجة، طهي متقن. البيتزا الأكثر طلبًا في الحي.`,
+    fr: `Découvrez la nouvelle pizza carrée à la romaine de ${name} à Agdal, ${city} : pâte fine et croustillante, ingrédients frais, vendue à la part. Une première à Rabat.`,
+    en: `Discover ${name}'s new Roman-style square pizza in Agdal, ${city}: thin, crisp crust, fresh ingredients, sold by the piece. A first in Rabat.`,
+    ar: `اكتشفوا بيتزا ${name} المربعة الجديدة على الطريقة الرومانية بأكدال، ${city}: عجينة رفيعة ومقرمشة، مكونات طازجة، تُباع بالقطعة. الأولى من نوعها في الرباط.`,
   },
   kicker: { fr: 'Notre spécialité', en: 'Our specialty', ar: 'تخصصنا' },
   heroTitle: { fr: "La meilleure pizza d'Agdal", en: 'The best pizza in Agdal', ar: 'أفضل بيتزا في أكدال' },
   heroSubtitle: {
-    fr: 'Des recettes audacieuses et uniques, introuvables ailleurs en ville : pâte fine, ingrédients frais, et disponibles à la part, une première à Rabat.',
-    en: "Bold, one-of-a-kind recipes found nowhere else in the city: thin crust, fresh ingredients, and available by the slice, a first in Rabat.",
-    ar: 'وصفات جريئة وفريدة لا تجدونها في أي مكان آخر بالمدينة: عجينة رفيعة، مكونات طازجة، ومتوفرة بالقطعة، وهي الأولى من نوعها في الرباط.',
+    fr: 'Notre nouvelle pizza carrée à la romaine : pâte fine et croustillante, ingrédients frais, et vendue à la part, une première à Rabat.',
+    en: 'Our new Roman-style square pizza: thin, crisp crust, fresh ingredients, sold by the piece, a first in Rabat.',
+    ar: 'بيتزتنا المربعة الجديدة على الطريقة الرومانية: عجينة رفيعة ومقرمشة، مكونات طازجة، تُباع بالقطعة، وهي الأولى من نوعها في الرباط.',
   },
   readyToOrder: { fr: 'Prêt à commander ?', en: 'Ready to order?', ar: 'جاهز للطلب؟' },
   featuredKicker: { fr: 'Le coup de cœur', en: 'The favorite', ar: 'المفضلة' },
   featuredCta: { fr: 'Commander cette pizza', en: 'Order this pizza', ar: 'اطلب هذه البيتزا' },
   sliceBadge: { fr: 'Une première à Rabat', en: 'A first in Rabat', ar: 'الأولى من نوعها في الرباط' },
-  sliceTitle: { fr: 'La pizza à la part', en: 'Pizza by the slice', ar: 'البيتزا بالقطعة' },
+  sliceTitle: { fr: 'La pizza à la romaine, à la part', en: 'Roman-style pizza, by the piece', ar: 'بيتزا رومانية، بالقطعة' },
   sliceIntro: {
-    fr: "Chez nous, pas besoin de commander une pizza entière pour se faire plaisir. Chaque pizza de notre carte est aussi disponible à la part, une idée encore rare à Rabat, et que nous sommes fiers d'être les premiers à proposer.",
-    en: "You don't need to order a whole pizza to enjoy one here. Every pizza on our menu is also available by the slice, still a rare idea in Rabat, and one we're proud to be the first to offer.",
-    ar: 'ليس من الضروري طلب بيتزا كاملة للاستمتاع بها عندنا. كل بيتزا في قائمتنا متوفرة أيضًا بالقطعة، وهي فكرة لا تزال نادرة في الرباط، ونحن فخورون بأننا أول من يقدمها.',
+    fr: "Chez nous, la pizza est cuite dans un grand plat rectangulaire, façon romaine : pâte fine, croustillante, garnie généreusement. Elle est ensuite découpée en carrés devant vous, une idée encore rare à Rabat, et que nous sommes fiers d'être les premiers à proposer.",
+    en: "Here, pizza is baked in a large rectangular tray, Roman style: thin, crisp crust, generously topped. It's then cut into squares right in front of you, still a rare idea in Rabat, and one we're proud to be the first to offer.",
+    ar: 'عندنا، تُخبز البيتزا في صينية مستطيلة كبيرة على الطريقة الرومانية: عجينة رفيعة ومقرمشة، مغطاة بسخاء. ثم تُقطّع إلى مربعات أمامكم، وهي فكرة لا تزال نادرة في الرباط، ونحن فخورون بأننا أول من يقدمها.',
   },
-  sliceStep1: { fr: 'On la découpe', en: 'We cut it', ar: 'نقطعها' },
+  sliceStep1: { fr: 'On la prépare', en: 'We prepare it', ar: 'نحضّرها' },
   sliceStep1Desc: {
-    fr: 'Chaque pizza sort du four entière, puis est découpée devant vous en 8 parts égales.',
-    en: 'Every pizza comes out of the oven whole, then is cut into 8 equal slices right in front of you.',
-    ar: 'تخرج كل بيتزا من الفرن كاملة، ثم تُقطّع أمامكم إلى 8 قطع متساوية.',
+    fr: 'Un grand plat rectangulaire, plusieurs saveurs à la fois, prêtes à être découpées.',
+    en: 'One large rectangular tray, several flavors at once, ready to be cut.',
+    ar: 'صينية مستطيلة كبيرة، عدة نكهات في آن واحد، جاهزة للتقطيع.',
   },
   sliceStep2: { fr: 'Vous choisissez', en: 'You choose', ar: 'تختارون' },
   sliceStep2Desc: {
-    fr: "Une part, deux parts, ou plusieurs pizzas différentes à la part, à vous de composer.",
-    en: 'One slice, two slices, or several different pizzas by the slice, you decide the mix.',
-    ar: 'قطعة واحدة أو قطعتان أو عدة أنواع مختلفة بالقطعة، الاختيار لكم.',
+    fr: 'Un carré, plusieurs carrés, ou plusieurs saveurs différentes à la fois, à vous de composer.',
+    en: 'One square, several squares, or several different flavors at once, you decide the mix.',
+    ar: 'مربع واحد أو عدة مربعات، أو عدة نكهات مختلفة في آن واحد، الاختيار لكم.',
   },
   sliceStep3: { fr: 'Vous dégustez', en: 'You enjoy', ar: 'تستمتعون' },
   sliceStep3Desc: {
@@ -122,22 +133,22 @@ const copy = {
     en: 'Eat in or take away, hot and ready in minutes.',
     ar: 'في المكان أو للطلب الخارجي، ساخنة وجاهزة في دقائق.',
   },
-  sliceMenuTitle: { fr: 'Le prix, part par part', en: 'The price, slice by slice', ar: 'السعر، قطعة بقطعة' },
-  sliceMenuIntro: {
-    fr: "Chaque part correspond à 1/8 de la pizza entière.",
-    en: 'Each slice is 1/8th of the whole pizza.',
-    ar: 'كل قطعة تعادل ثُمن البيتزا الكاملة.',
+  flavorsTitle: { fr: 'Nos 5 saveurs de lancement', en: 'Our 5 launch flavors', ar: 'نكهاتنا الخمس الأولى' },
+  flavorsIntro: {
+    fr: 'Deux classiques italiens intemporels, et trois créations qui racontent notre propre histoire maroco-italienne. Les prix seront bientôt disponibles.',
+    en: 'Two timeless Italian classics, and three creations that tell our own Moroccan-Italian story. Prices coming soon.',
+    ar: 'كلاسيكيتان إيطاليتان خالدتان، وثلاث إبداعات تحكي قصتنا المغربية الإيطالية الخاصة. الأسعار قريبًا.',
   },
-  slicePerSlice: { fr: 'la part', en: 'per slice', ar: 'للقطعة' },
-  orPerSlice: { fr: 'ou la part', en: 'or per slice', ar: 'أو بالقطعة' },
   cheesePullCaption: {
     fr: 'Le moment que tout le monde photographie.',
     en: 'The moment everyone photographs.',
     ar: 'اللحظة التي يصورها الجميع.',
   },
-  sliceCta: { fr: 'Commander à la part', en: 'Order by the slice', ar: 'اطلب بالقطعة' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
 
+// JSON-LD built directly from the showcase items (not from full-menu.ts's
+// still-unrevised round-pizza prices, see header comment) — `offers` is
+// only included per item once a real price exists, never a fabricated one.
 const pizzaJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Menu',
@@ -145,12 +156,14 @@ const pizzaJsonLd = {
   hasMenuSection: [
     {
       '@type': 'MenuSection',
-      name: t(pizzaCategory.label, lang),
-      hasMenuItem: pizzaCategory.items.map((item) => ({
+      name: t(copy.flavorsTitle, lang),
+      hasMenuItem: pizzaShowcase.map((item) => ({
         '@type': 'MenuItem',
         name: item.name,
         description: t(item.description, lang),
-        offers: { '@type': 'Offer', price: item.priceMAD, priceCurrency: 'MAD' },
+        ...(item.priceMAD !== undefined
+          ? { offers: { '@type': 'Offer', price: item.priceMAD, priceCurrency: 'MAD' } }
+          : {}),
       })),
     },
   ],
@@ -181,7 +194,9 @@ const path = localizedPath('/pizza', lang);
        PizzaBadge no longer uses `immediate` here — its default ~2.1s
        delay is what's tuned to match this exact door timing on Home, so
        dropping the prop is what makes the two "read as one continuous
-       beat" the same way Home's does. -->
+       beat" the same way Home's does. This hero photo is atmosphere only
+       (rooftop/oven scene, not a specific pizza shape), so it carries over
+       unchanged from the round-pizza version of this page. -->
   <section id="pizza-hero" class="relative overflow-hidden py-20 sm:py-28 flex flex-col items-center text-center px-5">
     <img src="/images/dom/pizzas/hero-rooftop-mobile.webp" alt="" aria-hidden="true" class="sm:hidden absolute inset-0 w-full h-full object-cover" />
     <img src="/images/dom/pizzas/hero-rooftop.webp" alt="" aria-hidden="true" class="hidden sm:block absolute inset-0 w-full h-full object-cover" />
@@ -227,20 +242,17 @@ const path = localizedPath('/pizza', lang);
        viewport, i.e. once someone has scrolled past the hero. -->
   <div id="hero-end-marker"></div>
 
-  <!-- "Pizza à la part" — the client's own concept, and the actual reason
-       this page exists in its current form: Dom's Café wants to be the
-       first in Rabat to sell every pizza by the slice, not just whole, and
-       asked for this to be explained visually, with "top kwaliteit"
-       photography, right up front — hence its placement as the very next
-       thing after the hero, before even the bestseller feature. Real
-       client photos of an actual cut-and-lift sequence (see the three
-       slice-*.webp files' own history: one of the three source images had
-       another business's name burned into the cutting board and was
-       cropped to remove it before use here — never publish a competitor's
-       branding on this site by accident). Slice pricing is computed, not
-       typed in — see the `slicePrice` helper above — from the same
-       `pizzaCategory.items` used everywhere else on this page, so a future
-       price change to any whole pizza updates its slice price here too. -->
+  <!-- "Pizza à la part, à la romaine" — the client's own concept, and the
+       actual reason this page exists in its current form: Dom's Café wants
+       to be the first in Rabat to sell Roman-style square pizza by the
+       piece, and asked for this to be explained visually right up front,
+       hence its placement as the very next thing after the hero, before
+       even the bestseller feature. The 3 photos below are AI-generated
+       placeholders standing in for a real cut-and-serve sequence (see
+       pizza-showcase.ts's header comment) — replace with real photography
+       of the actual tray/cut/serve process once it exists. No slice-price
+       table here anymore (see header comment) — replaced by the price-free
+       flavor list further down. -->
   <section class="section-tint-warm">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
       <div class="max-w-2xl mx-auto text-center mb-12" data-reveal>
@@ -261,16 +273,11 @@ const path = localizedPath('/pizza', lang);
         </p>
       </div>
 
-      <!-- The 3-shot sequence — cut, lift, plate — is the actual "wow" the
-           client asked for: it shows the slice being made, not just a
-           finished slice sitting on a plate, so the concept reads
-           immediately even to someone who's never seen pizza sold this way
-           before. -->
       <div class="grid sm:grid-cols-3 gap-6 sm:gap-5 mb-14">
         {[
-          { src: '/images/dom/pizzas/slice-cut.webp', step: copy.sliceStep1, desc: copy.sliceStep1Desc },
-          { src: '/images/dom/pizzas/slice-lift.webp', step: copy.sliceStep2, desc: copy.sliceStep2Desc },
-          { src: '/images/dom/pizzas/slice-plated.webp', step: copy.sliceStep3, desc: copy.sliceStep3Desc },
+          { src: '/images/dom/pizzas-al-taglio/hero-taglio-box.webp', step: copy.sliceStep1, desc: copy.sliceStep1Desc },
+          { src: '/images/dom/pizzas-al-taglio/hero-taglio-grid.webp', step: copy.sliceStep2, desc: copy.sliceStep2Desc },
+          { src: '/images/dom/pizzas-al-taglio/manzo-ricco.webp', step: copy.sliceStep3, desc: copy.sliceStep3Desc },
         ].map((frame, i) => (
           <div data-reveal style={`transition-delay: ${i * 100}ms`}>
             <div class="relative rounded-2xl overflow-hidden aspect-[4/3]" style="border: 1px solid var(--color-border)">
@@ -288,47 +295,38 @@ const path = localizedPath('/pizza', lang);
         ))}
       </div>
 
-      <!-- Price-per-slice list — every real pizza on the menu, one line
-           each, whole price shown alongside so the value is transparent
-           rather than the slice price appearing out of nowhere. -->
+      <!-- Price-free flavor list — replaces the old computed slice-price
+           table (see header comment): just the 5 launch flavors, name +
+           tagline, so the page still gives a clear at-a-glance overview
+           without showing a price that doesn't exist yet. -->
       <div class="max-w-3xl mx-auto rounded-2xl p-6 sm:p-8" style="background-color: var(--color-surface); border: 1px solid var(--color-border)" data-reveal>
         <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
-          <h3 class="font-display text-xl font-semibold" style="color: var(--color-text-primary)">{t(copy.sliceMenuTitle, lang)}</h3>
+          <h3 class="font-display text-xl font-semibold" style="color: var(--color-text-primary)">{t(copy.flavorsTitle, lang)}</h3>
         </div>
-        <p class="text-xs mb-5" style="color: var(--color-text-muted)">{t(copy.sliceMenuIntro, lang)}</p>
+        <p class="text-xs mb-5" style="color: var(--color-text-muted)">{t(copy.flavorsIntro, lang)}</p>
         <div class="grid sm:grid-cols-2 gap-x-8 gap-y-3">
-          {pizzaCategory.items.map((item) => (
+          {pizzaShowcase.map((pizza) => (
             <div class="flex items-center justify-between gap-3 py-2" style="border-bottom: 1px solid var(--color-border)">
-              <span class="text-sm font-semibold" style="color: var(--color-text-primary)">{item.name}</span>
-              <span class="text-sm font-bold shrink-0" style="color: var(--color-accent)">
-                {slicePrice(item.priceMAD)} MAD <span class="font-normal" style="color: var(--color-text-muted)">/ {t(copy.slicePerSlice, lang)}</span>
-              </span>
+              <span class="text-sm font-semibold" style="color: var(--color-text-primary)">{pizza.name}</span>
+              <span class="text-xs font-bold uppercase tracking-wide shrink-0" style="color: var(--color-text-muted)">{priceSoonLabel[lang]}</span>
             </div>
           ))}
-        </div>
-        <div class="mt-7 text-center">
-          <Button href={orderCtaLabel.href} external variant="filled">{t(copy.sliceCta, lang)}</Button>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Full-bleed cheese-pull break — the "iets spectaculairs" ask (see
-       chat): no new photography, no new interaction code, just the
-       existing lift shot blown up to the full width of the page and given
-       room to actually breathe, with one short line over it instead of
-       another content block. A second option (a scroll-triggered "pizza
-       splits into 8 slices" illustration) was built and shipped, then the
-       client asked for it to be removed outright ("ik wil dat niet") — so
-       this full-bleed photo break is the one visual flourish this page
-       keeps, proof that "spectacular" doesn't have to mean "complicated",
-       just confident enough to let one real photo fill the whole screen.
-       object-position is tuned (not plain `center`) so the actual cheese
-       pull — the part of the photo doing the work — stays in frame at
-       every viewport width instead of being cropped by object-cover. -->
+       chat): no new interaction code, just a photo blown up to the full
+       width of the page and given room to actually breathe, with one short
+       line over it. Swapped from the old round-pizza slice-lift.webp
+       (real client photo, no longer representative of the new square
+       format) to the new Manzo Ricco placeholder, which has the same kind
+       of dramatic cheese-pull lift moment — see header comment on
+       replacing this with real photography once it exists. -->
   <section class="relative overflow-hidden h-[60vh] sm:h-[80vh]">
     <img
-      src="/images/dom/pizzas/slice-lift.webp"
+      src="/images/dom/pizzas-al-taglio/manzo-ricco.webp"
       alt=""
       aria-hidden="true"
       class="absolute inset-0 w-full h-full object-cover"
@@ -348,7 +346,8 @@ const path = localizedPath('/pizza', lang);
        `featuredPizza` comment above) — deliberately NOT another grid card:
        full-bleed-ish photo on one side, story + CTA on the other, so the
        page has one clear "look at THIS one" moment before settling into
-       the calmer grid of everything else. -->
+       the calmer grid of everything else. Price row only renders once a
+       real price exists (see header comment). -->
   {featuredPizza && (
     <section class="max-w-6xl mx-auto px-5 sm:px-8 pt-4 pb-16 sm:pb-20">
       <div class="grid lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden" style="background-color: var(--color-surface); border: 1px solid var(--color-border)" data-reveal>
@@ -367,10 +366,13 @@ const path = localizedPath('/pizza', lang);
             <p class="mt-2 text-base italic" style="color: var(--color-accent)">{t(featuredPizza.tagline, lang)}</p>
           )}
           <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(featuredPizza.description, lang)}</p>
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span class="font-bold text-2xl" style="color: var(--color-accent)">{featuredPizza.priceMAD} MAD</span>
-            <span class="text-xs" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(featuredPizza.priceMAD)} MAD</span>
-          </div>
+          {featuredPizza.priceMAD !== undefined ? (
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span class="font-bold text-2xl" style="color: var(--color-accent)">{featuredPizza.priceMAD} MAD</span>
+            </div>
+          ) : (
+            <p class="text-xs font-bold uppercase tracking-wide" style="color: var(--color-text-muted)">{priceSoonLabel[lang]}</p>
+          )}
           <div class="mt-6 flex flex-wrap items-center gap-4">
             <Button href={orderCtaLabel.href} external variant="filled">{t(copy.featuredCta, lang)}</Button>
           </div>
@@ -399,8 +401,11 @@ const path = localizedPath('/pizza', lang);
             <div class="flex items-baseline justify-between gap-3">
               <h3 class="menu-item-name font-display font-semibold text-xl" style="color: var(--color-text-primary)">{pizza.name}</h3>
               <span class="shrink-0 text-right">
-                <span class="menu-item-price block font-bold text-lg" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
-                <span class="block text-[11px]" style="color: var(--color-text-muted)">{t(copy.orPerSlice, lang)} {slicePrice(pizza.priceMAD)} MAD</span>
+                {pizza.priceMAD !== undefined ? (
+                  <span class="menu-item-price block font-bold text-lg" style="color: var(--color-accent)">{pizza.priceMAD} MAD</span>
+                ) : (
+                  <span class="block text-[11px] font-bold uppercase tracking-wide" style="color: var(--color-text-muted)">{priceSoonLabel[lang]}</span>
+                )}
               </span>
             </div>
             {pizza.tagline && (

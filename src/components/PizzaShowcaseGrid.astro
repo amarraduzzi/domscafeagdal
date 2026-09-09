@@ -3,8 +3,10 @@
 // HomeContent.astro for the "best pizza in Agdal" section, now also used
 // at the top of the /menu page (see MenuContent.astro) so the hero's new
 // "Best pizza in Agdal" button has somewhere real to land via #pizzas.
-// Same card markup either place: real dishes, real client photos, no
-// stock imagery (see pizza-showcase.ts's own header comment).
+// Same card markup either place. Photos are currently AI-generated
+// placeholders for the new square Roman-style pizza concept (see
+// pizza-showcase.ts's header comment) — swap for real photography once it
+// exists.
 import { pizzaShowcase } from '../content/pizza-showcase';
 import Button from './Button.astro';
 import { t, localizedPath, arrow, isRTL, type Language } from '../i18n/languages';
@@ -36,6 +38,16 @@ const {
   showMenuCta = true,
 } = Astro.props;
 const rtl = isRTL(lang);
+
+// Prices for the new pizza-al-taglio lineup aren't set yet (see
+// pizza-showcase.ts) — shown as a short "bientôt" label instead of a
+// fabricated number until the client decides fixed-price-per-square vs.
+// sold-by-weight.
+const priceSoonLabel: Record<Language, string> = {
+  fr: 'Prix bientôt',
+  en: 'Price soon',
+  ar: 'السعر قريبًا',
+};
 ---
 <div class="section-tint-warm" id={id}>
   <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
@@ -66,7 +78,11 @@ const rtl = isRTL(lang);
             <h3 class="menu-item-name font-display font-semibold text-lg" style="color: var(--color-text-primary)">{pizza.name}</h3>
             <p class="text-sm mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(pizza.description, lang)}</p>
             <div class="flex items-center justify-between gap-3 mt-3">
-              <p class="menu-item-price font-bold" style="color: var(--color-accent)">{pizza.priceMAD} MAD</p>
+              {pizza.priceMAD !== undefined ? (
+                <p class="menu-item-price font-bold" style="color: var(--color-accent)">{pizza.priceMAD} MAD</p>
+              ) : (
+                <p class="text-xs font-bold uppercase tracking-wide" style="color: var(--color-text-muted)">{priceSoonLabel[lang]}</p>
+              )}
               <!-- Per-card order link — this grid used to only get a
                    shared CTA under the whole section, so the moment
                    someone actually settled on one pizza there was nothing
