@@ -1,104 +1,132 @@
 // "Best pizza in Agdal" homepage section — client's own priority push
 // ("We willen de beste pizza van Rabat/Agdal gaan promoten" — client's
-// wording). Concept fully replaced again (client request, September 2026,
-// second pivot): Dom's is repositioning as Rabat's first Roman-style
-// square pizza ("pizza al taglio" / "pizza romana", thin and crisp — NOT
-// the tall airy teglia crust, see chat) counter, sold by the cut/piece
-// instead of a whole round pizza. The 8-item round-pizza lineup below this
-// comment used to hold ("Rabat Nights", "El Reto", "Quattro Formaggi
-// Nobile", etc.) is retired from this showcase; the 5 launch flavors below
-// replace it: 2 timeless Italian classics (Margherita, Tonno) plus 3 that
-// tell Dom's own Moroccan-Italian story (Merguez Piccante, Poulet
-// Chermoula, Manzo Ricco).
+// wording).
 //
-// PRICES ARE NOT SET YET — the client is still deciding fixed-price-per-
-// square vs. sold-by-weight, so `priceMAD` is optional here and every
-// place that reads it (PizzaShowcaseGrid.astro, PizzaContent.astro) must
-// handle it being undefined gracefully. Do not invent a placeholder price.
+// Menu update 13/09/2026: the client sent over the new official printed
+// menu and was explicit that every pizza previously "developed" for this
+// site (the old 8-item round lineup, and the "pizza al taglio" square-cut
+// launch concept that briefly replaced it in September 2026) must be
+// retired entirely -- the 9 pizzas below, exactly as printed on the new
+// menu (same names, descriptions and MAD prices as domscafe.pages.dev's
+// own data.ts), are now the ONLY pizzas anywhere in the system. Real fixed
+// prices exist again (no more "price coming soon" -- see the old header
+// comment this replaces), so every consumer of this file (PizzaShowcaseGrid
+// .astro, PizzaContent.astro) can rely on `priceMAD` always being set.
 //
-// Photos: AI-generated placeholder photography (client asked for these to
-// visualize the new format before real product photography exists —
-// see chat), stored at /images/dom/pizzas-al-taglio/ to keep them
-// clearly separate from the old round-pizza client photos still sitting
-// unused at /images/dom/pizzas/. Replace every image below with real
-// photography of the actual product as soon as it exists — these are
-// stand-ins, not the finished asset.
+// Images: reused from /images/dom/pizzas/ -- these already had a
+// same-named client photo for 8 of the 9 (margarita, vegetarian, tuna,
+// pollo, american, vivanda, quattro-formaggi, fisherman); only
+// "Quatre Saisons" (build-your-own, no fixed recipe) has no photo, same as
+// on the ordering site.
 import type { LocalizedText } from '../i18n/languages';
 
 export interface PizzaShowcaseItem {
   name: string;
   description: LocalizedText;
-  /** Not set yet — see header comment. Every consumer of this field must
-      render something sensible (e.g. a "prix bientôt" label) when this is
-      undefined, never a fabricated number. */
   priceMAD?: number;
   image: string;
   imageAlt: LocalizedText;
   popular?: boolean;
-  // Short, evocative one-liner — used on the dedicated /pizza page
-  // (PizzaContent.astro) to give each pizza a bit of personality beyond its
-  // ingredient list. Deliberately mood/sensory copy, not a factual claim
-  // (no invented "best-seller since X" type lines). Optional so
-  // PizzaShowcaseGrid.astro (the compact Home/Menu teaser) can keep
-  // ignoring it.
   tagline?: LocalizedText;
 }
 
 export const pizzaShowcase: PizzaShowcaseItem[] = [
   {
-    name: 'Poulet Chermoula',
+    name: 'Margarita',
     description: {
-      fr: 'Mozzarella, poulet grillé façon chermoula, oignons caramélisés, poivrons, coriandre fraîche.',
-      en: 'Mozzarella, chermoula-spiced grilled chicken, caramelized onions, bell peppers, fresh coriander.',
-      ar: 'موزاريلا، دجاج مشوي بالشرمولة، بصل مكرمل، فلفل حلو، كزبرة طازجة.',
+      fr: 'Mozzarella, sauce tomate, olives noires, basilic.',
+      en: 'Mozzarella, tomato sauce, black olives, basil.',
+      ar: 'موزاريلا، صلصة طماطم، زيتون أسود، ريحان.',
     },
-    image: '/images/dom/pizzas-al-taglio/poulet-chermoula.webp',
-    imageAlt: { fr: 'Pizza carrée Poulet Chermoula à la romaine', en: 'Square Roman-style Poulet Chermoula pizza', ar: 'بيتزا مربعة على الطريقة الرومانية بولي شرمولة' },
+    priceMAD: 36,
+    image: '/images/dom/pizzas/margarita.webp',
+    imageAlt: { fr: 'Pizza Margarita', en: 'Margarita pizza', ar: 'بيتزا مارغريتا' },
     popular: true,
-    tagline: { fr: 'Le goût du Maroc, à la romaine.', en: 'The taste of Morocco, Roman style.', ar: 'نكهة المغرب، على الطريقة الرومانية.' },
+    tagline: { fr: 'La classique italienne, comme il se doit.', en: 'The Italian classic, done right.', ar: 'الكلاسيكية الإيطالية كما يجب.' },
   },
   {
-    name: 'Margherita',
+    name: 'Végétarienne',
     description: {
-      fr: 'Mozzarella fondante, sauce tomate, basilic frais, filet d\'huile d\'olive.',
-      en: 'Melted mozzarella, tomato sauce, fresh basil, olive oil drizzle.',
-      ar: 'موزاريلا ذائبة، صلصة طماطم، ريحان طازج، زيت الزيتون.',
+      fr: 'Mozzarella, sauce tomate, légumes de saison.',
+      en: 'Mozzarella, tomato sauce, seasonal vegetables.',
+      ar: 'موزاريلا، صلصة طماطم، خضار موسمية.',
     },
-    image: '/images/dom/pizzas-al-taglio/margherita.webp',
-    imageAlt: { fr: 'Pizza carrée Margherita à la romaine, pâte fine et croustillante', en: 'Square Roman-style Margherita pizza, thin and crisp crust', ar: 'بيتزا مارغريتا مربعة على الطريقة الرومانية، عجينة رفيعة ومقرمشة' },
-    tagline: { fr: 'La classique italienne, en carré.', en: 'The Italian classic, squared.', ar: 'الكلاسيكية الإيطالية، بشكل مربع.' },
+    priceMAD: 42,
+    image: '/images/dom/pizzas/vegetarian.webp',
+    imageAlt: { fr: 'Pizza Végétarienne', en: 'Vegetarian pizza', ar: 'بيتزا نباتية' },
+    tagline: { fr: 'Fraîche et pleine de couleurs.', en: 'Fresh and full of color.', ar: 'منعشة وملونة.' },
   },
   {
-    name: 'Tonno',
+    name: 'Thons',
     description: {
-      fr: 'Mozzarella, thon émietté, oignon rouge, câpres, olives kalamata, zeste de citron.',
-      en: 'Mozzarella, flaked tuna, red onion, capers, kalamata olives, lemon zest.',
-      ar: 'موزاريلا، تونة مفتتة، بصل أحمر، كبر، زيتون كالاماتا، قشر ليمون.',
+      fr: 'Mozzarella, thon, poivrons, olives noires.',
+      en: 'Mozzarella, tuna, bell peppers, black olives.',
+      ar: 'موزاريلا، تونة، فلفل حلو، زيتون أسود.',
     },
-    image: '/images/dom/pizzas-al-taglio/tonno.webp',
-    imageAlt: { fr: 'Pizza carrée Tonno à la romaine, au thon et citron', en: 'Square Roman-style Tonno pizza with tuna and lemon', ar: 'بيتزا تونة مربعة على الطريقة الرومانية بالليمون' },
+    priceMAD: 46,
+    image: '/images/dom/pizzas/tuna.webp',
+    imageAlt: { fr: 'Pizza Thons', en: 'Tuna pizza', ar: 'بيتزا تونة' },
     tagline: { fr: 'Fraîche et méditerranéenne.', en: 'Fresh and Mediterranean.', ar: 'منعشة ومتوسطية.' },
   },
   {
-    name: 'Merguez Piccante',
+    name: 'Pollo',
     description: {
-      fr: 'Mozzarella, merguez grillée, poivrons rôtis, huile de harissa.',
-      en: 'Mozzarella, grilled merguez, roasted peppers, harissa oil.',
-      ar: 'موزاريلا، مرقاز مشوي، فلفل مشوي، زيت الهريسة.',
+      fr: 'Mozzarella, poulet, poivrons, champignons, sauce tomate.',
+      en: 'Mozzarella, chicken, bell peppers, mushrooms, tomato sauce.',
+      ar: 'موزاريلا، دجاج، فلفل حلو، فطر، صلصة طماطم.',
     },
-    image: '/images/dom/pizzas-al-taglio/merguez-piccante.webp',
-    imageAlt: { fr: 'Pizza carrée Merguez Piccante à la romaine', en: 'Square Roman-style Merguez Piccante pizza', ar: 'بيتزا مرقاز حار مربعة على الطريقة الرومانية' },
-    tagline: { fr: 'Épicée et généreuse.', en: 'Spicy and generous.', ar: 'حارة وسخية.' },
+    priceMAD: 48,
+    image: '/images/dom/pizzas/pollo.webp',
+    imageAlt: { fr: 'Pizza Pollo', en: 'Pollo (chicken) pizza', ar: 'بيتزا بولو (دجاج)' },
+    popular: true,
+    tagline: { fr: 'Le favori de la maison.', en: "The house favorite.", ar: 'المفضلة لدينا.' },
   },
   {
-    name: 'Manzo Ricco',
+    name: 'Américaine',
     description: {
-      fr: 'Mozzarella, bœuf braisé effiloché, oignons caramélisés, copeaux de parmesan.',
-      en: 'Mozzarella, braised pulled beef, caramelized onions, parmesan shavings.',
-      ar: 'موزاريلا، لحم بقري مطهو ببطء، بصل مكرمل، رقائق البارميزان.',
+      fr: 'Mozzarella, pepperoni, sauce tomate, olives noires.',
+      en: 'Mozzarella, pepperoni, tomato sauce, black olives.',
+      ar: 'موزاريلا، ببروني، صلصة طماطم، زيتون أسود.',
     },
-    image: '/images/dom/pizzas-al-taglio/manzo-ricco.webp',
-    imageAlt: { fr: 'Pizza carrée Manzo Ricco au bœuf braisé, à la romaine', en: 'Square Roman-style Manzo Ricco braised beef pizza', ar: 'بيتزا مانزو ريكو مربعة على الطريقة الرومانية' },
-    tagline: { fr: 'Riche et fondante.', en: 'Rich and tender.', ar: 'غنية وطرية.' },
+    priceMAD: 48,
+    image: '/images/dom/pizzas/american.webp',
+    imageAlt: { fr: 'Pizza Américaine', en: 'American pizza', ar: 'بيتزا أمريكية' },
+    tagline: { fr: 'Généreuse et épicée.', en: 'Generous and bold.', ar: 'سخية ومتبلة.' },
+  },
+  {
+    name: 'Vivanda',
+    description: {
+      fr: 'Mozzarella, viande hachée, champignons, poivrons, sauce tomate, olives noires.',
+      en: 'Mozzarella, minced beef, mushrooms, bell peppers, tomato sauce, black olives.',
+      ar: 'موزاريلا، لحم مفروم، فطر، فلفل حلو، صلصة طماطم، زيتون أسود.',
+    },
+    priceMAD: 52,
+    image: '/images/dom/pizzas/vivanda.webp',
+    imageAlt: { fr: 'Pizza Vivanda', en: 'Vivanda pizza', ar: 'بيتزا فيفاندا' },
+    tagline: { fr: 'Riche et généreuse.', en: 'Rich and hearty.', ar: 'غنية وسخية.' },
+  },
+  {
+    name: 'Quatre Fromages',
+    description: {
+      fr: 'Edam, bleu, brie, mozzarella, crème fraîche, sauce tomate.',
+      en: 'Edam, blue cheese, brie, mozzarella, fresh cream, tomato sauce.',
+      ar: 'إيدام، جبن أزرق، بري، موزاريلا، قشدة طرية، صلصة طماطم.',
+    },
+    priceMAD: 55,
+    image: '/images/dom/pizzas/quattro-formaggi.webp',
+    imageAlt: { fr: 'Pizza Quatre Fromages', en: 'Four cheese pizza', ar: 'بيتزا أربعة أجبان' },
+    tagline: { fr: 'Pour les amateurs de fromage.', en: 'For the cheese lovers.', ar: 'لعشاق الجبن.' },
+  },
+  {
+    name: 'Fisherman',
+    description: {
+      fr: 'Mozzarella, crevettes, calamars, surimi, sauce tomate, olives noires.',
+      en: 'Mozzarella, shrimp, squid, surimi, tomato sauce, black olives.',
+      ar: 'موزاريلا، جمبري، كالمار، سوريمي، صلصة طماطم، زيتون أسود.',
+    },
+    priceMAD: 75,
+    image: '/images/dom/pizzas/fisherman.webp',
+    imageAlt: { fr: 'Pizza Fisherman', en: 'Fisherman pizza', ar: 'بيتزا صياد السمك' },
+    tagline: { fr: 'Notre pizza signature aux fruits de mer.', en: 'Our signature seafood pizza.', ar: 'بيتزا المأكولات البحرية المميزة لدينا.' },
   },
 ];
