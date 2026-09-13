@@ -46,3 +46,7 @@ more than help.
 Any static host works (Netlify, Vercel, Cloudflare Pages, GitHub Pages).
 Push `dist/` after `npm run build`, or connect the repo and let the host
 run the build command.
+<!-- redeploy trigger 2026-09-13 -->
+
+
+<!-- redeploy trigger 2026-09-13 -->
