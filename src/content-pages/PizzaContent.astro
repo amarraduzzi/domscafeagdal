@@ -62,6 +62,7 @@ import PizzaBadge from '../components/PizzaBadge.astro';
 import { siteConfig } from '../config/site.config';
 import { getOrderCtaLabel } from '../lib/nav';
 import { pizzaShowcase } from '../content/pizza-showcase';
+import { pizzaToGo } from '../content/pizza-to-go';
 import { t, localizedPath, arrow, type Language } from '../i18n/languages';
 import { common, place } from '../i18n/ui';
 
@@ -144,7 +145,45 @@ const copy = {
     en: 'The moment everyone photographs.',
     ar: 'اللحظة التي يصورها الجميع.',
   },
+  // "Dom's To Go" -- new grab-and-go announcement section, see
+  // pizza-to-go.ts's header comment for what this is and why it has no
+  // prices/images yet.
+  toGoBadge: { fr: 'Nouveau chez Dom’s', en: 'New at Dom’s', ar: 'جديد لدى دومز' },
+  toGoTitle: { fr: 'Dom’s To Go', en: 'Dom’s To Go', ar: 'دومز تو غو' },
+  toGoIntro: {
+    fr: 'De vrais ingrédients, des saveurs franches, à emporter. Une nouvelle façon de profiter de Dom’s, pensée pour un déjeuner rapide ou une envie impulsive. Recettes et prix arrivent bientôt.',
+    en: 'Real ingredients, bold flavours, to go. A new way to enjoy Dom’s, made for a quick lunch or a spur-of-the-moment craving. Recipes and pricing coming soon.',
+    ar: 'مكونات حقيقية، نكهات جريئة، للطلب الخارجي. طريقة جديدة للاستمتاع بدومز، مثالية لغداء سريع أو رغبة عابرة. الوصفات والأسعار قريباً.',
+  },
+  toGoPizzaKicker: { fr: 'Pizza To Go', en: 'Pizza To Go', ar: 'بيتزا تو غو' },
+  toGoPizzaDesc: {
+    fr: 'Rectangulaire, généreuse, pensée pour l’instant.',
+    en: 'Rectangular. Loaded. Made for the moment.',
+    ar: 'مستطيلة، سخية، مصممة للحظة.',
+  },
+  toGoPastaKicker: { fr: 'Pasta To Go', en: 'Pasta To Go', ar: 'باستا تو غو' },
+  toGoPastaDesc: {
+    fr: 'Deux pâtes signature. Un choix. Aucun regret.',
+    en: 'Two signature pastas. One choice. No regrets.',
+    ar: 'نوعان مميزان من الباستا. اختيار واحد. بلا ندم.',
+  },
+  toGoComingSoon: { fr: 'Bientôt disponible', en: 'Coming soon', ar: 'قريباً' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
+
+// Petite palette d'accent par plat -- purement visuelle (le badge coloré sur
+// chaque carte To Go), sans rapport avec --color-accent du thème général du
+// site, pour distinguer Red/Gold/Green au premier coup d'œil comme sur le
+// flyer d'origine.
+const TO_GO_ACCENT: Record<string, string> = {
+  'pizza-red': '#C0392B',
+  'pizza-red-hot': '#C0392B',
+  'pizza-gold': '#C9A15A',
+  'pizza-green': '#4C7A3D',
+  'pasta-red': '#C0392B',
+  'pasta-gold': '#C9A15A',
+};
+const toGoPizzas = pizzaToGo.filter((item) => item.category === 'pizza');
+const toGoPastas = pizzaToGo.filter((item) => item.category === 'pasta');
 
 // JSON-LD built directly from the showcase items (not from full-menu.ts's
 // still-unrevised round-pizza prices, see header comment) — `offers` is
@@ -431,6 +470,111 @@ const path = localizedPath('/pizza', lang);
           </div>
         </div>
       ))}
+    </div>
+  </section>
+
+  <Ornament />
+
+  <!-- "Dom's To Go" -- new grab-and-go announcement (client request,
+       23/09/2026): a separate rectangular pizza + pasta-cup line, sold
+       individually. This is marketing-only for now -- no prices (client's
+       own instruction: "die prijzen moet je helemaal vergeten... die worden
+       achteraf bepaald"), no per-item order link (nothing here is actually
+       orderable yet), and no photos yet either (client is generating AI
+       visuals next -- see pizza-to-go.ts's header comment). Each card falls
+       back to a colored icon tile instead of a broken <img> until a real
+       `image` is added to that data file. This section is entirely
+       additive: the 9 real menu pizzas above (pizzaShowcase, unchanged) are
+       still what's actually sold at Dom's and still the page's main
+       content -- this is a new sub-brand teaser, not a replacement. -->
+  <section id="doms-to-go" class="section-tint-warm">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl mx-auto text-center mb-12" data-reveal>
+        <span
+          class="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full text-xs font-bold"
+          style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
+        >
+          {t(copy.toGoBadge, lang)}
+        </span>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">
+          {t(copy.toGoTitle, lang)}
+        </h2>
+        <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">
+          {t(copy.toGoIntro, lang)}
+        </p>
+      </div>
+
+      <!-- Pizza To Go -->
+      <div class="mb-14">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+          <h3 class="font-display text-xl font-semibold" style="color: var(--color-text-primary)">{t(copy.toGoPizzaKicker, lang)}</h3>
+          <span class="text-xs italic" style="color: var(--color-text-muted)">{t(copy.toGoPizzaDesc, lang)}</span>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+          {toGoPizzas.map((item, i) => (
+            <div
+              class="rounded-2xl p-5 flex flex-col items-start"
+              style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
+              data-reveal
+            >
+              {item.image ? (
+                <img src={item.image} alt={item.name} class="w-14 h-14 rounded-xl object-cover mb-3" loading="lazy" />
+              ) : (
+                <span
+                  class="w-14 h-14 rounded-xl flex items-center justify-center mb-3 text-2xl font-display font-bold"
+                  style={`background-color: color-mix(in srgb, ${TO_GO_ACCENT[item.key]} 18%, transparent); color: ${TO_GO_ACCENT[item.key]}`}
+                >
+                  🍕
+                </span>
+              )}
+              {item.tag && (
+                <span class="text-[10px] font-bold uppercase tracking-wide mb-1" style={`color: ${TO_GO_ACCENT[item.key]}`}>
+                  {t(item.tag, lang)}
+                </span>
+              )}
+              <h4 class="font-display font-semibold text-base" style="color: var(--color-text-primary)">{item.name}</h4>
+              <p class="text-xs mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(item.ingredients, lang)}</p>
+              <span class="mt-3 text-[10px] font-bold uppercase tracking-wide" style="color: var(--color-text-muted)">{t(copy.toGoComingSoon, lang)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Pasta To Go -->
+      <div>
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+          <h3 class="font-display text-xl font-semibold" style="color: var(--color-text-primary)">{t(copy.toGoPastaKicker, lang)}</h3>
+          <span class="text-xs italic" style="color: var(--color-text-muted)">{t(copy.toGoPastaDesc, lang)}</span>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4 mt-5 max-w-2xl">
+          {toGoPastas.map((item, i) => (
+            <div
+              class="rounded-2xl p-5 flex flex-col items-start"
+              style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
+              data-reveal
+            >
+              {item.image ? (
+                <img src={item.image} alt={item.name} class="w-14 h-14 rounded-xl object-cover mb-3" loading="lazy" />
+              ) : (
+                <span
+                  class="w-14 h-14 rounded-xl flex items-center justify-center mb-3 text-2xl font-display font-bold"
+                  style={`background-color: color-mix(in srgb, ${TO_GO_ACCENT[item.key]} 18%, transparent); color: ${TO_GO_ACCENT[item.key]}`}
+                >
+                  🍝
+                </span>
+              )}
+              {item.tag && (
+                <span class="text-[10px] font-bold uppercase tracking-wide mb-1" style={`color: ${TO_GO_ACCENT[item.key]}`}>
+                  {t(item.tag, lang)}
+                </span>
+              )}
+              <h4 class="font-display font-semibold text-base" style="color: var(--color-text-primary)">{item.name}</h4>
+              <p class="text-xs mt-1.5 leading-relaxed" style="color: var(--color-text-muted)">{t(item.ingredients, lang)}</p>
+              <span class="mt-3 text-[10px] font-bold uppercase tracking-wide" style="color: var(--color-text-muted)">{t(copy.toGoComingSoon, lang)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 
