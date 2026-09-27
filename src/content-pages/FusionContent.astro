@@ -56,19 +56,6 @@ const copy = {
   },
   heroCtaSecondary: { fr: 'Découvrir les 4 créations', en: 'Discover the 4 creations', ar: 'اكتشف الإبداعات الأربعة' },
 
-  // Promo video section, added 27/09/2026 (client's own edit, with sound).
-  // Placed as its own section right after the hero rather than swapped in
-  // as the hero background: the box-reveal hero was already explicitly
-  // chosen over a background-video option (see the comment above
-  // #fusion-hero), and a video with audio should never autoplay anyway —
-  // click-to-play with native controls respects both.
-  videoTitle: { fr: 'Fusion en vidéo', en: 'Fusion in motion', ar: 'فيوجن بالفيديو' },
-  videoSubtitle: {
-    fr: 'La texture, la vapeur, le geste : voyez nos pizzas rectangulaires prendre vie.',
-    en: 'The texture, the steam, the craft: watch our rectangular pizzas come to life.',
-    ar: 'الملمس، البخار، الحرفية: شاهدوا بيتزاتنا المستطيلة وهي تُحضّر.',
-  },
-
   conceptTitle: { fr: 'Le concept', en: 'The concept', ar: 'المفهوم' },
   // Big editorial pull-quote, split in 3 so the middle part can be rendered
   // in the accent color (client asked for the concept section to have real
@@ -160,14 +147,41 @@ const path = localizedPath('/fusion', lang);
   <!-- Hero — "box reveal": a closed Fusion takeaway-box lid covers the whole
        hero on load and swings open (3D rotateX, same construction family as
        the classic pizza page's old oven-door reveal — see the <style> block
-       below for the port), uncovering the photo + headline underneath. This
-       is the "something special happens the instant the page opens" the
-       client asked for (see chat, 27/09/2026) — client explicitly chose
-       this option over a photo carousel, a title "fuse" animation, a
-       scroll-triggered build, and a background video. -->
+       below for the port), uncovering the video + headline underneath.
+       Updated 27/09/2026: the client's own promo video now plays here
+       instead of a static photo, so the reveal uncovers actual motion —
+       still one single hero section rather than a separate video block
+       further down the page (client's explicit call, having seen the real
+       footage). Autoplay video must be muted (browsers block it otherwise,
+       and audio firing the instant the box lid opens would be jarring
+       regardless) — the small speaker button lets anyone turn the sound on. -->
   <section id="fusion-hero" class="relative overflow-hidden min-h-[480px] sm:h-[70vh] flex flex-col items-center justify-center text-center px-5 py-20">
-    <img src="/images/dom/fusion/gold.webp" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover" style="object-position: 50% 30%" />
+    <video
+      id="fusion-hero-video"
+      src="/videos/fusion-promo.mp4"
+      poster="/images/dom/fusion/gold.webp"
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="auto"
+      class="absolute inset-0 w-full h-full object-cover"
+    ></video>
     <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.75) 60%, var(--color-background) 100%)"></div>
+
+    <!-- Sound toggle -- starts muted (required for autoplay), one tap turns
+         the promo video's audio on or back off. Plain inline script: this
+         is a static Astro page, no framework runtime to hook into here. -->
+    <button
+      id="fusion-hero-sound-toggle"
+      type="button"
+      aria-label="Activer le son"
+      class="absolute z-10 top-4 right-4 rtl:right-auto rtl:left-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+      style="background: rgba(10, 6, 3, 0.5); border: 1px solid rgba(243, 236, 221, 0.25); color: var(--color-text-primary); backdrop-filter: blur(4px)"
+    >
+      <svg data-icon="muted" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+      <svg data-icon="unmuted" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+    </button>
 
     <!-- Closed box lid — covers the whole hero at load, then swings open
          from a top hinge. Pure CSS (gradient + border), not a photo, same
@@ -195,27 +209,20 @@ const path = localizedPath('/fusion', lang);
     </div>
   </section>
 
-  <!-- Promo video -- click-to-play (has sound, never autoplay), native
-       controls, poster frame so it doesn't just show a black box while
-       loading. preload="metadata" keeps the initial page weight small; the
-       full file (~17MB) only downloads once someone actually presses play. -->
-  <section class="max-w-4xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-    <div class="text-center mb-8" data-reveal>
-      <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.videoTitle, lang)}</h2>
-      <p class="mt-3 text-sm sm:text-base" style="color: var(--color-text-muted)">{t(copy.videoSubtitle, lang)}</p>
-    </div>
-    <div class="rounded-2xl overflow-hidden shadow-2xl" data-reveal="scale" style="border: 1px solid var(--color-border)">
-      <video
-        src="/videos/fusion-promo.mp4"
-        poster="/videos/fusion-promo-poster.webp"
-        controls
-        preload="metadata"
-        playsinline
-        class="w-full h-auto block"
-      >
-      </video>
-    </div>
-  </section>
+  <script>
+    const video = document.getElementById('fusion-hero-video') as HTMLVideoElement | null;
+    const toggle = document.getElementById('fusion-hero-sound-toggle');
+    if (video && toggle) {
+      const mutedIcon = toggle.querySelector('[data-icon="muted"]') as HTMLElement | null;
+      const unmutedIcon = toggle.querySelector('[data-icon="unmuted"]') as HTMLElement | null;
+      toggle.addEventListener('click', () => {
+        video.muted = !video.muted;
+        if (mutedIcon) mutedIcon.style.display = video.muted ? '' : 'none';
+        if (unmutedIcon) unmutedIcon.style.display = video.muted ? 'none' : '';
+        toggle.setAttribute('aria-label', video.muted ? 'Activer le son' : 'Couper le son');
+      });
+    }
+  </script>
 
   <!-- Le concept -->
   <section class="section-tint-warm">
