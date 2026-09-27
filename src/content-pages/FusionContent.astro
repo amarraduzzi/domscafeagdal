@@ -12,11 +12,12 @@
 // Only the URL and nav slot that used to be the round pizza's own dedicated
 // page now points here instead (see Header.astro, HomeContent.astro).
 //
-// No oven-door reveal here — that theatrical panel is the classic pizza's
-// own signature (PizzaBadge), and reusing it here would blur the two
-// products together instead of giving Fusion its own identity. Hero is a
-// plain full-bleed photo + gradient, same pattern already used for Home's
-// pizza teaser section.
+// Hero has its own theatrical reveal too (client asked for something that
+// immediately grabs attention on open — see chat, 27/09/2026), but built as
+// a "box lid" opening rather than reusing PizzaBadge's oven-door: same 3D
+// rotateX technique, deliberately different visual object (a Fusion
+// takeaway box, not an oven), so the two products don't blur together. See
+// the <style> block at the bottom of this file for the mechanism.
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import Ornament from '../components/Ornament.astro';
@@ -133,12 +134,30 @@ const path = localizedPath('/fusion', lang);
   lang={lang}
   jsonLd={fusionJsonLd}
 >
-  <!-- Hero — full-bleed photo (Gold, the most "fusion" of the four thanks to
-       the merguez) + gradient, same construction as Home's pizza teaser
-       section. No oven-door animation here on purpose — see header comment. -->
-  <section class="relative overflow-hidden min-h-[480px] sm:h-[70vh] flex flex-col items-center justify-center text-center px-5 py-20">
+  <!-- Hero — "box reveal": a closed Fusion takeaway-box lid covers the whole
+       hero on load and swings open (3D rotateX, same construction family as
+       the classic pizza page's old oven-door reveal — see the <style> block
+       below for the port), uncovering the photo + headline underneath. This
+       is the "something special happens the instant the page opens" the
+       client asked for (see chat, 27/09/2026) — client explicitly chose
+       this option over a photo carousel, a title "fuse" animation, a
+       scroll-triggered build, and a background video. -->
+  <section id="fusion-hero" class="relative overflow-hidden min-h-[480px] sm:h-[70vh] flex flex-col items-center justify-center text-center px-5 py-20">
     <img src="/images/dom/fusion/gold.webp" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover" style="object-position: 50% 30%" />
     <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.75) 60%, var(--color-background) 100%)"></div>
+
+    <!-- Closed box lid — covers the whole hero at load, then swings open
+         from a top hinge. Pure CSS (gradient + border), not a photo, same
+         approach the old oven-door steel panel used. -->
+    <div class="fusion-box-lid" aria-hidden="true">
+      <div class="fusion-box-steam"></div>
+      <div class="fusion-box-lid-panel">
+        <div class="fusion-box-sticker">
+          <span class="font-display font-black tracking-[0.18em] text-lg sm:text-2xl" style="color: var(--color-accent)">FUSION</span>
+          <span class="font-display font-black tracking-[0.18em] text-lg sm:text-2xl" style="color: var(--color-accent)">BY DOM'S</span>
+        </div>
+      </div>
+    </div>
 
     <span class="relative z-10 block text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
     <h1 class="relative z-10 font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6)">
@@ -259,3 +278,90 @@ const path = localizedPath('/fusion', lang);
     <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label} {arrow(lang)}</Button>
   </section>
 </Layout>
+
+<style>
+  /* ============================================================================
+     Fusion hero "box reveal" — a closed takeaway-box lid covers the whole
+     hero at load and swings open on a top hinge (3D rotateX), same family of
+     technique as the classic pizza page's old oven-door reveal (steel panel,
+     rotateX, glow flash on open) but re-skinned as a box lid with the Fusion
+     wordmark printed on it, so it reads as its own thing rather than a copy
+     of the pizza page's device. Client explicitly picked this over a photo
+     carousel / title-fuse animation / scroll-build / background video (see
+     chat, 27/09/2026). */
+  #fusion-hero {
+    perspective: 2200px;
+  }
+  .fusion-box-lid {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .fusion-box-steam {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.3) 32%, transparent 66%);
+    filter: blur(6px);
+    opacity: 0;
+    animation: fusion-steam-puff 1.2s ease-out 0.55s both;
+  }
+  .fusion-box-lid-panel {
+    position: absolute;
+    inset: 0;
+    transform-origin: top center;
+    background:
+      linear-gradient(100deg, rgba(255, 255, 255, 0.05) 0%, transparent 18%, transparent 40%, rgba(255, 255, 255, 0.04) 50%, transparent 60%, transparent 82%, rgba(255, 255, 255, 0.03) 94%, transparent 100%),
+      linear-gradient(155deg, #2c2015 0%, #1a130c 45%, #0d0906 100%);
+    box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fusion-lid-open 1.5s cubic-bezier(0.7, 0, 0.3, 1) 0.5s both;
+  }
+  .fusion-box-sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2em;
+    padding: 1.4rem 2.6rem;
+    border: 2px solid var(--color-accent);
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  @keyframes fusion-lid-open {
+    0% {
+      transform: rotateX(0deg);
+    }
+    100% {
+      transform: rotateX(-115deg);
+    }
+  }
+  @keyframes fusion-steam-puff {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    35% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.35);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fusion-box-steam {
+      display: none;
+    }
+    .fusion-box-lid-panel {
+      animation: none;
+      transform: rotateX(-115deg);
+      opacity: 0;
+    }
+  }
+</style>
