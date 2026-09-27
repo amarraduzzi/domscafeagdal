@@ -56,6 +56,11 @@ const copy = {
   heroCtaSecondary: { fr: 'Découvrir les 4 créations', en: 'Discover the 4 creations', ar: 'اكتشف الإبداعات الأربعة' },
 
   conceptTitle: { fr: 'Le concept', en: 'The concept', ar: 'المفهوم' },
+  conceptManifesto: {
+    fr: "Manger ne devrait jamais être une routine. Chez Dom's, Fusion est notre façon de remettre en question l'évidence : des produits frais, préparés autrement, sous une toute nouvelle forme. On voit trop souvent les mêmes recettes recopiées partout à Agdal — ici, chaque création part d'une vraie idée, pas d'une habitude. Manger, c'est un voyage de découverte, pas toujours la même chose.",
+    en: "Eating shouldn't be routine. At Dom's, Fusion is our way of questioning the obvious: fresh ingredients, prepared differently, given a whole new shape. We see the same recipes copied everywhere in Agdal — here, every creation starts from a real idea, not a habit. Food should be a journey of discovery, not always the same thing.",
+    ar: 'الأكل يجب ألا يكون روتينًا. في Dom\'s، فيوجن هي طريقتنا لإعادة النظر فيما هو مألوف: مكونات طازجة، محضّرة بطريقة مختلفة، وبشكل جديد كليًا. نرى نفس الوصفات تتكرر في كل مكان بأكدال، أما هنا فكل إبداع ينطلق من فكرة حقيقية لا من عادة. الأكل رحلة اكتشاف، وليس دائمًا نفس الشيء.',
+  },
   conceptIntro: {
     fr: "Fusion, c'est notre façon de revisiter un format connu avec des associations qu'on ne trouve pas ailleurs à Agdal. Ici, la pizza change de forme : rectangulaire, 10x15cm, avec une garniture qui va chercher plus loin que la carte classique.",
     en: "Fusion is our way of reinventing a familiar format with combinations you won't find anywhere else in Agdal. Here, pizza changes shape: rectangular, 10x15cm, topped with flavors that go further than our usual menu.",
@@ -73,11 +78,11 @@ const copy = {
     en: "Spicy honey, stracciatella, merguez, pesto: every creation pairs ingredients you wouldn't usually find together on a pizza.",
     ar: 'عسل حار، ستراتشاتيلا، مرقاز، بيستو: كل إبداع يجمع بين مكونات لا نعتاد رؤيتها معًا على بيتزا واحدة.',
   },
-  feature3Title: { fr: 'Fait maison, comme toujours', en: 'Homemade, as always', ar: 'صناعة منزلية، كالعادة' },
+  feature3Title: { fr: 'Toujours une nouveauté en préparation', en: 'Always something new in the works', ar: 'دائمًا جديد قيد التحضير' },
   feature3Desc: {
-    fr: 'Comme tout ce qui sort de notre cuisine, chaque pizza Fusion est préparée à la commande.',
-    en: 'Like everything that comes out of our kitchen, every Fusion pizza is made to order.',
-    ar: 'مثل كل ما يخرج من مطبخنا، تُحضّر كل بيتزا فيوجن عند الطلب.',
+    fr: "Fusion ne s'arrête pas à 4 pizzas : on teste, on goûte, on recommence — la prochaine création est déjà en cuisine.",
+    en: "Fusion doesn't stop at 4 pizzas: we test, we taste, we start again — the next creation is already in the kitchen.",
+    ar: 'فيوجن لا تتوقف عند 4 أنواع بيتزا: نجرّب، نتذوق، نعيد المحاولة، الإبداع القادم موجود بالفعل في مطبخنا.',
   },
 
   creationsTitle: { fr: 'Nos 4 créations', en: 'Our 4 creations', ar: 'إبداعاتنا الأربعة' },
@@ -95,6 +100,8 @@ const copy = {
     en: 'The next step for Fusion: Moroccan msemen, reinvented as pasta. Still being tested in our kitchen, this creation is coming soon to the menu.',
     ar: 'الخطوة القادمة لفيوجن: المسمن المغربي بحلّة جديدة على شكل باستا. هذا الإبداع لا يزال قيد التجربة في مطبخنا، وسيصل قريبًا إلى القائمة.',
   },
+  comingSoonVariant1: { fr: 'Chicken Cream', en: 'Chicken Cream', ar: 'كريمة الدجاج' },
+  comingSoonVariant2: { fr: 'Spicy', en: 'Spicy', ar: 'حارة' },
 
   readyToOrder: { fr: 'Prêt à découvrir Fusion ?', en: 'Ready to try Fusion?', ar: 'جاهز لتجربة فيوجن؟' },
 } satisfies Record<string, { fr: string; en: string; ar: string }>;
@@ -151,6 +158,7 @@ const path = localizedPath('/fusion', lang);
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
       <div class="max-w-2xl mx-auto text-center mb-14" data-reveal>
         <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.conceptTitle, lang)}</h2>
+        <p class="mt-4 text-base sm:text-lg font-medium leading-relaxed" style="color: var(--color-text-primary)">{t(copy.conceptManifesto, lang)}</p>
         <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.conceptIntro, lang)}</p>
       </div>
 
@@ -209,17 +217,39 @@ const path = localizedPath('/fusion', lang);
 
   <!-- Bientôt : Msemen Pasta — teaser only, no order CTA (not sellable yet,
        still being tested in the kitchen — see chat, 27/09/2026). Deliberately
-       vague on texture/taste claims, since nothing is confirmed yet. -->
+       vague on texture/taste claims, since nothing is confirmed yet. The two
+       photos are AI-generated concept renders (client's own, see chat) —
+       NOT real product photography yet, hence no price and no "Commander"
+       button anywhere in this section, unlike the 4 real creations above. -->
   <section class="section-tint-warm">
-    <div class="max-w-4xl mx-auto px-5 sm:px-8 py-16 sm:py-20 text-center" data-reveal>
-      <span
-        class="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full text-xs font-bold"
-        style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
-      >
-        {t(copy.comingSoonBadge, lang)}
-      </span>
-      <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.comingSoonTitle, lang)}</h2>
-      <p class="mt-4 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.comingSoonDesc, lang)}</p>
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+      <div class="max-w-2xl mx-auto text-center mb-10" data-reveal>
+        <span
+          class="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full text-xs font-bold"
+          style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
+        >
+          {t(copy.comingSoonBadge, lang)}
+        </span>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.comingSoonTitle, lang)}</h2>
+        <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.comingSoonDesc, lang)}</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+        {[
+          { image: '/images/dom/fusion/msemen-pasta.webp', label: copy.comingSoonVariant1 },
+          { image: '/images/dom/fusion/msemen-pasta-spicy.webp', label: copy.comingSoonVariant2 },
+        ].map((variant, i) => (
+          <div class="relative rounded-2xl overflow-hidden aspect-[3/4]" style={`border: 1px solid var(--color-border); transition-delay: ${i * 90}ms`} data-reveal>
+            <img src={variant.image} alt={`Msemen Pasta ${t(variant.label, lang)}`} class="w-full h-full object-cover" loading="lazy" />
+            <span
+              class="absolute bottom-3 rtl:right-3 ltr:left-3 px-2.5 py-1 rounded-full text-[11px] font-bold"
+              style="background-color: color-mix(in srgb, black 55%, transparent); color: var(--color-text-primary); backdrop-filter: blur(4px)"
+            >
+              {t(variant.label, lang)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
