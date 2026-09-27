@@ -1,0 +1,6 @@
+# Cloudflare Pages static redirects. The dedicated /pizza page was
+# repurposed into /fusion (27/09/2026, client request) — this keeps any
+# existing bookmark/Google result from 404ing.
+/pizza      /fusion      301
+/en/pizza   /en/fusion   301
+/ar/pizza   /ar/fusion   301

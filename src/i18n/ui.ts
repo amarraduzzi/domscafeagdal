@@ -7,15 +7,16 @@
 // genuinely repeat (nav, buttons) still have exactly one source of truth.
 import type { LocalizedText } from './languages';
 
-export const nav: Record<'accueil' | 'menu' | 'pizza' | 'billard' | 'aPropos' | 'avis' | 'faq' | 'contact', LocalizedText> = {
+export const nav: Record<'accueil' | 'menu' | 'fusion' | 'billard' | 'aPropos' | 'avis' | 'faq' | 'contact', LocalizedText> = {
   accueil: { fr: 'Accueil', en: 'Home', ar: 'الرئيسية' },
   menu: { fr: 'Menu', en: 'Menu', ar: 'القائمة' },
-  // New dedicated pizza page (client request) — sits right after Menu in
-  // the nav since it's effectively a spotlighted subset of it, not an
-  // unrelated section.
-  pizza: { fr: 'Pizza', en: 'Pizza', ar: 'البيتزا' },
+  // Fusion by Dom's (client request, 27/09/2026) — replaced the old
+  // dedicated pizza page/nav slot entirely: the round pizzas still live on
+  // Home's teaser and /menu#pizzas, this slot is now the new Fusion
+  // product line's own page.
+  fusion: { fr: 'Fusion', en: 'Fusion', ar: 'فيوجن' },
   // Dom's Pool table booking page (client request) — sits right after
-  // Pizza, mirroring that same "own page, own nav slot" treatment rather
+  // Fusion, mirroring that same "own page, own nav slot" treatment rather
   // than being buried as a subsection of something else.
   billard: { fr: 'Billard', en: 'Pool', ar: 'البيلياردو' },
   aPropos: { fr: 'À propos', en: 'About', ar: 'من نحن' },
@@ -52,7 +53,7 @@ export const common = {
   vegetarienUniquement: { fr: 'Végétarien', en: 'Vegetarian', ar: 'نباتي' } satisfies LocalizedText,
   noteMoyenneClients: { fr: 'note moyenne de nos clients', en: 'average customer rating', ar: 'متوسط تقييم عملائنا' } satisfies LocalizedText,
   platsPreparesCommande: { fr: 'plats faits maison' , en: 'homemade dishes', ar: 'أطباق منزلية الصنع' } satisfies LocalizedText,
-  preparesCommandeLine: { fr: 'de notre carte est préparée maison, à la commande : boissons, snacks et plats.', en: 'of our menu is homemade, cooked to order: drinks, snacks and dishes alike.', ar: 'من قائمتنا محضّرة منزليًا عند الطلب: مشروبات ووجبات خفيفة وأطباق.' } satisfies LocalizedText,
+  preparesCommandeLine: { fr: 'de notre carte est préparée maison, à la commande — boissons, snacks et plats.', en: 'of our menu is homemade, cooked to order — drinks, snacks and dishes alike.', ar: 'من قائمتنا محضّرة منزليًا عند الطلب — مشروبات ووجبات خفيفة وأطباق.' } satisfies LocalizedText,
 
   // Shared trust badge — used on Home ("why us") and Menu (hero).
   homemadeBadge: { fr: 'Fait maison', en: 'Homemade', ar: 'صناعة منزلية' } satisfies LocalizedText,

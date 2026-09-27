@@ -1,0 +1,231 @@
+---
+// NEW dedicated Fusion page (client request, 27/09/2026) — replaces the old
+// dedicated /pizza page entirely (that page's own oven-door hero, "pizza à
+// la part" concept and 7-pizza showcase are gone, not reused: this is a
+// brand-new product line, not a variant of the round pizza menu). Fusion is
+// its own thing: rectangular 10x15cm pizzas with unexpected pairings, plus a
+// "coming soon" teaser for Msemen Pasta (still being tested in the kitchen —
+// no order CTA on that teaser, on purpose, since it isn't sellable yet).
+//
+// The classic round pizzas (pizza-showcase.ts, PizzaShowcaseGrid.astro) are
+// untouched — they still live on Home's teaser section and on /menu#pizzas.
+// Only the URL and nav slot that used to be the round pizza's own dedicated
+// page now points here instead (see Header.astro, HomeContent.astro).
+//
+// No oven-door reveal here — that theatrical panel is the classic pizza's
+// own signature (PizzaBadge), and reusing it here would blur the two
+// products together instead of giving Fusion its own identity. Hero is a
+// plain full-bleed photo + gradient, same pattern already used for Home's
+// pizza teaser section.
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+import Ornament from '../components/Ornament.astro';
+import { siteConfig } from '../config/site.config';
+import { getOrderCtaLabel } from '../lib/nav';
+import { fusionShowcase } from '../content/fusion-showcase';
+import { t, localizedPath, arrow, type Language } from '../i18n/languages';
+import { place } from '../i18n/ui';
+
+interface Props {
+  lang?: Language;
+}
+const { lang = 'fr' } = Astro.props;
+
+const { name } = siteConfig.identity;
+const city = t(place.city, lang);
+const orderCtaLabel = getOrderCtaLabel(lang);
+
+const copy = {
+  metaTitle: {
+    fr: `Fusion by Dom's — pizzas rectangulaires | ${name}`,
+    en: `Fusion by Dom's — rectangular pizzas | ${name}`,
+    ar: `Fusion by Dom's — بيتزا مستطيلة | ${name}`,
+  },
+  metaDescription: {
+    fr: `Fusion by Dom's, le nouveau concept de ${name} à Agdal, ${city} : pizzas rectangulaires 10x15cm aux saveurs inattendues. Bientôt : notre Msemen Pasta.`,
+    en: `Fusion by Dom's, the new concept from ${name} in Agdal, ${city}: rectangular 10x15cm pizzas with unexpected flavors. Coming soon: our Msemen Pasta.`,
+    ar: `Fusion by Dom's، المفهوم الجديد من ${name} بأكدال، ${city}: بيتزا مستطيلة بمقاس 10x15 سم بنكهات غير متوقعة. قريبًا: مسمن باستا.`,
+  },
+  kicker: { fr: "Notre nouveau concept", en: 'Our new concept', ar: 'مفهومنا الجديد' },
+  heroTitle: { fr: "Fusion by Dom's", en: "Fusion by Dom's", ar: "Fusion by Dom's" },
+  heroSubtitle: {
+    fr: "Des pizzas rectangulaires 10x15cm, où les classiques italiens rencontrent des saveurs venues d'ailleurs.",
+    en: 'Rectangular 10x15cm pizzas, where Italian classics meet flavors from elsewhere.',
+    ar: 'بيتزا مستطيلة الشكل بمقاس 10x15 سم، حيث يلتقي الطراز الإيطالي الكلاسيكي بنكهات من أماكن أخرى.',
+  },
+  heroCtaSecondary: { fr: 'Découvrir les 4 créations', en: 'Discover the 4 creations', ar: 'اكتشف الإبداعات الأربعة' },
+
+  conceptTitle: { fr: 'Le concept', en: 'The concept', ar: 'المفهوم' },
+  conceptIntro: {
+    fr: "Fusion, c'est notre façon de revisiter un format connu avec des associations qu'on ne trouve pas ailleurs à Agdal. Ici, la pizza change de forme : rectangulaire, 10x15cm, avec une garniture qui va chercher plus loin que la carte classique.",
+    en: "Fusion is our way of reinventing a familiar format with combinations you won't find anywhere else in Agdal. Here, pizza changes shape: rectangular, 10x15cm, topped with flavors that go further than our usual menu.",
+    ar: 'فيوجن هي طريقتنا لإعادة ابتكار شكل معروف بمزيج نكهات لا تجدونها في مكان آخر بأكدال. هنا، يتغير شكل البيتزا: مستطيلة بمقاس 10x15 سم، بمكونات تذهب أبعد من القائمة الكلاسيكية.',
+  },
+  feature1Title: { fr: 'Un format signature', en: 'A signature format', ar: 'شكل مميز' },
+  feature1Desc: {
+    fr: 'Chaque pizza Fusion mesure 10x15cm, cuite au four, avec une pâte fine qui reste croustillante jusqu\'à la dernière bouchée.',
+    en: 'Every Fusion pizza measures 10x15cm, oven-baked, with a thin crust that stays crisp to the last bite.',
+    ar: 'كل بيتزا فيوجن بمقاس 10x15 سم، تُخبز في الفرن، بعجينة رقيقة تبقى مقرمشة حتى آخر قضمة.',
+  },
+  feature2Title: { fr: 'Des associations inattendues', en: 'Unexpected pairings', ar: 'مزيج نكهات غير متوقع' },
+  feature2Desc: {
+    fr: "Miel piquant, stracciatella, merguez, pesto : chaque création marie des ingrédients qu'on n'associe pas d'habitude sur une pizza.",
+    en: "Spicy honey, stracciatella, merguez, pesto: every creation pairs ingredients you wouldn't usually find together on a pizza.",
+    ar: 'عسل حار، ستراتشاتيلا، مرقاز، بيستو: كل إبداع يجمع بين مكونات لا نعتاد رؤيتها معًا على بيتزا واحدة.',
+  },
+  feature3Title: { fr: 'Fait maison, comme toujours', en: 'Homemade, as always', ar: 'صناعة منزلية، كالعادة' },
+  feature3Desc: {
+    fr: 'Comme tout ce qui sort de notre cuisine, chaque pizza Fusion est préparée à la commande.',
+    en: 'Like everything that comes out of our kitchen, every Fusion pizza is made to order.',
+    ar: 'مثل كل ما يخرج من مطبخنا، تُحضّر كل بيتزا فيوجن عند الطلب.',
+  },
+
+  creationsTitle: { fr: 'Nos 4 créations', en: 'Our 4 creations', ar: 'إبداعاتنا الأربعة' },
+  creationsIntro: {
+    fr: 'Quatre recettes déjà au point, prêtes à être commandées.',
+    en: 'Four recipes already perfected, ready to order.',
+    ar: 'أربع وصفات جاهزة بالكامل، متوفرة للطلب الآن.',
+  },
+  orderThis: { fr: 'Commander', en: 'Order', ar: 'اطلب' },
+
+  comingSoonBadge: { fr: 'Bientôt disponible', en: 'Coming soon', ar: 'قريبًا' },
+  comingSoonTitle: { fr: 'Msemen Pasta', en: 'Msemen Pasta', ar: 'مسمن باستا' },
+  comingSoonDesc: {
+    fr: 'La prochaine étape de Fusion : le msemen marocain, réinventé en pâtes. Encore en test dans notre cuisine, cette création arrivera bientôt sur la carte.',
+    en: 'The next step for Fusion: Moroccan msemen, reinvented as pasta. Still being tested in our kitchen, this creation is coming soon to the menu.',
+    ar: 'الخطوة القادمة لفيوجن: المسمن المغربي بحلّة جديدة على شكل باستا. هذا الإبداع لا يزال قيد التجربة في مطبخنا، وسيصل قريبًا إلى القائمة.',
+  },
+
+  readyToOrder: { fr: 'Prêt à découvrir Fusion ?', en: 'Ready to try Fusion?', ar: 'جاهز لتجربة فيوجن؟' },
+} satisfies Record<string, { fr: string; en: string; ar: string }>;
+
+const fusionJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Menu',
+  name: `Fusion by Dom's — ${name}`,
+  hasMenuSection: [
+    {
+      '@type': 'MenuSection',
+      name: "Fusion by Dom's",
+      hasMenuItem: fusionShowcase.map((item) => ({
+        '@type': 'MenuItem',
+        name: item.name,
+        description: t(item.description, lang),
+        offers: { '@type': 'Offer', price: item.priceMAD, priceCurrency: 'MAD' },
+      })),
+    },
+  ],
+};
+
+const path = localizedPath('/fusion', lang);
+---
+<Layout
+  title={t(copy.metaTitle, lang)}
+  description={t(copy.metaDescription, lang)}
+  path={path}
+  lang={lang}
+  jsonLd={fusionJsonLd}
+>
+  <!-- Hero — full-bleed photo (Gold, the most "fusion" of the four thanks to
+       the merguez) + gradient, same construction as Home's pizza teaser
+       section. No oven-door animation here on purpose — see header comment. -->
+  <section class="relative overflow-hidden min-h-[480px] sm:h-[70vh] flex flex-col items-center justify-center text-center px-5 py-20">
+    <img src="/images/dom/fusion/gold.webp" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover" style="object-position: 50% 30%" />
+    <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10, 6, 3, 0.55) 0%, rgba(10, 6, 3, 0.75) 60%, var(--color-background) 100%)"></div>
+
+    <span class="relative z-10 block text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style="color: var(--color-accent)">{t(copy.kicker, lang)} · Agdal, {city}</span>
+    <h1 class="relative z-10 font-display text-4xl sm:text-6xl font-semibold max-w-3xl" style="color: var(--color-text-primary); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6)">
+      {t(copy.heroTitle, lang)}
+    </h1>
+    <p class="relative z-10 mt-4 max-w-xl text-sm sm:text-base" style="color: var(--color-text-primary); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6)">
+      {t(copy.heroSubtitle, lang)}
+    </p>
+    <div class="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-3">
+      <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label}</Button>
+      <Button href="#creations" variant="outline">{t(copy.heroCtaSecondary, lang)}</Button>
+    </div>
+  </section>
+
+  <!-- Le concept -->
+  <section class="section-tint-warm">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+      <div class="max-w-2xl mx-auto text-center mb-14" data-reveal>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.conceptTitle, lang)}</h2>
+        <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.conceptIntro, lang)}</p>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-6 sm:gap-8">
+        {[
+          { title: copy.feature1Title, desc: copy.feature1Desc },
+          { title: copy.feature2Title, desc: copy.feature2Desc },
+          { title: copy.feature3Title, desc: copy.feature3Desc },
+        ].map((f, i) => (
+          <div class="rounded-2xl p-6 text-center" style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 80}ms`} data-reveal>
+            <span
+              class="inline-flex items-center justify-center w-9 h-9 rounded-full font-display font-bold text-sm mb-4"
+              style="background-color: var(--color-accent); color: var(--color-background)"
+            >
+              {i + 1}
+            </span>
+            <h3 class="font-display font-semibold text-lg" style="color: var(--color-text-primary)">{t(f.title, lang)}</h3>
+            <p class="mt-2 text-sm leading-relaxed" style="color: var(--color-text-muted)">{t(f.desc, lang)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Nos 4 créations -->
+  <section id="creations" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+    <div class="max-w-2xl mx-auto text-center mb-12" data-reveal>
+      <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.creationsTitle, lang)}</h2>
+      <p class="mt-3 text-sm sm:text-base" style="color: var(--color-text-muted)">{t(copy.creationsIntro, lang)}</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+      {fusionShowcase.map((item, i) => (
+        <div
+          class="card-lift relative rounded-2xl overflow-hidden"
+          style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 70}ms`}
+          data-reveal
+        >
+          <div class="photo-frame aspect-[3/4]">
+            <img src={item.image} alt={t(item.imageAlt, lang)} class="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div class="p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h3 class="menu-item-name font-display font-semibold text-lg" style="color: var(--color-text-primary)">{item.name}</h3>
+              <span class="menu-item-price shrink-0 font-bold text-base" style="color: var(--color-accent)">{item.priceMAD} MAD</span>
+            </div>
+            <p class="text-sm mt-2 leading-relaxed" style="color: var(--color-text-muted)">{t(item.description, lang)}</p>
+            <div class="mt-4">
+              <Button href={orderCtaLabel.href} external variant="outline" class="w-full !py-2 !text-xs">{t(copy.orderThis, lang)}</Button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Bientôt : Msemen Pasta — teaser only, no order CTA (not sellable yet,
+       still being tested in the kitchen — see chat, 27/09/2026). Deliberately
+       vague on texture/taste claims, since nothing is confirmed yet. -->
+  <section class="section-tint-warm">
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 py-16 sm:py-20 text-center" data-reveal>
+      <span
+        class="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full text-xs font-bold"
+        style="border: 1px solid var(--color-border); color: var(--color-accent); background-color: color-mix(in srgb, var(--color-accent) 12%, transparent)"
+      >
+        {t(copy.comingSoonBadge, lang)}
+      </span>
+      <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.comingSoonTitle, lang)}</h2>
+      <p class="mt-4 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.comingSoonDesc, lang)}</p>
+    </div>
+  </section>
+
+  <Ornament />
+  <section class="max-w-7xl mx-auto px-5 sm:px-8 py-16 text-center">
+    <p class="text-sm mb-4" style="color: var(--color-text-muted)">{t(copy.readyToOrder, lang)}</p>
+    <Button href={orderCtaLabel.href} external variant="filled">{orderCtaLabel.label} {arrow(lang)}</Button>
+  </section>
+</Layout>
