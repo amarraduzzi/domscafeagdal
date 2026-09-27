@@ -57,10 +57,20 @@ const copy = {
   heroCtaSecondary: { fr: 'Découvrir les 4 créations', en: 'Discover the 4 creations', ar: 'اكتشف الإبداعات الأربعة' },
 
   conceptTitle: { fr: 'Le concept', en: 'The concept', ar: 'المفهوم' },
+  // Big editorial pull-quote, split in 3 so the middle part can be rendered
+  // in the accent color (client asked for the concept section to have real
+  // "wow factor" instead of being three identical text-only cards — see
+  // chat, 27/09/2026, option 2 of 3 explored: big statement + photo-backed
+  // feature cards, chosen specifically because it degrades to full-width
+  // stacked cards on mobile without losing impact, unlike the other two
+  // options discussed).
+  conceptQuotePre: { fr: 'Manger, c\'est ', en: 'Food should be ', ar: 'الأكل ' },
+  conceptQuoteHighlight: { fr: 'un voyage de découverte', en: 'a journey of discovery', ar: 'رحلة اكتشاف' },
+  conceptQuotePost: { fr: '.', en: '.', ar: '.' },
   conceptManifesto: {
-    fr: "Manger ne devrait jamais être une routine. Chez Dom's, Fusion est notre façon de remettre en question l'évidence : des produits frais, préparés autrement, sous une toute nouvelle forme. On voit trop souvent les mêmes recettes recopiées partout à Agdal — ici, chaque création part d'une vraie idée, pas d'une habitude. Manger, c'est un voyage de découverte, pas toujours la même chose.",
-    en: "Eating shouldn't be routine. At Dom's, Fusion is our way of questioning the obvious: fresh ingredients, prepared differently, given a whole new shape. We see the same recipes copied everywhere in Agdal — here, every creation starts from a real idea, not a habit. Food should be a journey of discovery, not always the same thing.",
-    ar: 'الأكل يجب ألا يكون روتينًا. في Dom\'s، فيوجن هي طريقتنا لإعادة النظر فيما هو مألوف: مكونات طازجة، محضّرة بطريقة مختلفة، وبشكل جديد كليًا. نرى نفس الوصفات تتكرر في كل مكان بأكدال، أما هنا فكل إبداع ينطلق من فكرة حقيقية لا من عادة. الأكل رحلة اكتشاف، وليس دائمًا نفس الشيء.',
+    fr: "Manger ne devrait jamais être une routine. Chez Dom's, Fusion est notre façon de remettre en question l'évidence : des produits frais, préparés autrement, sous une toute nouvelle forme. On voit trop souvent les mêmes recettes recopiées partout à Agdal — ici, chaque création part d'une vraie idée, pas d'une habitude.",
+    en: "Eating shouldn't be routine. At Dom's, Fusion is our way of questioning the obvious: fresh ingredients, prepared differently, given a whole new shape. We see the same recipes copied everywhere in Agdal — here, every creation starts from a real idea, not a habit.",
+    ar: 'الأكل يجب ألا يكون روتينًا. في Dom\'s، فيوجن هي طريقتنا لإعادة النظر فيما هو مألوف: مكونات طازجة، محضّرة بطريقة مختلفة، وبشكل جديد كليًا. نرى نفس الوصفات تتكرر في كل مكان بأكدال، أما هنا فكل إبداع ينطلق من فكرة حقيقية لا من عادة.',
   },
   conceptIntro: {
     fr: "Fusion, c'est notre façon de revisiter un format connu avec des associations qu'on ne trouve pas ailleurs à Agdal. Ici, la pizza change de forme : rectangulaire, 10x15cm, avec une garniture qui va chercher plus loin que la carte classique.",
@@ -177,25 +187,37 @@ const path = localizedPath('/fusion', lang);
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
       <div class="max-w-2xl mx-auto text-center mb-14" data-reveal>
         <h2 class="font-display text-3xl sm:text-4xl font-semibold" style="color: var(--color-text-primary)">{t(copy.conceptTitle, lang)}</h2>
-        <p class="mt-4 text-base sm:text-lg font-medium leading-relaxed" style="color: var(--color-text-primary)">{t(copy.conceptManifesto, lang)}</p>
+        <p class="mt-6 font-display text-2xl sm:text-4xl font-semibold leading-snug" style="color: var(--color-text-primary)">
+          {t(copy.conceptQuotePre, lang)}<span style="color: var(--color-accent)">{t(copy.conceptQuoteHighlight, lang)}</span>{t(copy.conceptQuotePost, lang)}
+        </p>
+        <p class="mt-6 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.conceptManifesto, lang)}</p>
         <p class="mt-4 text-sm sm:text-base leading-relaxed" style="color: var(--color-text-muted)">{t(copy.conceptIntro, lang)}</p>
       </div>
 
+      <!-- Photo-backed feature cards, not plain text-only cards — each
+           photo directly illustrates its point (rectangular shape / the
+           merguez pairing / the Msemen Pasta teaser for "always something
+           new") instead of a generic numbered circle. Stacks to full-width
+           cards on mobile, each photo staying large rather than shrinking
+           into a collage — see chat, 27/09/2026 on why this option was
+           picked specifically for how it degrades on mobile. -->
       <div class="grid sm:grid-cols-3 gap-6 sm:gap-8">
         {[
-          { title: copy.feature1Title, desc: copy.feature1Desc },
-          { title: copy.feature2Title, desc: copy.feature2Desc },
-          { title: copy.feature3Title, desc: copy.feature3Desc },
+          { title: copy.feature1Title, desc: copy.feature1Desc, image: '/images/dom/fusion/red.webp' },
+          { title: copy.feature2Title, desc: copy.feature2Desc, image: '/images/dom/fusion/gold.webp' },
+          { title: copy.feature3Title, desc: copy.feature3Desc, image: '/images/dom/fusion/msemen-pasta.webp' },
         ].map((f, i) => (
-          <div class="rounded-2xl p-6 text-center" style={`background-color: var(--color-surface); border: 1px solid var(--color-border); transition-delay: ${i * 80}ms`} data-reveal>
-            <span
-              class="inline-flex items-center justify-center w-9 h-9 rounded-full font-display font-bold text-sm mb-4"
-              style="background-color: var(--color-accent); color: var(--color-background)"
-            >
-              {i + 1}
-            </span>
-            <h3 class="font-display font-semibold text-lg" style="color: var(--color-text-primary)">{t(f.title, lang)}</h3>
-            <p class="mt-2 text-sm leading-relaxed" style="color: var(--color-text-muted)">{t(f.desc, lang)}</p>
+          <div
+            class="card-lift relative rounded-2xl overflow-hidden aspect-[4/5] sm:aspect-[3/4]"
+            style={`border: 1px solid var(--color-border); transition-delay: ${i * 90}ms`}
+            data-reveal
+          >
+            <img src={f.image} alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+            <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(10,6,3,0) 25%, rgba(10,6,3,0.92) 100%)"></div>
+            <div class="relative z-10 h-full flex flex-col justify-end p-5">
+              <h3 class="font-display font-semibold text-lg" style="color: #F3ECDD; text-shadow: 0 2px 10px rgba(0,0,0,0.7)">{t(f.title, lang)}</h3>
+              <p class="mt-2 text-sm leading-relaxed" style="color: rgba(243,236,221,0.85); text-shadow: 0 1px 8px rgba(0,0,0,0.8)">{t(f.desc, lang)}</p>
+            </div>
           </div>
         ))}
       </div>
